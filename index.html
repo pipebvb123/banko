@@ -1079,10 +1079,10 @@
     </a>
     <ul class="nav-links" id="navLinks">
       <li><a href="#como-funciona">¿Cómo funciona?</a></li>
-      <li><a href="#seguros">Seguros</a></li>
+      <li><a href="#seguros">Soluciones</a></li>
       <li><a href="#nosotros">Nosotros</a></li>
       <li><a href="#contacto">Contacto</a></li>
-      <li><a href="#" class="nav-cta" onclick="openModal(); return false;">Cotizar ahora</a></li>
+      <li><a href="#" class="nav-cta" onclick="openModal(); return false;">Comparar ahora</a></li>
     </ul>
     <!-- AUTH NAV -->
     <div class="nav-auth" id="navAuth">
@@ -1121,13 +1121,13 @@
   <div class="hero-orb orb-3"></div>
   <div class="hero-inner">
     <div class="hero-content">
-      <div class="hero-badge">🔴 En vivo — 3.200+ cotizaciones hoy</div>
-      <h1>Compara seguros,<br /><span class="highlight">elige inteligente.</span></h1>
-      <p>Más de 20 aseguradoras en un solo lugar. Cotiza en 2 minutos, ahorra hasta un 40% y protege lo que más te importa.</p>
+      <div class="hero-badge">🔴 En vivo — 3.200+ consultas hoy</div>
+      <h1>Compara financiamiento<br /><span class="highlight">para tu empresa.</span></h1>
+      <p>Factoring, leasing, créditos y capital de trabajo en un solo lugar. Encuentra la mejor opción en 2 minutos.</p>
       <div class="hero-stats">
         <div class="stat">
-          <div class="stat-num">+20</div>
-          <div class="stat-label">Aseguradoras</div>
+          <div class="stat-num">+15</div>
+          <div class="stat-label">Instituciones</div>
         </div>
         <div class="stat-divider"></div>
         <div class="stat">
@@ -1137,7 +1137,7 @@
         <div class="stat-divider"></div>
         <div class="stat">
           <div class="stat-num">2min</div>
-          <div class="stat-label">Para cotizar</div>
+          <div class="stat-label">Para comparar</div>
         </div>
       </div>
     </div>
@@ -1145,158 +1145,203 @@
     <!-- QUOTE CARD -->
     <div class="quote-card">
       <div class="quote-card-header">
-        <h3>¿Qué quieres asegurar?</h3>
-        <p>Selecciona un producto y cotiza gratis</p>
+        <h3>¿Qué financiamiento necesitas?</h3>
+        <p>Selecciona una categoría y compara gratis</p>
       </div>
 
       <div class="product-tabs">
-        <button class="product-tab active" onclick="selectTab('auto', this)">
-          <span class="tab-icon">🚗</span> Auto
+        <button class="product-tab active" data-type="factoring" onclick="selectTab('factoring', this)">
+          <span class="tab-icon">📄</span> Factoring
         </button>
-        <button class="product-tab" onclick="selectTab('hogar', this)">
-          <span class="tab-icon">🏠</span> Hogar
+        <button class="product-tab" data-type="leasing" onclick="selectTab('leasing', this)">
+          <span class="tab-icon">🏗️</span> Leasing
         </button>
-        <button class="product-tab" onclick="selectTab('vida', this)">
-          <span class="tab-icon">❤️</span> Vida
+        <button class="product-tab" data-type="capital" onclick="selectTab('capital', this)">
+          <span class="tab-icon">💼</span> Capital
         </button>
-        <button class="product-tab" onclick="selectTab('salud', this)">
-          <span class="tab-icon">🏥</span> Salud
+        <button class="product-tab" data-type="credito" onclick="selectTab('credito', this)">
+          <span class="tab-icon">🏦</span> Créditos
         </button>
       </div>
 
-      <!-- AUTO FORM -->
-      <div class="form-section active" id="form-auto">
+      <!-- FACTORING FORM -->
+      <div class="form-section active" id="form-factoring">
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Marca</label>
-            <select class="form-select">
-              <option>Toyota</option><option>Chevrolet</option><option>Hyundai</option>
-              <option>Kia</option><option>Nissan</option><option>Suzuki</option>
-            </select>
+            <label class="form-label">Nombre empresa</label>
+            <input class="form-input" type="text" placeholder="Ej: Mi Empresa SpA" />
           </div>
           <div class="form-group">
-            <label class="form-label">Año</label>
-            <select class="form-select">
-              <option>2024</option><option>2023</option><option>2022</option>
-              <option>2021</option><option>2020</option><option>2019</option>
-            </select>
+            <label class="form-label">RUT empresa</label>
+            <input class="form-input" type="text" placeholder="76.123.456-7" />
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Modelo</label>
-            <input class="form-input" type="text" placeholder="Ej: Corolla 1.8" />
+            <label class="form-label">Monto factura</label>
+            <input class="form-input" type="number" placeholder="Ej: 5.000.000" />
           </div>
           <div class="form-group">
-            <label class="form-label">Uso del vehículo</label>
-            <select class="form-select">
-              <option>Particular</option><option>Comercial</option><option>Taxi/Uber</option>
-            </select>
+            <label class="form-label">Fecha de pago factura</label>
+            <input class="form-input" type="date" />
           </div>
         </div>
         <div class="form-row">
-          <div class="form-group full">
-            <label class="form-label">Tu RUT</label>
-            <input class="form-input" type="text" placeholder="12.345.678-9" />
-          </div>
-        </div>
-      </div>
-
-      <!-- HOGAR FORM -->
-      <div class="form-section" id="form-hogar">
-        <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Tipo de propiedad</label>
+            <label class="form-label">Tipo de cliente</label>
             <select class="form-select">
-              <option>Casa</option><option>Departamento</option><option>Oficina</option>
+              <option>Empresa</option><option>Persona</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Metros cuadrados</label>
-            <input class="form-input" type="number" placeholder="Ej: 85" />
+            <label class="form-label">Email</label>
+            <input class="form-input" type="email" placeholder="tu@empresa.cl" />
           </div>
         </div>
         <div class="form-row">
           <div class="form-group full">
-            <label class="form-label">Ciudad</label>
-            <select class="form-select">
-              <option>Santiago</option><option>Valparaíso</option><option>Concepción</option>
-              <option>La Serena</option><option>Temuco</option><option>Antofagasta</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group full">
-            <label class="form-label">Tu RUT</label>
-            <input class="form-input" type="text" placeholder="12.345.678-9" />
+            <label class="form-label">Teléfono</label>
+            <input class="form-input" type="tel" placeholder="+56 9 1234 5678" />
           </div>
         </div>
       </div>
 
-      <!-- VIDA FORM -->
-      <div class="form-section" id="form-vida">
+      <!-- LEASING FORM -->
+      <div class="form-section" id="form-leasing">
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Edad</label>
-            <input class="form-input" type="number" placeholder="Ej: 35" />
+            <label class="form-label">Tipo de activo</label>
+            <select class="form-select">
+              <option>Vehículo</option><option>Maquinaria</option><option>Equipos</option><option>Inmueble</option>
+            </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Sexo</label>
+            <label class="form-label">Valor del activo</label>
+            <input class="form-input" type="number" placeholder="Ej: 20.000.000" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Pie disponible</label>
+            <input class="form-input" type="number" placeholder="Ej: 4.000.000" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Plazo (meses)</label>
             <select class="form-select">
-              <option>Masculino</option><option>Femenino</option>
+              <option>12</option><option>24</option><option>36</option><option>48</option><option>60</option>
             </select>
           </div>
         </div>
         <div class="form-row">
-          <div class="form-group full">
-            <label class="form-label">Cobertura deseada</label>
-            <select class="form-select">
-              <option>UF 500 (~$17M)</option><option>UF 1.000 (~$34M)</option>
-              <option>UF 2.000 (~$68M)</option><option>UF 5.000 (~$170M)</option>
-            </select>
+          <div class="form-group">
+            <label class="form-label">Empresa</label>
+            <input class="form-input" type="text" placeholder="Nombre empresa" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">RUT empresa</label>
+            <input class="form-input" type="text" placeholder="76.123.456-7" />
           </div>
         </div>
         <div class="form-row">
-          <div class="form-group full">
-            <label class="form-label">Tu RUT</label>
-            <input class="form-input" type="text" placeholder="12.345.678-9" />
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-input" type="email" placeholder="tu@empresa.cl" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Teléfono</label>
+            <input class="form-input" type="tel" placeholder="+56 9 1234 5678" />
           </div>
         </div>
       </div>
 
-      <!-- SALUD FORM -->
-      <div class="form-section" id="form-salud">
+      <!-- CAPITAL FORM -->
+      <div class="form-section" id="form-capital">
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Edad</label>
-            <input class="form-input" type="number" placeholder="Ej: 30" />
+            <label class="form-label">Empresa</label>
+            <input class="form-input" type="text" placeholder="Nombre empresa" />
           </div>
           <div class="form-group">
-            <label class="form-label">N° de beneficiarios</label>
-            <select class="form-select">
-              <option>Solo yo</option><option>2 personas</option><option>3 personas</option><option>4+</option>
-            </select>
+            <label class="form-label">RUT empresa</label>
+            <input class="form-input" type="text" placeholder="76.123.456-7" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Ventas mensuales</label>
+            <input class="form-input" type="number" placeholder="Ej: 10.000.000" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Monto requerido</label>
+            <input class="form-input" type="number" placeholder="Ej: 5.000.000" />
           </div>
         </div>
         <div class="form-row">
           <div class="form-group full">
-            <label class="form-label">Previsión actual</label>
+            <label class="form-label">Antigüedad empresa</label>
             <select class="form-select">
-              <option>Fonasa A</option><option>Fonasa B</option><option>Fonasa C</option>
-              <option>Fonasa D</option><option>Isapre</option>
+              <option>Menos de 1 año</option><option>1-2 años</option><option>3-5 años</option><option>Más de 5 años</option>
             </select>
           </div>
         </div>
         <div class="form-row">
-          <div class="form-group full">
-            <label class="form-label">Tu RUT</label>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-input" type="email" placeholder="tu@empresa.cl" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Teléfono</label>
+            <input class="form-input" type="tel" placeholder="+56 9 1234 5678" />
+          </div>
+        </div>
+      </div>
+
+      <!-- CRÉDITO FORM -->
+      <div class="form-section" id="form-credito">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Tipo de crédito</label>
+            <select class="form-select">
+              <option>Consumo</option><option>Hipotecario</option><option>Automotriz</option><option>Empresarial</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ingreso mensual</label>
+            <input class="form-input" type="number" placeholder="Ej: 1.500.000" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Monto solicitado</label>
+            <input class="form-input" type="number" placeholder="Ej: 10.000.000" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Plazo (meses)</label>
+            <select class="form-select">
+              <option>12</option><option>24</option><option>36</option><option>48</option><option>60</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">RUT</label>
             <input class="form-input" type="text" placeholder="12.345.678-9" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-input" type="email" placeholder="tu@email.cl" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full">
+            <label class="form-label">Teléfono</label>
+            <input class="form-input" type="tel" placeholder="+56 9 1234 5678" />
           </div>
         </div>
       </div>
 
       <button class="btn-compare" onclick="startComparison()">
-        Ver y comparar cotizaciones →
+        Ver y comparar opciones →
       </button>
 
       <div class="trust-badges">
@@ -1311,18 +1356,18 @@
 <!-- LOGOS STRIP -->
 <div class="logos-strip">
   <div class="logos-strip-inner">
-    <p class="logos-label">Cotizamos con las mejores aseguradoras del país</p>
+    <p class="logos-label">Comparamos con las principales instituciones financieras de Chile</p>
     <div class="logos-grid">
-      <div class="logo-badge">BCI Seguros</div>
-      <div class="logo-badge">SURA</div>
-      <div class="logo-badge">Mapfre</div>
-      <div class="logo-badge">HDI</div>
-      <div class="logo-badge">Zurich</div>
-      <div class="logo-badge">Liberty</div>
-      <div class="logo-badge">Consorcio</div>
-      <div class="logo-badge">Chilena Consolidada</div>
-      <div class="logo-badge">RSA</div>
-      <div class="logo-badge">Bice Vida</div>
+      <div class="logo-badge">Xepelin</div>
+      <div class="logo-badge">Cumplo</div>
+      <div class="logo-badge">Tanner</div>
+      <div class="logo-badge">BancoEstado</div>
+      <div class="logo-badge">Eurocapital</div>
+      <div class="logo-badge">Gama Mobility</div>
+      <div class="logo-badge">Levantta</div>
+      <div class="logo-badge">Tattersall</div>
+      <div class="logo-badge">ACF Capital</div>
+      <div class="logo-badge">Banco Security</div>
     </div>
   </div>
 </div>
@@ -1332,22 +1377,22 @@
   <div class="section-inner">
     <div class="section-tag">¿Cómo funciona?</div>
     <h2 class="section-title">Simple, rápido y sin letra chica</h2>
-    <p class="section-sub">Compara seguros de forma transparente en 3 pasos. Sin llamadas, sin presión, a tu ritmo.</p>
+    <p class="section-sub">Compara soluciones financieras de forma transparente en 3 pasos. Sin llamadas, sin presión, a tu ritmo.</p>
     <div class="steps-grid">
       <div class="step-card">
         <div class="step-num">1</div>
-        <h3>Ingresa tus datos</h3>
-        <p>Completa el formulario con la información básica de lo que quieres asegurar. Solo toma 2 minutos.</p>
+        <h3>Ingresa los datos de tu empresa</h3>
+        <p>Completa el formulario con la información básica de tu necesidad financiera. Solo toma 2 minutos.</p>
       </div>
       <div class="step-card">
         <div class="step-num">2</div>
-        <h3>Compara coberturas</h3>
-        <p>Recibe cotizaciones en tiempo real de +20 aseguradoras, ordenadas por precio y cobertura.</p>
+        <h3>Compara opciones</h3>
+        <p>Recibe simulaciones en tiempo real de +15 instituciones, ordenadas por tasa y condiciones.</p>
       </div>
       <div class="step-card">
         <div class="step-num">3</div>
-        <h3>Contrata online</h3>
-        <p>Elige el plan que más te convenga y contrata al instante con Webpay, tarjeta o transferencia.</p>
+        <h3>Solicita online</h3>
+        <p>Elige la opción que más te convenga y ve directo a la institución para formalizar en minutos.</p>
       </div>
     </div>
   </div>
@@ -1357,34 +1402,34 @@
 <section class="section products-bg" id="seguros">
   <div class="section-inner">
     <div class="section-tag">Nuestros Productos</div>
-    <h2 class="section-title">Todo lo que necesitas proteger</h2>
-    <p class="section-sub">Cobertura completa para cada etapa de tu vida. Elige, compara y contrata con total confianza.</p>
+    <h2 class="section-title">Todo el financiamiento para tu pyme</h2>
+    <p class="section-sub">Soluciones financieras para cada etapa de tu negocio. Compara, elige y solicita con total confianza.</p>
     <div class="products-grid">
       <div class="product-card">
         <div class="product-tag-badge">Popular</div>
-        <div class="product-emoji">🚗</div>
-        <h3>Seguro de Auto</h3>
-        <p>Protege tu vehículo ante robo, accidentes y daños a terceros. Con o sin deducible.</p>
-        <div class="product-price">Desde $18.990/mes</div>
+        <div class="product-emoji">📄</div>
+        <h3>Factoring</h3>
+        <p>Anticipa el cobro de tus facturas al instante. Mejora tu flujo de caja sin endeudarte.</p>
+        <div class="product-price">Desde 1.2% comisión</div>
       </div>
       <div class="product-card">
-        <div class="product-emoji">🏠</div>
-        <h3>Seguro de Hogar</h3>
-        <p>Cubre incendio, robo, terremotos y daños eléctricos en tu vivienda o arriendo.</p>
-        <div class="product-price">Desde $8.490/mes</div>
+        <div class="product-emoji">🏗️</div>
+        <h3>Leasing</h3>
+        <p>Financia vehículos, maquinaria o equipos con cuotas fijas y ventajas tributarias.</p>
+        <div class="product-price">Desde UF + 0.45% mensual</div>
       </div>
       <div class="product-card">
         <div class="product-tag-badge">Nuevo</div>
-        <div class="product-emoji">❤️</div>
-        <h3>Seguro de Vida</h3>
-        <p>Protege a tu familia en caso de fallecimiento o invalidez, desde UF 500 en adelante.</p>
-        <div class="product-price">Desde $6.990/mes</div>
+        <div class="product-emoji">💼</div>
+        <h3>Capital de Trabajo</h3>
+        <p>Liquidez inmediata para operar, pagar proveedores o aprovechar oportunidades de negocio.</p>
+        <div class="product-price">Desde 0.9% mensual</div>
       </div>
       <div class="product-card">
-        <div class="product-emoji">🏥</div>
-        <h3>Seguro de Salud</h3>
-        <p>Complementa tu Fonasa o Isapre con cobertura adicional para hospitalizaciones y cirugías.</p>
-        <div class="product-price">Desde $12.490/mes</div>
+        <div class="product-emoji">🏦</div>
+        <h3>Créditos</h3>
+        <p>Créditos de consumo, hipotecarios y automotrices con las mejores tasas del mercado.</p>
+        <div class="product-price">Desde 0.69% mensual</div>
       </div>
     </div>
   </div>
@@ -1396,34 +1441,34 @@
     <div class="benefits-grid">
       <div>
         <div class="section-tag">¿Por qué Banko?</div>
-        <h2 class="section-title">Somos tu aliado financiero, no el de las aseguradoras.</h2>
+        <h2 class="section-title">Somos tu aliado financiero, no el de los bancos.</h2>
         <div class="benefit-list">
           <div class="benefit-item">
             <div class="benefit-icon">🏆</div>
             <div class="benefit-text">
               <h4>Comparación 100% imparcial</h4>
-              <p>No favorecemos a ninguna aseguradora. Te mostramos la verdad ordenada por lo que más importa: precio y cobertura real.</p>
+              <p>No favorecemos a ninguna institución. Te mostramos la verdad ordenada por lo que más importa: tasa real y condiciones.</p>
             </div>
           </div>
           <div class="benefit-item">
             <div class="benefit-icon">⚡</div>
             <div class="benefit-text">
-              <h4>Cotización en tiempo real</h4>
-              <p>Nuestro motor conecta con las APIs de cada aseguradora al instante. Precios actualizados, sin formularios duplicados.</p>
+              <h4>Simulaciones en tiempo real</h4>
+              <p>Nuestro motor compara +15 instituciones al instante. Resultados actualizados, sin formularios duplicados.</p>
             </div>
           </div>
           <div class="benefit-item">
-            <div class="benefit-icon">🛡️</div>
+            <div class="benefit-icon">💰</div>
             <div class="benefit-text">
-              <h4>Soporte post-venta garantizado</h4>
-              <p>Nuestro equipo te acompaña en la contratación y en caso de siniestro. Lunes a viernes 9-18h, Sábado 10-14h.</p>
+              <h4>Ahorro financiero real</h4>
+              <p>Nuestros usuarios ahorran en promedio un 30% en tasas al comparar antes de contratar. El conocimiento vale plata.</p>
             </div>
           </div>
           <div class="benefit-item">
             <div class="benefit-icon">🔒</div>
             <div class="benefit-text">
               <h4>Datos protegidos bajo Ley 19.628</h4>
-              <p>Tu información personal está cifrada y nunca es vendida a terceros. Somos CMF supervisados.</p>
+              <p>Tu información está cifrada y nunca es vendida a terceros. Operamos con estándares de seguridad bancaria.</p>
             </div>
           </div>
         </div>
@@ -1432,32 +1477,32 @@
       <!-- Visual stack -->
       <div class="visual-card-stack">
         <div class="v-card v-card-1">
-          <div class="v-card-title">🚗 Seguro Auto — Comparando...</div>
-          <div class="v-card-value">+20 opciones</div>
+          <div class="v-card-title">📄 Factoring — Comparando...</div>
+          <div class="v-card-value">+15 opciones</div>
           <div class="v-card-sub">Encontramos resultados en 1.8 segundos</div>
         </div>
         <div class="v-card v-card-2">
-          <div class="v-card-title">Cotizaciones encontradas</div>
+          <div class="v-card-title">Simulaciones encontradas</div>
           <div class="compare-row">
-            <span class="name">SURA Total</span>
-            <span class="badge-best">Mejor precio</span>
-            <span class="price">$21.990</span>
+            <span class="name">Xepelin</span>
+            <span class="badge-best">Mejor tasa</span>
+            <span class="price">1.2%</span>
           </div>
           <div class="compare-row">
-            <span class="name">BCI Premier</span>
+            <span class="name">Security</span>
             <span></span>
-            <span class="price">$23.490</span>
+            <span class="price">1.3%</span>
           </div>
           <div class="compare-row">
-            <span class="name">HDI Máximo</span>
+            <span class="name">Tanner</span>
             <span></span>
-            <span class="price">$24.990</span>
+            <span class="price">1.5%</span>
           </div>
         </div>
         <div class="v-card v-card-3">
           <div class="v-card-title">💰 Tu ahorro estimado</div>
-          <div class="v-card-value">$74.400</div>
-          <div class="v-card-sub">Al año vs. tu seguro actual</div>
+          <div class="v-card-value">$890.000</div>
+          <div class="v-card-sub">En comisiones vs. cotizar sin comparar</div>
         </div>
       </div>
     </div>
@@ -1467,40 +1512,40 @@
 <!-- TESTIMONIALS -->
 <section class="section testimonials-bg">
   <div class="section-inner">
-    <div class="section-tag">Opiniones reales</div>
-    <h2 class="section-title">Miles de chilenos ya comparan en Banko</h2>
-    <p class="section-sub">No te lo decimos nosotros, te lo dicen nuestros clientes.</p>
+    <div class="section-tag">Casos de éxito</div>
+    <h2 class="section-title">Pymes chilenas que ya financian mejor</h2>
+    <p class="section-sub">Empresas reales que compararon y encontraron mejores condiciones con Banko.</p>
     <div class="testimonials-grid">
       <div class="testimonial-card">
         <div class="stars">★★★★★</div>
-        <p class="testimonial-text">"En 5 minutos encontré un seguro de auto $8.000 más barato que el que tenía. El proceso fue súper simple y el soporte respondió al tiro."</p>
+        <p class="testimonial-text">"Necesitaba liquidez urgente y con Banko encontré factoring a 1.2% cuando me cotizaban 2.5% directo. En 5 minutos tenía todo comparado."</p>
         <div class="testimonial-author">
           <div class="author-avatar" style="background:linear-gradient(135deg,#00C9A7,#00B4D8)">C</div>
           <div>
             <div class="author-name">Camilo Venegas</div>
-            <div class="author-info">Santiago · Seguro Auto</div>
+            <div class="author-info">Santiago · Factoring</div>
           </div>
         </div>
       </div>
       <div class="testimonial-card">
         <div class="stars">★★★★★</div>
-        <p class="testimonial-text">"Muy buena plataforma. Me gustó que pude comparar de verdad, sin que me llamaran al tiro. Contraté el seguro de hogar online en 10 minutos."</p>
+        <p class="testimonial-text">"Comparé leasing para 3 camionetas y encontré una cuota $80.000 más barata por vehículo. Banko me ahorró más de $2M al año."</p>
         <div class="testimonial-author">
           <div class="author-avatar" style="background:linear-gradient(135deg,#FF6B35,#F77F00)">V</div>
           <div>
             <div class="author-name">Valentina Ríos</div>
-            <div class="author-info">Valparaíso · Seguro Hogar</div>
+            <div class="author-info">Valparaíso · Leasing</div>
           </div>
         </div>
       </div>
       <div class="testimonial-card">
         <div class="stars">★★★★☆</div>
-        <p class="testimonial-text">"Nunca había contratado un seguro de vida y me dio miedo lo complicado que podía ser. Banko lo hace fácil y el precio fue mejor de lo que esperaba."</p>
+        <p class="testimonial-text">"Nunca había pedido un crédito empresarial y me parecía complicado. Banko me mostró todas las opciones ordenadas y encontré la tasa perfecta."</p>
         <div class="testimonial-author">
           <div class="author-avatar" style="background:linear-gradient(135deg,#667eea,#764ba2)">M</div>
           <div>
             <div class="author-name">Martín Fuentealba</div>
-            <div class="author-info">Concepción · Seguro Vida</div>
+            <div class="author-info">Concepción · Crédito empresarial</div>
           </div>
         </div>
       </div>
@@ -1511,9 +1556,9 @@
 <!-- CTA BANNER -->
 <section class="cta-banner" id="contacto">
   <div class="cta-inner">
-    <h2>¿Listo para ahorrar en tu seguro?</h2>
-    <p>Cotiza gratis en 2 minutos y descubre cuánto puedes ahorrar al año.</p>
-    <button class="btn-cta-white" onclick="openModal()">Comparar seguros ahora →</button>
+    <h2>¿Listo para financiar mejor tu empresa?</h2>
+    <p>Compara gratis en 2 minutos y descubre cuánto puedes ahorrar en tasas y comisiones.</p>
+    <button class="btn-cta-white" onclick="openModal()">Comparar soluciones ahora →</button>
     <div class="cta-features">
       <span class="cta-feat">Gratis y sin compromiso</span>
       <span class="cta-feat">Sin spam ni llamadas no deseadas</span>
@@ -1531,7 +1576,7 @@
           <div class="logo-icon">B</div>
           <span class="logo-text">banko<span>.cl</span></span>
         </a>
-        <p>Comparamos seguros de manera transparente e imparcial. Somos el puente entre tú y las mejores aseguradoras de Chile.</p>
+        <p>Comparamos soluciones financieras de forma transparente e imparcial. Somos el puente entre pymes chilenas y las mejores instituciones de financiamiento.</p>
         <div class="social-links">
           <a class="social-btn" href="#">in</a>
           <a class="social-btn" href="#">ig</a>
@@ -1540,13 +1585,13 @@
         </div>
       </div>
       <div class="footer-col">
-        <h4>Seguros</h4>
+        <h4>Soluciones</h4>
         <ul>
-          <li><a href="#">Seguro de Auto</a></li>
-          <li><a href="#">Seguro de Hogar</a></li>
-          <li><a href="#">Seguro de Vida</a></li>
-          <li><a href="#">Seguro de Salud</a></li>
-          <li><a href="#">SOAP 2025</a></li>
+          <li><a href="#">Factoring</a></li>
+          <li><a href="#">Leasing</a></li>
+          <li><a href="#">Capital de Trabajo</a></li>
+          <li><a href="#">Créditos</a></li>
+          <li><a href="#">Crédito Hipotecario</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -1554,8 +1599,8 @@
         <ul>
           <li><a href="#">¿Quiénes somos?</a></li>
           <li><a href="#">Trabaja con nosotros</a></li>
-          <li><a href="#">Para aseguradoras</a></li>
-          <li><a href="#">Blog y consejos</a></li>
+          <li><a href="#">Para instituciones</a></li>
+          <li><a href="#">Blog financiero</a></li>
           <li><a href="#">Prensa</a></li>
         </ul>
       </div>
@@ -1601,11 +1646,11 @@
       <div class="auth-benefits" id="authBenefits" style="display:none">
         <p>Con tu cuenta gratis obtienes:</p>
         <ul>
-          <li>Historial de cotizaciones guardado</li>
-          <li>Perfil pre-llenado — cotiza en 1 clic</li>
-          <li>Alertas cuando baje el precio de tu seguro</li>
-          <li>Aviso 30 días antes de vencer tu póliza</li>
-          <li>Descuentos exclusivos para miembros Banko</li>
+          <li>Historial de comparaciones guardado</li>
+          <li>Perfil empresa pre-llenado — compara en 1 clic</li>
+          <li>Alertas cuando bajen las tasas de tu categoría</li>
+          <li>Recomendaciones personalizadas según tu perfil</li>
+          <li>Acceso anticipado a nuevas instituciones y ofertas</li>
         </ul>
       </div>
       <!-- Google -->
@@ -1707,157 +1752,26 @@
 <!-- LOADING SCREEN -->
 <div class="loading-screen" id="loadingScreen">
   <div class="loader"></div>
-  <div class="loading-text">Buscando las mejores cotizaciones...</div>
-  <div class="loading-sub">Conectando con 20+ aseguradoras en tiempo real</div>
+  <div class="loading-text">Buscando las mejores opciones...</div>
+  <div class="loading-sub">Simulando con 15+ instituciones financieras en tiempo real</div>
 </div>
 
 <!-- RESULTS MODAL -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">✕</button>
-    <div class="modal-title" id="modalTitle">🚗 Seguros de Auto</div>
-    <div class="modal-sub" id="modalSub">Toyota Corolla 2023 · Uso particular · Mostrando 6 resultados</div>
+    <div class="modal-title" id="modalTitle">📄 Factoring</div>
+    <div class="modal-sub" id="modalSub">Comparando 4 instituciones · Resultados simulados</div>
 
     <div class="modal-filters">
       <button class="filter-btn active" onclick="setFilter(this)">Todos</button>
-      <button class="filter-btn" onclick="setFilter(this)">Menor precio</button>
-      <button class="filter-btn" onclick="setFilter(this)">Mayor cobertura</button>
-      <button class="filter-btn" onclick="setFilter(this)">Sin deducible</button>
+      <button class="filter-btn" onclick="setFilter(this)">Menor tasa</button>
+      <button class="filter-btn" onclick="setFilter(this)">Mejor plazo</button>
+      <button class="filter-btn" onclick="setFilter(this)">Aprobación rápida</button>
     </div>
 
     <!-- RESULT CARDS -->
     <div id="resultsContainer">
-      <div class="result-card best-pick">
-        <div class="best-label">⭐ Mejor elección</div>
-        <div class="result-insurer">
-          <div class="insurer-logo-box">SURA</div>
-          <div class="insurer-stars">★★★★★</div>
-          <div class="insurer-rating">4.8/5</div>
-        </div>
-        <div class="result-details">
-          <div class="result-name">SURA Auto Total</div>
-          <div class="result-features">
-            <span class="feat-chip green">✓ Robo total</span>
-            <span class="feat-chip green">✓ Daños propios</span>
-            <span class="feat-chip blue">✓ Terceros ilimitado</span>
-            <span class="feat-chip orange">✓ Auto reemplazante</span>
-          </div>
-        </div>
-        <div class="result-deductible">
-          <div class="deductible-label">Deducible</div>
-          <div class="deductible-value">UF 5</div>
-        </div>
-        <div class="result-price">
-          <div class="price-label">Prima mensual</div>
-          <div class="price-value">$21.990</div>
-          <div class="price-period">/ mes</div>
-          <button class="btn-select">Contratar →</button>
-        </div>
-      </div>
-
-      <div class="result-card">
-        <div class="result-insurer">
-          <div class="insurer-logo-box">BCI</div>
-          <div class="insurer-stars">★★★★☆</div>
-          <div class="insurer-rating">4.5/5</div>
-        </div>
-        <div class="result-details">
-          <div class="result-name">BCI Premier Auto</div>
-          <div class="result-features">
-            <span class="feat-chip green">✓ Robo total</span>
-            <span class="feat-chip green">✓ Daños propios</span>
-            <span class="feat-chip blue">✓ Terceros UF 5.000</span>
-          </div>
-        </div>
-        <div class="result-deductible">
-          <div class="deductible-label">Deducible</div>
-          <div class="deductible-value">UF 8</div>
-        </div>
-        <div class="result-price">
-          <div class="price-label">Prima mensual</div>
-          <div class="price-value">$23.490</div>
-          <div class="price-period">/ mes</div>
-          <button class="btn-select">Contratar →</button>
-        </div>
-      </div>
-
-      <div class="result-card">
-        <div class="result-insurer">
-          <div class="insurer-logo-box">HDI</div>
-          <div class="insurer-stars">★★★★☆</div>
-          <div class="insurer-rating">4.4/5</div>
-        </div>
-        <div class="result-details">
-          <div class="result-name">HDI Máximo Plus</div>
-          <div class="result-features">
-            <span class="feat-chip green">✓ Robo total</span>
-            <span class="feat-chip green">✓ Daños propios</span>
-            <span class="feat-chip blue">✓ Asistencia 24/7</span>
-          </div>
-        </div>
-        <div class="result-deductible">
-          <div class="deductible-label">Deducible</div>
-          <div class="deductible-value">UF 10</div>
-        </div>
-        <div class="result-price">
-          <div class="price-label">Prima mensual</div>
-          <div class="price-value">$24.990</div>
-          <div class="price-period">/ mes</div>
-          <button class="btn-select">Contratar →</button>
-        </div>
-      </div>
-
-      <div class="result-card">
-        <div class="result-insurer">
-          <div class="insurer-logo-box">Mapfre</div>
-          <div class="insurer-stars">★★★★☆</div>
-          <div class="insurer-rating">4.3/5</div>
-        </div>
-        <div class="result-details">
-          <div class="result-name">Mapfre Todo Riesgo</div>
-          <div class="result-features">
-            <span class="feat-chip green">✓ Robo total</span>
-            <span class="feat-chip blue">✓ Terceros ilimitado</span>
-            <span class="feat-chip orange">✓ Taller libre elección</span>
-          </div>
-        </div>
-        <div class="result-deductible">
-          <div class="deductible-label">Deducible</div>
-          <div class="deductible-value">UF 7</div>
-        </div>
-        <div class="result-price">
-          <div class="price-label">Prima mensual</div>
-          <div class="price-value">$26.490</div>
-          <div class="price-period">/ mes</div>
-          <button class="btn-select">Contratar →</button>
-        </div>
-      </div>
-
-      <div class="result-card">
-        <div class="result-insurer">
-          <div class="insurer-logo-box">Zurich</div>
-          <div class="insurer-stars">★★★★☆</div>
-          <div class="insurer-rating">4.6/5</div>
-        </div>
-        <div class="result-details">
-          <div class="result-name">Zurich Auto Integral</div>
-          <div class="result-features">
-            <span class="feat-chip green">✓ Sin deducible</span>
-            <span class="feat-chip green">✓ Robo parcial</span>
-            <span class="feat-chip blue">✓ Daños propios</span>
-          </div>
-        </div>
-        <div class="result-deductible">
-          <div class="deductible-label">Deducible</div>
-          <div class="deductible-value">UF 0</div>
-        </div>
-        <div class="result-price">
-          <div class="price-label">Prima mensual</div>
-          <div class="price-value">$31.990</div>
-          <div class="price-period">/ mes</div>
-          <button class="btn-select">Contratar →</button>
-        </div>
-      </div>
     </div>
   </div>
 </div>
@@ -1871,6 +1785,75 @@
     document.getElementById('form-' + type).classList.add('active');
   }
 
+  // --- Results data by category ---
+  const resultadosPorCategoria = {
+    factoring: [
+      { nombre: 'Xepelin', plan: 'Factoring Express', tasa: '1.2%', extra: 'Abono en 24h', chips: ['✓ Sin mínimo de factura','✓ 100% online','✓ Abono rápido'], url: 'https://xepelin.com', stars: '★★★★★', rating: '4.8/5', mejor: true },
+      { nombre: 'Security', plan: 'Factoring Security', tasa: '1.3%', extra: 'Hasta 90 días', chips: ['✓ Grandes montos','✓ Respaldo bancario','✓ Sin costo apertura'], url: 'https://security.cl', stars: '★★★★☆', rating: '4.5/5' },
+      { nombre: 'Eurocapital', plan: 'Factoring Pyme', tasa: '1.4%', extra: 'Aprobación 2h', chips: ['✓ Pymes bienvenidas','✓ Sin garantías','✓ Proceso digital'], url: 'https://eurocapital.cl', stars: '★★★★☆', rating: '4.3/5' },
+      { nombre: 'Tanner', plan: 'Factoring Tanner', tasa: '1.5%', extra: 'Red nacional', chips: ['✓ Cobertura nacional','✓ Asesor dedicado','✓ Facturas electrónicas'], url: 'https://tanner.cl', stars: '★★★★☆', rating: '4.2/5' },
+    ],
+    leasing: [
+      { nombre: 'Tattersall', plan: 'Leasing Activos', tasa: 'UF+0.42%', extra: 'Hasta 60 meses', chips: ['✓ Vehículos y maquinaria','✓ Beneficio tributario','✓ Sin pie mínimo'], url: 'https://tattersall.cl', stars: '★★★★★', rating: '4.7/5', mejor: true },
+      { nombre: 'Gama Mobility', plan: 'Leasing Operativo', tasa: 'UF+0.45%', extra: 'Incluye mantención', chips: ['✓ Mantención incluida','✓ Seguro incluido','✓ Flota empresarial'], url: 'https://gamamobility.com', stars: '★★★★☆', rating: '4.5/5' },
+      { nombre: 'Salfa Rent', plan: 'Leasing Vehículos', tasa: 'UF+0.48%', extra: 'Entrega inmediata', chips: ['✓ Stock disponible','✓ Sin trámites','✓ Todo incluido'], url: 'https://salfarent.cl', stars: '★★★★☆', rating: '4.3/5' },
+      { nombre: 'Mitta', plan: 'Leasing Digital', tasa: 'UF+0.51%', extra: '100% online', chips: ['✓ Proceso digital','✓ Firma electrónica','✓ Flexible'], url: 'https://mitta.cl', stars: '★★★★☆', rating: '4.1/5' },
+    ],
+    capital: [
+      { nombre: 'Cumplo', plan: 'Capital Rápido', tasa: '0.9% mensual', extra: 'Aprobación en horas', chips: ['✓ Sin garantías reales','✓ Plataforma P2P','✓ Flexible'], url: 'https://cumplo.cl', stars: '★★★★★', rating: '4.9/5', mejor: true },
+      { nombre: 'Levantta', plan: 'Capital Pyme', tasa: '1.1% mensual', extra: 'Hasta $500M', chips: ['✓ Grandes montos','✓ Asesor dedicado','✓ Sin costo prepago'], url: 'https://levantta.cl', stars: '★★★★☆', rating: '4.4/5' },
+      { nombre: 'Fivana', plan: 'Crédito Capital', tasa: '1.2% mensual', extra: 'Respuesta 24h', chips: ['✓ Sin burocracia','✓ 100% online','✓ Pymes nuevas OK'], url: 'https://fivana.cl', stars: '★★★★☆', rating: '4.3/5' },
+      { nombre: 'ACF Capital', plan: 'Financiamiento ACF', tasa: '1.3% mensual', extra: 'Hasta 36 meses', chips: ['✓ Largo plazo','✓ Tasa fija','✓ Sin sorpresas'], url: 'https://acf.cl', stars: '★★★★☆', rating: '4.1/5' },
+    ],
+    credito: [
+      { nombre: 'BancoEstado', plan: 'Crédito BancoEstado', tasa: '0.69% mensual', extra: 'Desde $500.000', chips: ['✓ Sin cuenta corriente','✓ Aprobación en línea','✓ Tasa fija'], url: 'https://bancoestado.cl', stars: '★★★★★', rating: '4.6/5', mejor: true },
+      { nombre: 'Banco de Chile', plan: 'Crédito de Consumo', tasa: '0.79% mensual', extra: 'Hasta 72 meses', chips: ['✓ Largo plazo','✓ Sin seguro obligatorio','✓ Prepago sin costo'], url: 'https://bancochile.cl', stars: '★★★★☆', rating: '4.4/5' },
+      { nombre: 'Santander', plan: 'Crédito Smart', tasa: '0.85% mensual', extra: 'Aprobación express', chips: ['✓ 100% digital','✓ Sin papeleos','✓ Dinero en 24h'], url: 'https://santander.cl', stars: '★★★★☆', rating: '4.3/5' },
+      { nombre: 'Banco Security', plan: 'Crédito Security', tasa: '0.91% mensual', extra: 'Atención personalizada', chips: ['✓ Asesor exclusivo','✓ Tasa negociable','✓ Beneficios adicionales'], url: 'https://security.cl', stars: '★★★★☆', rating: '4.2/5' },
+    ],
+  };
+
+  const labelPorCategoria = {
+    factoring: { titulo: '📄 Factoring', sub: 'Comparando 4 instituciones · Resultados simulados', valueLabel: 'Comisión', valuePeriod: 'por factura' },
+    leasing:   { titulo: '🏗️ Leasing',   sub: 'Comparando 4 empresas · Cuotas estimadas',         valueLabel: 'Tasa mensual', valuePeriod: 'UF referencial' },
+    capital:   { titulo: '💼 Capital de Trabajo', sub: 'Comparando 4 instituciones · Simulación orientativa', valueLabel: 'Tasa mensual', valuePeriod: 'referencial' },
+    credito:   { titulo: '🏦 Créditos',   sub: 'Comparando 4 bancos · Tasas de referencia',         valueLabel: 'Tasa mensual', valuePeriod: 'CAE referencial' },
+  };
+
+  function renderResultados(tipo) {
+    const items = resultadosPorCategoria[tipo] || resultadosPorCategoria.factoring;
+    const labels = labelPorCategoria[tipo] || labelPorCategoria.factoring;
+    document.getElementById('modalTitle').textContent = labels.titulo;
+    document.getElementById('modalSub').textContent   = labels.sub;
+    const container = document.getElementById('resultsContainer');
+    container.innerHTML = items.map((r, i) => `
+      <div class="result-card${r.mejor ? ' best-pick' : ''}">
+        ${r.mejor ? '<div class="best-label">⭐ Mejor elección</div>' : ''}
+        <div class="result-insurer">
+          <div class="insurer-logo-box">${r.nombre}</div>
+          <div class="insurer-stars">${r.stars}</div>
+          <div class="insurer-rating">${r.rating}</div>
+        </div>
+        <div class="result-details">
+          <div class="result-name">${r.plan}</div>
+          <div class="result-features">
+            ${r.chips.map((c,j) => `<span class="feat-chip ${j===0?'green':j===1?'blue':'orange'}">${c}</span>`).join('')}
+          </div>
+        </div>
+        <div class="result-deductible">
+          <div class="deductible-label">Destacado</div>
+          <div class="deductible-value" style="font-size:13px">${r.extra}</div>
+        </div>
+        <div class="result-price">
+          <div class="price-label">${labels.valueLabel}</div>
+          <div class="price-value" style="font-size:22px">${r.tasa}</div>
+          <div class="price-period">${labels.valuePeriod}</div>
+          <a href="${r.url}" target="_blank" rel="noopener" class="btn-select" style="text-decoration:none;display:block;text-align:center">Solicitar →</a>
+        </div>
+      </div>
+    `).join('');
+  }
+
   // --- Hamburger menu ---
   function toggleMenu() {
     document.getElementById('navLinks').classList.toggle('mobile-open');
@@ -1878,10 +1861,12 @@
 
   // --- Loading + Modal ---
   function startComparison() {
+    const tipo = document.querySelector('.product-tab.active')?.dataset.type || 'factoring';
     const loading = document.getElementById('loadingScreen');
     loading.classList.add('show');
     setTimeout(() => {
       loading.classList.remove('show');
+      renderResultados(tipo);
       openModal();
     }, 2000);
   }
@@ -2111,11 +2096,10 @@
   // ===== SAVE COTIZACIÓN =====
   async function saveCotizacion(tipo, datos) {
     if (!currentUser) return;
-    const resultados = [
-      { aseguradora: 'HDI Seguros',  plan: 'HDI Todo Riesgo',      precio: 24990, deducible: 'UF 10' },
-      { aseguradora: 'Mapfre',       plan: 'Mapfre Todo Riesgo',   precio: 26490, deducible: 'UF 7'  },
-      { aseguradora: 'Zurich',       plan: 'Zurich Auto Integral',  precio: 31990, deducible: 'UF 0'  },
-    ];
+    const tipoActivo = datos?.tipo || 'factoring';
+    const resultados = (resultadosPorCategoria[tipoActivo] || resultadosPorCategoria.factoring).map(r => ({
+      institucion: r.nombre, plan: r.plan, tasa: r.tasa, url: r.url
+    }));
     await sb.from('cotizaciones').insert({
       user_id:    currentUser.id,
       tipo,
@@ -2127,9 +2111,9 @@
   // Override startComparison para guardar
   const _startComparison = startComparison;
   window.startComparison = async function() {
-    const tipoActivo = document.querySelector('.product-tab.active')?.dataset.type || 'auto';
-    const tipoMap = { auto: '🚗 Seguro Auto', hogar: '🏠 Seguro Hogar', vida: '❤️ Seguro Vida', salud: '🏥 Seguro Salud' };
-    await saveCotizacion(tipoMap[tipoActivo] || 'Seguro Auto', { tipo: tipoActivo });
+    const tipoActivo = document.querySelector('.product-tab.active')?.dataset.type || 'factoring';
+    const tipoMap = { factoring: '📄 Factoring', leasing: '🏗️ Leasing', capital: '💼 Capital de Trabajo', credito: '🏦 Créditos' };
+    await saveCotizacion(tipoMap[tipoActivo] || '📄 Factoring', { tipo: tipoActivo });
     _startComparison();
   };
 
@@ -2170,17 +2154,17 @@
             <div class="hist-date">${fecha}</div>
           </div>
           <div class="hist-tags">
-            ${c.resultados?.map(r => `<span class="hist-tag">${r.aseguradora}</span>`).join('') || ''}
+            ${c.resultados?.map(r => `<span class="hist-tag">${r.institucion || r.aseguradora}</span>`).join('') || ''}
           </div>
           ${mejor ? `
           <div class="hist-mejor">
             <div>
               <div class="hist-mejor-label">Mejor opción encontrada</div>
-              <div style="font-size:13px;font-weight:600;color:var(--navy)">${mejor.aseguradora}</div>
+              <div style="font-size:13px;font-weight:600;color:var(--navy)">${mejor.institucion || mejor.aseguradora}</div>
             </div>
             <div>
-              <div class="hist-mejor-label" style="text-align:right">Prima mensual</div>
-              <div class="hist-mejor-price">$${mejor.precio.toLocaleString('es-CL')}</div>
+              <div class="hist-mejor-label" style="text-align:right">Mejor tasa</div>
+              <div class="hist-mejor-price">${mejor.tasa || ('$' + (mejor.precio||0).toLocaleString('es-CL'))}</div>
             </div>
           </div>` : ''}
         </div>`;
