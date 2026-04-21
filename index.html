@@ -1633,6 +1633,58 @@
   </div>
 </div>
 
+<!-- PERFIL PANEL -->
+<div class="historial-overlay" id="perfilOverlay" onclick="closePerfilOutside(event)">
+  <div class="historial-panel">
+    <div class="historial-head">
+      <h3>👤 Mi perfil</h3>
+      <button onclick="closePerfil()">✕</button>
+    </div>
+    <div class="historial-body" style="padding:28px">
+
+      <!-- Avatar -->
+      <div style="text-align:center;margin-bottom:28px">
+        <div id="perfilAvatar" style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--sky));color:white;font-size:28px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 12px"></div>
+        <div id="perfilNombreDisplay" style="font-size:18px;font-weight:800;color:var(--navy)"></div>
+        <div id="perfilEmailDisplay" style="font-size:13px;color:var(--gray-text);margin-top:2px"></div>
+      </div>
+
+      <!-- Form -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="auth-field">
+          <label>Nombre completo</label>
+          <input type="text" id="perfilNombre" placeholder="Ej: Juan Pérez" />
+        </div>
+        <div class="auth-field">
+          <label>RUT</label>
+          <input type="text" id="perfilRut" placeholder="Ej: 12.345.678-9" />
+        </div>
+        <div class="auth-field">
+          <label>Teléfono</label>
+          <input type="tel" id="perfilTelefono" placeholder="Ej: +56 9 1234 5678" />
+        </div>
+        <div class="auth-field">
+          <label>Correo electrónico</label>
+          <input type="email" id="perfilEmail" disabled style="background:var(--light-bg);color:var(--gray-text);cursor:not-allowed" />
+        </div>
+      </div>
+
+      <button class="auth-btn-submit" id="btnGuardarPerfil" onclick="guardarPerfil()" style="margin-top:24px">
+        Guardar cambios
+      </button>
+      <div class="auth-msg" id="perfilMsg" style="margin-top:12px;text-align:center;font-size:13px;min-height:18px"></div>
+
+      <!-- Zona peligrosa -->
+      <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border)">
+        <p style="font-size:12px;color:var(--gray-text);margin-bottom:12px;text-transform:uppercase;font-weight:700;letter-spacing:0.5px">Cuenta</p>
+        <button onclick="signOut();closePerfil()" style="width:100%;padding:12px;border-radius:12px;border:1.5px solid #e53e3e;background:white;color:#e53e3e;font-size:14px;font-weight:700;cursor:pointer">
+          🚪 Cerrar sesión
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- HISTORIAL PANEL -->
 <div class="historial-overlay" id="historialOverlay" onclick="closeHistorialOutside(event)">
   <div class="historial-panel">
@@ -2137,7 +2189,45 @@
 
   function openPerfil() {
     document.getElementById('userDropdown').classList.remove('open');
-    alert('Perfil en construcción — próximamente podrás editar tus datos y seguros activos.');
+    if (!currentUser) return;
+    const meta = currentUser.user_metadata || {};
+    document.getElementById('perfilAvatar').textContent = (meta.full_name || currentUser.email)[0].toUpperCase();
+    document.getElementById('perfilNombreDisplay').textContent = meta.full_name || 'Sin nombre';
+    document.getElementById('perfilEmailDisplay').textContent = currentUser.email;
+    document.getElementById('perfilNombre').value    = meta.full_name   || '';
+    document.getElementById('perfilRut').value       = meta.rut         || '';
+    document.getElementById('perfilTelefono').value  = meta.telefono    || '';
+    document.getElementById('perfilEmail').value     = currentUser.email;
+    document.getElementById('perfilMsg').textContent = '';
+    document.getElementById('perfilOverlay').classList.add('open');
+  }
+  function closePerfil() {
+    document.getElementById('perfilOverlay').classList.remove('open');
+  }
+  function closePerfilOutside(e) {
+    if (e.target === document.getElementById('perfilOverlay')) closePerfil();
+  }
+  async function guardarPerfil() {
+    const btn = document.getElementById('btnGuardarPerfil');
+    const msg = document.getElementById('perfilMsg');
+    const nombre   = document.getElementById('perfilNombre').value.trim();
+    const rut      = document.getElementById('perfilRut').value.trim();
+    const telefono = document.getElementById('perfilTelefono').value.trim();
+    btn.disabled = true; btn.textContent = 'Guardando...';
+    const { error } = await sb.auth.updateUser({
+      data: { full_name: nombre, rut, telefono }
+    });
+    if (error) {
+      msg.className = 'auth-msg error'; msg.textContent = 'Error al guardar. Intenta de nuevo.';
+    } else {
+      msg.className = 'auth-msg success'; msg.textContent = '¡Perfil actualizado correctamente!';
+      document.getElementById('perfilNombreDisplay').textContent = nombre || 'Sin nombre';
+      document.getElementById('perfilAvatar').textContent = (nombre || currentUser.email)[0].toUpperCase();
+      document.getElementById('udName').textContent = nombre || 'Mi cuenta';
+      const navAvatar = document.querySelector('.user-avatar-btn');
+      if (navAvatar) navAvatar.innerHTML = (nombre || currentUser.email)[0].toUpperCase() + '<div class="notif-dot"></div>';
+    }
+    btn.disabled = false; btn.textContent = 'Guardar cambios';
   }
 </script>
 </body>
