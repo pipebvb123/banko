@@ -6,6 +6,7 @@
   <title>Banko.cl — Compara y Elige el Mejor Seguro</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -915,6 +916,156 @@
       .footer-grid { grid-template-columns: 1fr; }
       .modal { padding: 24px; }
     }
+
+    /* ===== AUTH SYSTEM ===== */
+    .nav-auth { display: flex; align-items: center; gap: 10px; margin-left: 8px; }
+    .btn-login {
+      padding: 8px 18px; border-radius: 10px; font-size: 14px; font-weight: 600;
+      cursor: pointer; border: 1.5px solid rgba(255,255,255,0.25);
+      background: transparent; color: white; transition: all 0.2s;
+    }
+    .btn-login:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.5); }
+    .user-avatar-btn {
+      width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--teal);
+      background: linear-gradient(135deg,var(--teal),var(--sky)); color: white;
+      font-weight: 800; font-size: 14px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; position: relative;
+    }
+    .user-dropdown {
+      position: absolute; top: 56px; right: 16px; background: white;
+      border-radius: 16px; box-shadow: 0 16px 48px rgba(0,0,0,0.15);
+      min-width: 240px; overflow: hidden; z-index: 2000;
+      display: none; animation: dropIn 0.2s ease;
+    }
+    .user-dropdown.open { display: block; }
+    @keyframes dropIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:none; } }
+    .ud-header { padding: 20px; background: linear-gradient(135deg,var(--navy),var(--navy-mid)); color:white; }
+    .ud-name { font-weight: 800; font-size: 16px; }
+    .ud-email { font-size: 12px; opacity: 0.65; margin-top: 2px; }
+    .ud-body { padding: 8px; }
+    .ud-item {
+      display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+      border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500;
+      color: var(--navy); transition: background 0.15s;
+    }
+    .ud-item:hover { background: var(--light-bg); }
+    .ud-item .ud-icon { font-size: 18px; width: 24px; text-align:center; }
+    .ud-divider { height: 1px; background: var(--border); margin: 4px 14px; }
+    .ud-item.danger { color: #e53e3e; }
+
+    /* Auth Modal */
+    .auth-overlay {
+      position: fixed; inset: 0; background: rgba(13,27,42,0.6);
+      backdrop-filter: blur(6px); z-index: 3000;
+      display: none; align-items: center; justify-content: center;
+    }
+    .auth-overlay.open { display: flex; }
+    .auth-box {
+      background: white; border-radius: 24px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.2);
+      width: 100%; max-width: 440px; overflow: hidden;
+      animation: scaleIn 0.25s cubic-bezier(.22,1,.36,1);
+    }
+    @keyframes scaleIn { from { opacity:0; transform:scale(0.94); } to { opacity:1; transform:none; } }
+    .auth-header {
+      background: linear-gradient(135deg,var(--navy),var(--navy-mid));
+      padding: 32px 32px 24px; color: white; position: relative;
+    }
+    .auth-close {
+      position: absolute; top: 16px; right: 16px; width: 32px; height: 32px;
+      border-radius: 50%; background: rgba(255,255,255,0.15); border: none;
+      color: white; font-size: 18px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; transition: background 0.2s;
+    }
+    .auth-close:hover { background: rgba(255,255,255,0.25); }
+    .auth-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .auth-logo .logo-icon { width: 36px; height: 36px; background: var(--teal); border-radius: 10px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:18px; }
+    .auth-logo .logo-text { font-weight:800; font-size:20px; }
+    .auth-logo .logo-text span { color: var(--teal); }
+    .auth-tabs { display: flex; gap: 4px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 4px; }
+    .auth-tab {
+      flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent;
+      color: rgba(255,255,255,0.6); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .auth-tab.active { background: white; color: var(--navy); }
+    .auth-body { padding: 28px 32px 32px; }
+    .auth-benefits { background: linear-gradient(135deg,rgba(0,201,167,0.08),rgba(0,180,216,0.08)); border-radius: 14px; padding: 16px; margin-bottom: 20px; }
+    .auth-benefits p { font-size: 12px; font-weight: 700; color: var(--teal-dark); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+    .auth-benefits ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .auth-benefits li { font-size: 13px; color: var(--navy); display: flex; align-items: center; gap: 8px; }
+    .auth-benefits li::before { content:"✓"; color: var(--teal); font-weight:800; }
+    .auth-btn-google {
+      width: 100%; padding: 13px; border-radius: 12px; border: 1.5px solid var(--border);
+      background: white; font-size: 15px; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: all 0.2s; margin-bottom: 16px; color: var(--navy);
+    }
+    .auth-btn-google:hover { border-color: #4285f4; background: #f8f9ff; }
+    .auth-separator { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .auth-separator::before, .auth-separator::after { content:''; flex:1; height:1px; background: var(--border); }
+    .auth-separator span { font-size: 12px; color: var(--gray-text); }
+    .auth-field { margin-bottom: 14px; }
+    .auth-field label { display: block; font-size: 13px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+    .auth-field input {
+      width: 100%; padding: 12px 14px; border-radius: 10px;
+      border: 1.5px solid var(--border); font-size: 14px; outline: none;
+      transition: border-color 0.2s; font-family: inherit;
+    }
+    .auth-field input:focus { border-color: var(--teal); }
+    .auth-btn-submit {
+      width: 100%; padding: 14px; border-radius: 12px; border: none;
+      background: linear-gradient(135deg,var(--teal),var(--sky));
+      color: white; font-size: 16px; font-weight: 700; cursor: pointer;
+      transition: opacity 0.2s; margin-top: 4px;
+    }
+    .auth-btn-submit:hover { opacity: 0.9; }
+    .auth-btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    .auth-msg { font-size: 13px; text-align: center; margin-top: 12px; min-height: 18px; }
+    .auth-msg.error { color: #e53e3e; }
+    .auth-msg.success { color: var(--teal-dark); }
+
+    /* Historial Panel */
+    .historial-overlay {
+      position: fixed; inset: 0; z-index: 2500;
+      background: rgba(13,27,42,0.4); display: none;
+    }
+    .historial-overlay.open { display: block; }
+    .historial-panel {
+      position: fixed; top: 0; right: -480px; width: 100%; max-width: 440px;
+      height: 100vh; background: white; z-index: 2600;
+      box-shadow: -16px 0 48px rgba(0,0,0,0.15);
+      transition: right 0.35s cubic-bezier(.22,1,.36,1);
+      display: flex; flex-direction: column;
+    }
+    .historial-overlay.open .historial-panel { right: 0; }
+    .historial-head {
+      padding: 24px; background: linear-gradient(135deg,var(--navy),var(--navy-mid));
+      color: white; display: flex; align-items: center; justify-content: space-between;
+    }
+    .historial-head h3 { font-size: 20px; font-weight: 800; }
+    .historial-head button { background: rgba(255,255,255,0.15); border: none; color: white; width:32px; height:32px; border-radius:50%; font-size:18px; cursor:pointer; }
+    .historial-body { flex: 1; overflow-y: auto; padding: 20px; }
+    .hist-empty { text-align: center; padding: 60px 20px; color: var(--gray-text); }
+    .hist-empty .hist-empty-icon { font-size: 48px; margin-bottom: 16px; }
+    .hist-empty p { font-size: 15px; }
+    .hist-item {
+      border: 1.5px solid var(--border); border-radius: 16px; padding: 16px;
+      margin-bottom: 12px; cursor: pointer; transition: all 0.2s;
+    }
+    .hist-item:hover { border-color: var(--teal); box-shadow: 0 4px 16px rgba(0,201,167,0.1); }
+    .hist-item-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .hist-tipo { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--navy); font-size: 15px; }
+    .hist-date { font-size: 11px; color: var(--gray-text); }
+    .hist-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .hist-tag { background: var(--light-bg); border-radius: 6px; padding: 3px 10px; font-size: 12px; color: var(--navy-mid); }
+    .hist-mejor { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+    .hist-mejor-label { font-size: 11px; color: var(--gray-text); }
+    .hist-mejor-price { font-size: 18px; font-weight: 900; color: var(--teal-dark); }
+
+    .notif-dot {
+      position: absolute; top: -2px; right: -2px; width: 10px; height: 10px;
+      background: var(--orange); border-radius: 50%; border: 2px solid var(--navy);
+    }
   </style>
 </head>
 <body>
@@ -933,11 +1084,35 @@
       <li><a href="#contacto">Contacto</a></li>
       <li><a href="#" class="nav-cta" onclick="openModal(); return false;">Cotizar ahora</a></li>
     </ul>
+    <!-- AUTH NAV -->
+    <div class="nav-auth" id="navAuth">
+      <button class="btn-login" id="btnLogin" onclick="openAuth()">Iniciar sesión</button>
+    </div>
     <div class="hamburger" onclick="toggleMenu()">
       <span></span><span></span><span></span>
     </div>
   </div>
 </nav>
+
+<!-- USER DROPDOWN -->
+<div class="user-dropdown" id="userDropdown">
+  <div class="ud-header">
+    <div class="ud-name" id="udName">Usuario</div>
+    <div class="ud-email" id="udEmail">email@example.com</div>
+  </div>
+  <div class="ud-body">
+    <div class="ud-item" onclick="openHistorial()">
+      <span class="ud-icon">📋</span> Mis cotizaciones
+    </div>
+    <div class="ud-item" onclick="openPerfil()">
+      <span class="ud-icon">👤</span> Mi perfil
+    </div>
+    <div class="ud-divider"></div>
+    <div class="ud-item danger" onclick="signOut()">
+      <span class="ud-icon">🚪</span> Cerrar sesión
+    </div>
+  </div>
+</div>
 
 <!-- HERO -->
 <section class="hero">
@@ -1407,6 +1582,73 @@
   </div>
 </footer>
 
+<!-- AUTH MODAL -->
+<div class="auth-overlay" id="authOverlay" onclick="closeAuthOutside(event)">
+  <div class="auth-box">
+    <div class="auth-header">
+      <button class="auth-close" onclick="closeAuth()">✕</button>
+      <div class="auth-logo">
+        <div class="logo-icon">B</div>
+        <span class="logo-text">banko<span>.cl</span></span>
+      </div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Iniciar sesión</button>
+        <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Crear cuenta</button>
+      </div>
+    </div>
+    <div class="auth-body">
+      <!-- Beneficios (solo en registro) -->
+      <div class="auth-benefits" id="authBenefits" style="display:none">
+        <p>Con tu cuenta gratis obtienes:</p>
+        <ul>
+          <li>Historial de cotizaciones guardado</li>
+          <li>Perfil pre-llenado — cotiza en 1 clic</li>
+          <li>Alertas cuando baje el precio de tu seguro</li>
+          <li>Aviso 30 días antes de vencer tu póliza</li>
+          <li>Descuentos exclusivos para miembros Banko</li>
+        </ul>
+      </div>
+      <!-- Google -->
+      <button class="auth-btn-google" onclick="signInGoogle()">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.34-8.16 2.34-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Continuar con Google
+      </button>
+      <div class="auth-separator"><span>o con email</span></div>
+      <!-- Form -->
+      <div id="fieldNombre" class="auth-field" style="display:none">
+        <label>Nombre completo</label>
+        <input type="text" id="inputNombre" placeholder="Ej: Juan Pérez" />
+      </div>
+      <div class="auth-field">
+        <label>Correo electrónico</label>
+        <input type="email" id="inputEmail" placeholder="tu@email.com" />
+      </div>
+      <div class="auth-field">
+        <label>Contraseña</label>
+        <input type="password" id="inputPassword" placeholder="Mínimo 6 caracteres" />
+      </div>
+      <button class="auth-btn-submit" id="btnSubmitAuth" onclick="submitAuth()">Iniciar sesión</button>
+      <div class="auth-msg" id="authMsg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORIAL PANEL -->
+<div class="historial-overlay" id="historialOverlay" onclick="closeHistorialOutside(event)">
+  <div class="historial-panel">
+    <div class="historial-head">
+      <h3>📋 Mis cotizaciones</h3>
+      <button onclick="closeHistorial()">✕</button>
+    </div>
+    <div class="historial-body" id="historialBody">
+      <div class="hist-empty">
+        <div class="hist-empty-icon">🔍</div>
+        <p>Aún no tienes cotizaciones guardadas.<br>¡Cotiza ahora y guarda tus resultados!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- WHATSAPP FLOAT -->
 <a class="whatsapp-float" href="https://wa.me/56900000000" target="_blank" title="Hablar por WhatsApp">💬</a>
 
@@ -1697,8 +1939,206 @@
 
   // ESC key to close modal
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Escape') { closeModal(); closeAuth(); closeHistorial(); }
   });
+</script>
+
+<script>
+  // ===== SUPABASE CONFIG =====
+  const SUPABASE_URL  = 'https://hpsytgjlnhimsyaqrjvi.supabase.co';
+  const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhwc3l0Z2psbmhpbXN5YXFyanZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NDg4NDUsImV4cCI6MjA5MjMyNDg0NX0.8v-_gY4M04CjDfw6MUIEn8hMuk5SArroFAPK-p4H7F0';
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let currentUser = null;
+  let authMode = 'login';
+
+  // ===== INIT =====
+  sb.auth.onAuthStateChange(async (event, session) => {
+    currentUser = session?.user ?? null;
+    renderNavAuth();
+    if (currentUser && event === 'SIGNED_IN') closeAuth();
+  });
+
+  async function renderNavAuth() {
+    const navAuth = document.getElementById('navAuth');
+    if (currentUser) {
+      const email = currentUser.email;
+      const initial = (currentUser.user_metadata?.full_name || email)[0].toUpperCase();
+      navAuth.innerHTML = `
+        <div style="position:relative">
+          <div class="user-avatar-btn" onclick="toggleDropdown()" title="${email}">
+            ${initial}
+            <div class="notif-dot"></div>
+          </div>
+        </div>`;
+      document.getElementById('udName').textContent = currentUser.user_metadata?.full_name || 'Mi cuenta';
+      document.getElementById('udEmail').textContent = email;
+    } else {
+      navAuth.innerHTML = `<button class="btn-login" onclick="openAuth()">Iniciar sesión</button>`;
+      document.getElementById('userDropdown').classList.remove('open');
+    }
+  }
+
+  function toggleDropdown() {
+    document.getElementById('userDropdown').classList.toggle('open');
+  }
+  document.addEventListener('click', (e) => {
+    const dd = document.getElementById('userDropdown');
+    if (!e.target.closest('.user-avatar-btn') && !e.target.closest('.user-dropdown')) {
+      dd.classList.remove('open');
+    }
+  });
+
+  // ===== AUTH MODAL =====
+  function openAuth(tab = 'login') {
+    switchAuthTab(tab);
+    document.getElementById('authOverlay').classList.add('open');
+  }
+  function closeAuth() {
+    document.getElementById('authOverlay').classList.remove('open');
+    document.getElementById('authMsg').textContent = '';
+  }
+  function closeAuthOutside(e) {
+    if (e.target === document.getElementById('authOverlay')) closeAuth();
+  }
+  function switchAuthTab(tab) {
+    authMode = tab;
+    document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+    document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+    document.getElementById('fieldNombre').style.display = tab === 'register' ? 'block' : 'none';
+    document.getElementById('authBenefits').style.display = tab === 'register' ? 'block' : 'none';
+    document.getElementById('btnSubmitAuth').textContent = tab === 'login' ? 'Iniciar sesión' : 'Crear cuenta gratis';
+    document.getElementById('authMsg').textContent = '';
+  }
+
+  async function signInGoogle() {
+    await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.href }
+    });
+  }
+
+  async function submitAuth() {
+    const email    = document.getElementById('inputEmail').value.trim();
+    const password = document.getElementById('inputPassword').value;
+    const nombre   = document.getElementById('inputNombre').value.trim();
+    const btn      = document.getElementById('btnSubmitAuth');
+    const msg      = document.getElementById('authMsg');
+
+    if (!email || !password) { msg.className = 'auth-msg error'; msg.textContent = 'Completa todos los campos.'; return; }
+    btn.disabled = true; btn.textContent = 'Cargando...';
+
+    let error;
+    if (authMode === 'login') {
+      ({ error } = await sb.auth.signInWithPassword({ email, password }));
+    } else {
+      ({ error } = await sb.auth.signUp({
+        email, password,
+        options: { data: { full_name: nombre } }
+      }));
+      if (!error) {
+        msg.className = 'auth-msg success';
+        msg.textContent = '¡Cuenta creada! Revisa tu correo para confirmar.';
+        btn.disabled = false; btn.textContent = 'Crear cuenta gratis';
+        return;
+      }
+    }
+    if (error) {
+      msg.className = 'auth-msg error';
+      msg.textContent = error.message.includes('Invalid') ? 'Email o contraseña incorrectos.' : error.message;
+    }
+    btn.disabled = false;
+    btn.textContent = authMode === 'login' ? 'Iniciar sesión' : 'Crear cuenta gratis';
+  }
+
+  async function signOut() {
+    await sb.auth.signOut();
+    document.getElementById('userDropdown').classList.remove('open');
+  }
+
+  // ===== SAVE COTIZACIÓN =====
+  async function saveCotizacion(tipo, datos) {
+    if (!currentUser) return;
+    const resultados = [
+      { aseguradora: 'HDI Seguros',  plan: 'HDI Todo Riesgo',      precio: 24990, deducible: 'UF 10' },
+      { aseguradora: 'Mapfre',       plan: 'Mapfre Todo Riesgo',   precio: 26490, deducible: 'UF 7'  },
+      { aseguradora: 'Zurich',       plan: 'Zurich Auto Integral',  precio: 31990, deducible: 'UF 0'  },
+    ];
+    await sb.from('cotizaciones').insert({
+      user_id:    currentUser.id,
+      tipo,
+      datos:      datos,
+      resultados: resultados,
+    });
+  }
+
+  // Override startComparison para guardar
+  const _startComparison = startComparison;
+  window.startComparison = async function() {
+    const tipoActivo = document.querySelector('.product-tab.active')?.dataset.type || 'auto';
+    const tipoMap = { auto: '🚗 Seguro Auto', hogar: '🏠 Seguro Hogar', vida: '❤️ Seguro Vida', salud: '🏥 Seguro Salud' };
+    await saveCotizacion(tipoMap[tipoActivo] || 'Seguro Auto', { tipo: tipoActivo });
+    _startComparison();
+  };
+
+  // ===== HISTORIAL =====
+  function openHistorial() {
+    document.getElementById('userDropdown').classList.remove('open');
+    document.getElementById('historialOverlay').classList.add('open');
+    loadHistorial();
+  }
+  function closeHistorial() {
+    document.getElementById('historialOverlay').classList.remove('open');
+  }
+  function closeHistorialOutside(e) {
+    if (e.target === document.getElementById('historialOverlay')) closeHistorial();
+  }
+
+  async function loadHistorial() {
+    const body = document.getElementById('historialBody');
+    if (!currentUser) { body.innerHTML = '<div class="hist-empty"><div class="hist-empty-icon">🔒</div><p>Inicia sesión para ver tu historial.</p></div>'; return; }
+    body.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray-text)">Cargando...</div>';
+
+    const { data, error } = await sb.from('cotizaciones')
+      .select('*').eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false }).limit(20);
+
+    if (!data || data.length === 0) {
+      body.innerHTML = `<div class="hist-empty"><div class="hist-empty-icon">🔍</div><p>Aún no tienes cotizaciones guardadas.<br>¡Cotiza ahora y guarda tus resultados!</p><br><button class="auth-btn-submit" style="width:auto;padding:10px 24px;font-size:14px" onclick="closeHistorial();openModal()">Cotizar ahora →</button></div>`;
+      return;
+    }
+
+    body.innerHTML = data.map(c => {
+      const fecha = new Date(c.created_at).toLocaleDateString('es-CL', { day:'numeric', month:'short', year:'numeric' });
+      const mejor = c.resultados?.[0];
+      return `
+        <div class="hist-item">
+          <div class="hist-item-top">
+            <div class="hist-tipo">${c.tipo}</div>
+            <div class="hist-date">${fecha}</div>
+          </div>
+          <div class="hist-tags">
+            ${c.resultados?.map(r => `<span class="hist-tag">${r.aseguradora}</span>`).join('') || ''}
+          </div>
+          ${mejor ? `
+          <div class="hist-mejor">
+            <div>
+              <div class="hist-mejor-label">Mejor opción encontrada</div>
+              <div style="font-size:13px;font-weight:600;color:var(--navy)">${mejor.aseguradora}</div>
+            </div>
+            <div>
+              <div class="hist-mejor-label" style="text-align:right">Prima mensual</div>
+              <div class="hist-mejor-price">$${mejor.precio.toLocaleString('es-CL')}</div>
+            </div>
+          </div>` : ''}
+        </div>`;
+    }).join('');
+  }
+
+  function openPerfil() {
+    document.getElementById('userDropdown').classList.remove('open');
+    alert('Perfil en construcción — próximamente podrás editar tus datos y seguros activos.');
+  }
 </script>
 </body>
 </html>
