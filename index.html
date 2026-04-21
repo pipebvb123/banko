@@ -1622,22 +1622,78 @@
     }
   });
 
-  // --- Smooth entrance animations ---
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.style.opacity = '1';
-        entry.target.style.transform = 'translateY(0)';
-      }
-    });
-  }, { threshold: 0.1 });
+  // --- Scroll animations ---
+  const animCSS = document.createElement('style');
+  animCSS.textContent = `
+    .anim-ready { opacity: 0; will-change: opacity, transform; }
+    .anim-up    { transform: translateY(48px); }
+    .anim-left  { transform: translateX(-56px); }
+    .anim-right { transform: translateX(56px); }
+    .anim-scale { transform: scale(0.88); }
+    .anim-in {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: opacity 0.65s cubic-bezier(.22,1,.36,1),
+                  transform 0.65s cubic-bezier(.22,1,.36,1);
+    }
+  `;
+  document.head.appendChild(animCSS);
 
-  document.querySelectorAll('.step-card, .product-card, .benefit-item, .testimonial-card').forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(30px)';
-    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-    observer.observe(el);
-  });
+  function prepareAnim(selector, direction, stagger = 0) {
+    document.querySelectorAll(selector).forEach((el, i) => {
+      el.classList.add('anim-ready', direction);
+      el.dataset.delay = stagger ? i * stagger : 0;
+    });
+  }
+
+  prepareAnim('.step-card',        'anim-up',    80);
+  prepareAnim('.product-card',     'anim-up',    70);
+  prepareAnim('.benefit-item',     'anim-left',  60);
+  prepareAnim('.testimonial-card', 'anim-scale', 80);
+  prepareAnim('.section h2, .section .section-sub', 'anim-up', 0);
+  prepareAnim('.compare-row',      'anim-right', 50);
+  prepareAnim('.cta-banner',       'anim-scale', 0);
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      const delay = Number(el.dataset.delay || 0);
+      setTimeout(() => el.classList.add('anim-in'), delay);
+      io.unobserve(el);
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.anim-ready').forEach(el => io.observe(el));
+
+  // --- Counter animation for hero stats ---
+  function animateCounter(el, target, suffix = '') {
+    const duration = 1400;
+    const start = performance.now();
+    const update = (now) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      el.textContent = (suffix === '%' || suffix === 'min')
+        ? Math.round(target * ease) + suffix
+        : '+' + Math.round(target * ease);
+      if (progress < 1) requestAnimationFrame(update);
+    };
+    requestAnimationFrame(update);
+  }
+
+  const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const nums = entry.target.querySelectorAll('.stat-num');
+      if (nums[0]) animateCounter(nums[0], 20, '');
+      if (nums[1]) animateCounter(nums[1], 40, '%');
+      if (nums[2]) animateCounter(nums[2], 2, 'min');
+      counterObserver.unobserve(entry.target);
+    });
+  }, { threshold: 0.5 });
+
+  const heroStats = document.querySelector('.hero-stats');
+  if (heroStats) counterObserver.observe(heroStats);
 
   // ESC key to close modal
   document.addEventListener('keydown', (e) => {
