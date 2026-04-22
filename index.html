@@ -2017,8 +2017,10 @@
     '4ed91401-6315-4b46-9746-1617887ae3d9',
   ];
 
+  let _adminChecked = false;
   function checkAdmin() {
-    if (!currentUser) return;
+    if (!currentUser || _adminChecked) return;
+    _adminChecked = true;
     if (sessionStorage.getItem('banko_visit_mode')) {
       sessionStorage.removeItem('banko_visit_mode');
       return;
