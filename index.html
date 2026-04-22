@@ -2012,11 +2012,16 @@
     }
   });
 
-  async function checkAdmin() {
+  const ADMIN_IDS = [
+    'adbd720d-4678-4424-a1d2-bd8eefcd6752',
+    '4ed91401-6315-4b46-9746-1617887ae3d9',
+  ];
+
+  function checkAdmin() {
     if (!currentUser) return;
-    const { data, error } = await sb.from('admins').select('id').eq('user_id', currentUser.id).maybeSingle();
-    if (error) { console.warn('Admin check failed:', error.message); return; }
-    if (data) window.location.href = '/admin/dashboard.html';
+    if (ADMIN_IDS.includes(currentUser.id)) {
+      window.location.href = '/admin/dashboard.html';
+    }
   }
 
   async function renderNavAuth() {
