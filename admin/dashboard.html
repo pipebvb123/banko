@@ -385,6 +385,12 @@
           <option value="false">Anónimo</option>
         </select>
       </div>
+      <div class="filter-group">
+        <div class="filter-label">Campo completo</div>
+        <select class="filter-select" id="fCampo" onchange="applyFilters()">
+          <option value="">Cualquiera</option>
+        </select>
+      </div>
       <div class="filter-actions">
         <button class="btn-clear" onclick="clearFilters()">Limpiar</button>
         <button class="btn-filter" onclick="applyFilters()">Filtrar</button>
@@ -516,6 +522,7 @@
     if (error) throw error;
     allLogs = data || [];
     filteredLogs = [...allLogs];
+    buildCampoSelect();
     renderTable();
   }
 
@@ -663,18 +670,34 @@
     filterTimer = setTimeout(applyFilters, 300);
   }
 
+  function buildCampoSelect() {
+    const keys = new Set();
+    allLogs.forEach(l => Object.keys(l.datos || {}).forEach(k => { if (k !== 'tipo') keys.add(k); }));
+    const sel = document.getElementById('fCampo');
+    const current = sel.value;
+    sel.innerHTML = '<option value="">Cualquiera</option>';
+    keys.forEach(k => {
+      const opt = document.createElement('option');
+      opt.value = k; opt.textContent = k;
+      sel.appendChild(opt);
+    });
+    sel.value = current;
+  }
+
   function applyFilters() {
     const search  = document.getElementById('fSearch').value.toLowerCase().trim();
     const tipo    = document.getElementById('fTipo').value;
     const desde   = document.getElementById('fDesde').value;
     const hasta   = document.getElementById('fHasta').value;
     const usuario = document.getElementById('fUsuario').value;
+    const campo   = document.getElementById('fCampo').value;
 
     filteredLogs = allLogs.filter(l => {
       if (tipo && l.tipo_comparacion !== tipo) return false;
       if (desde && l.timestamp < desde) return false;
       if (hasta && l.timestamp > hasta + 'T23:59:59') return false;
       if (usuario !== '' && String(l.is_logged_in) !== usuario) return false;
+      if (campo && !l.datos?.[campo]) return false;
       if (search) {
         const haystack = [
           l.tipo_comparacion, l.session_id,
@@ -696,6 +719,7 @@
     document.getElementById('fDesde').value = '';
     document.getElementById('fHasta').value = '';
     document.getElementById('fUsuario').value = '';
+    document.getElementById('fCampo').value = '';
     filteredLogs = [...allLogs];
     currentPage = 1;
     renderTable();
