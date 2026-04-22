@@ -811,16 +811,25 @@
       return;
     }
 
-    const headers = ['Fecha', 'Hora', 'Tipo Comparación', 'Usuario', 'Session ID', 'Datos', 'User Agent'];
+    // Recolectar todas las claves únicas de datos (excluyendo "tipo")
+    const datosKeys = [];
+    data.forEach(l => {
+      Object.keys(l.datos || {}).forEach(k => {
+        if (k !== 'tipo' && !datosKeys.includes(k)) datosKeys.push(k);
+      });
+    });
+
+    const headers = ['Fecha', 'Hora', 'Tipo Comparación', 'Usuario', 'Session ID', ...datosKeys, 'User Agent'];
     const rows = data.map(l => {
       const ts = new Date(l.timestamp);
+      const datosVals = datosKeys.map(k => l.datos?.[k] ?? '');
       return [
         ts.toLocaleDateString('es-CL'),
         ts.toLocaleTimeString('es-CL'),
         l.tipo_comparacion || '',
         l.is_logged_in ? 'Registrado' : 'Anónimo',
         l.session_id || '',
-        JSON.stringify(l.datos || {}),
+        ...datosVals,
         (l.user_agent || '').replace(/,/g, ';'),
       ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
     });
