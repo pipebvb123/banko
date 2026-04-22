@@ -2014,7 +2014,8 @@
 
   async function checkAdmin() {
     if (!currentUser) return;
-    const { data } = await sb.from('admins').select('id').eq('user_id', currentUser.id).maybeSingle();
+    const { data, error } = await sb.from('admins').select('id').eq('user_id', currentUser.id).maybeSingle();
+    if (error) { console.warn('Admin check failed:', error.message); return; }
     if (data) window.location.href = '/admin/dashboard.html';
   }
 
