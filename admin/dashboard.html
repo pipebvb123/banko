@@ -133,6 +133,33 @@
     }
     .btn-clear:hover { color: var(--text); border-color: var(--gray); }
 
+    /* Multi-select campos */
+    .campo-wrap { position: relative; }
+    .campo-btn {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 7px;
+      font-size: 13px; font-family: inherit; color: var(--text); background: #F8FAFC;
+      cursor: pointer; min-width: 160px; white-space: nowrap;
+      transition: border-color .15s;
+    }
+    .campo-btn:hover, .campo-btn.open { border-color: var(--teal); }
+    .campo-btn .arrow { font-size: 10px; color: var(--gray); }
+    .campo-dropdown {
+      display: none; position: absolute; top: calc(100% + 4px); left: 0;
+      background: #fff; border: 1.5px solid var(--border); border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(11,22,41,.12); z-index: 200;
+      min-width: 220px; max-height: 280px; overflow-y: auto; padding: 6px 0;
+    }
+    .campo-dropdown.open { display: block; }
+    .campo-option {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 14px; font-size: 13px; color: var(--text);
+      cursor: pointer; transition: background .12s;
+    }
+    .campo-option:hover { background: #F0F7FF; }
+    .campo-option input[type=checkbox] { accent-color: var(--teal); width: 14px; height: 14px; cursor: pointer; }
+    .campo-divider { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+
     /* ── TABLE ── */
     .table-card {
       background: var(--card); border-radius: 1rem;
@@ -386,10 +413,20 @@
         </select>
       </div>
       <div class="filter-group">
-        <div class="filter-label">Campo completo</div>
-        <select class="filter-select" id="fCampo" onchange="applyFilters()">
-          <option value="">Cualquiera</option>
-        </select>
+        <div class="filter-label">Campos completos</div>
+        <div class="campo-wrap">
+          <button type="button" class="campo-btn" id="campoBtnTrigger" onclick="toggleCampoDropdown()">
+            <span id="campoBtnLabel">Sin filtro</span>
+            <span class="arrow">▼</span>
+          </button>
+          <div class="campo-dropdown" id="campoDropdown">
+            <div class="campo-option" onclick="toggleAllCampos()">
+              <input type="checkbox" id="chkTodos"> <label for="chkTodos" style="cursor:pointer;font-weight:600">Seleccionar todos</label>
+            </div>
+            <hr class="campo-divider">
+            <div id="campoOptionsList"></div>
+          </div>
+        </div>
       </div>
       <div class="filter-actions">
         <button class="btn-clear" onclick="clearFilters()">Limpiar</button>
@@ -670,19 +707,63 @@
     filterTimer = setTimeout(applyFilters, 300);
   }
 
+  let selectedCampos = new Set();
+
   function buildCampoSelect() {
     const keys = new Set();
     allLogs.forEach(l => Object.keys(l.datos || {}).forEach(k => { if (k !== 'tipo') keys.add(k); }));
-    const sel = document.getElementById('fCampo');
-    const current = sel.value;
-    sel.innerHTML = '<option value="">Cualquiera</option>';
+    const list = document.getElementById('campoOptionsList');
+    list.innerHTML = '';
     keys.forEach(k => {
-      const opt = document.createElement('option');
-      opt.value = k; opt.textContent = k;
-      sel.appendChild(opt);
+      const div = document.createElement('div');
+      div.className = 'campo-option';
+      div.innerHTML = `<input type="checkbox" id="chk_${k}" value="${k}" onchange="onCampoChange()"> <label for="chk_${k}" style="cursor:pointer">${k}</label>`;
+      list.appendChild(div);
     });
-    sel.value = current;
   }
+
+  function toggleCampoDropdown() {
+    const btn = document.getElementById('campoBtnTrigger');
+    const dd  = document.getElementById('campoDropdown');
+    btn.classList.toggle('open');
+    dd.classList.toggle('open');
+  }
+
+  function onCampoChange() {
+    const checkboxes = document.querySelectorAll('#campoOptionsList input[type=checkbox]');
+    selectedCampos = new Set([...checkboxes].filter(c => c.checked).map(c => c.value));
+    const allChecked = [...checkboxes].every(c => c.checked);
+    document.getElementById('chkTodos').checked = allChecked;
+    updateCampoLabel();
+    applyFilters();
+  }
+
+  function toggleAllCampos() {
+    const chkTodos   = document.getElementById('chkTodos');
+    const checkboxes = document.querySelectorAll('#campoOptionsList input[type=checkbox]');
+    checkboxes.forEach(c => c.checked = chkTodos.checked);
+    selectedCampos = chkTodos.checked ? new Set([...checkboxes].map(c => c.value)) : new Set();
+    updateCampoLabel();
+    applyFilters();
+  }
+
+  function updateCampoLabel() {
+    const label = document.getElementById('campoBtnLabel');
+    if (selectedCampos.size === 0) {
+      label.textContent = 'Sin filtro';
+    } else {
+      const allCount = document.querySelectorAll('#campoOptionsList input[type=checkbox]').length;
+      label.textContent = selectedCampos.size === allCount ? 'Todos los campos' : `${selectedCampos.size} campo(s)`;
+    }
+  }
+
+  // Cerrar dropdown al hacer clic fuera
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.campo-wrap')) {
+      document.getElementById('campoBtnTrigger')?.classList.remove('open');
+      document.getElementById('campoDropdown')?.classList.remove('open');
+    }
+  });
 
   function applyFilters() {
     const search  = document.getElementById('fSearch').value.toLowerCase().trim();
@@ -690,14 +771,12 @@
     const desde   = document.getElementById('fDesde').value;
     const hasta   = document.getElementById('fHasta').value;
     const usuario = document.getElementById('fUsuario').value;
-    const campo   = document.getElementById('fCampo').value;
-
     filteredLogs = allLogs.filter(l => {
       if (tipo && l.tipo_comparacion !== tipo) return false;
       if (desde && l.timestamp < desde) return false;
       if (hasta && l.timestamp > hasta + 'T23:59:59') return false;
       if (usuario !== '' && String(l.is_logged_in) !== usuario) return false;
-      if (campo && !l.datos?.[campo]) return false;
+      if (selectedCampos.size > 0 && ![...selectedCampos].every(k => l.datos?.[k])) return false;
       if (search) {
         const haystack = [
           l.tipo_comparacion, l.session_id,
@@ -719,7 +798,10 @@
     document.getElementById('fDesde').value = '';
     document.getElementById('fHasta').value = '';
     document.getElementById('fUsuario').value = '';
-    document.getElementById('fCampo').value = '';
+    selectedCampos = new Set();
+    document.querySelectorAll('#campoOptionsList input[type=checkbox]').forEach(c => c.checked = false);
+    document.getElementById('chkTodos').checked = false;
+    updateCampoLabel();
     filteredLogs = [...allLogs];
     currentPage = 1;
     renderTable();
