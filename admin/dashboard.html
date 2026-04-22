@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Banko.cl — Dashboard Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0B1629; --teal: #0E7490; --sky: #38BDF8;
+      --orange: #F97316; --bg: #F0F7FF; --text: #1E3A5F;
+      --gray: #64748B; --card: #fff; --border: #CBD5E1;
+      --green: #10B981; --red: #EF4444; --purple: #8B5CF6;
+      --sidebar: 240px;
+    }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar); min-height: 100vh; background: var(--navy);
+      display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100;
+    }
+    .sb-logo {
+      padding: 1.5rem 1.25rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .sb-logo-name { font-size: 1.3rem; font-weight: 800; color: #fff; }
+    .sb-logo-name span { color: var(--sky); }
+    .sb-logo-chip {
+      display: inline-block; background: var(--orange);
+      color: #fff; font-size: 9px; font-weight: 700;
+      padding: 1px 7px; border-radius: 20px; margin-left: 5px;
+      letter-spacing: .7px; text-transform: uppercase; vertical-align: middle;
+    }
+    .sb-nav { padding: 1rem 0; flex: 1; }
+    .sb-nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 1.25rem; font-size: 13.5px; font-weight: 500;
+      color: rgba(255,255,255,.6); cursor: pointer; border-radius: 0;
+      transition: color .15s, background .15s; border: none; background: none;
+      width: 100%; text-align: left;
+    }
+    .sb-nav-item:hover { color: #fff; background: rgba(255,255,255,.05); }
+    .sb-nav-item.active { color: #fff; background: rgba(56,189,248,.15); border-left: 3px solid var(--sky); }
+    .sb-nav-item .icon { font-size: 16px; width: 20px; flex-shrink: 0; }
+    .sb-footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid rgba(255,255,255,.08);
+    }
+    .sb-user-email { font-size: 11px; color: rgba(255,255,255,.45); margin-bottom: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sb-logout {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: rgba(255,255,255,.5);
+      cursor: pointer; background: none; border: none; font-family: inherit;
+      transition: color .15s;
+    }
+    .sb-logout:hover { color: var(--red); }
+
+    /* ── MAIN ── */
+    .main { margin-left: var(--sidebar); flex: 1; padding: 2rem; min-width: 0; }
+    .page-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;
+    }
+    .page-title { font-size: 1.4rem; font-weight: 800; color: var(--navy); }
+    .page-sub { font-size: 13px; color: var(--gray); margin-top: 2px; }
+    .refresh-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 14px; background: var(--card); border: 1.5px solid var(--border);
+      border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--gray);
+      cursor: pointer; font-family: inherit; transition: border-color .15s, color .15s;
+    }
+    .refresh-btn:hover { border-color: var(--teal); color: var(--teal); }
+
+    /* ── SECTIONS ── */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ── STAT CARDS ── */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      background: var(--card); border-radius: 1rem; padding: 1.25rem;
+      box-shadow: 0 2px 12px rgba(11,22,41,.06); border: 1px solid var(--border);
+    }
+    .stat-label { font-size: 12px; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: .5px; margin-bottom: .5rem; }
+    .stat-value { font-size: 2rem; font-weight: 800; color: var(--navy); line-height: 1; }
+    .stat-sub { font-size: 11.5px; color: var(--gray); margin-top: .35rem; }
+    .stat-icon { font-size: 1.6rem; float: right; margin-top: -2.2rem; }
+
+    /* ── CHARTS ── */
+    .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+    .chart-card {
+      background: var(--card); border-radius: 1rem; padding: 1.25rem;
+      box-shadow: 0 2px 12px rgba(11,22,41,.06); border: 1px solid var(--border);
+    }
+    .chart-title { font-size: 13.5px; font-weight: 700; color: var(--navy); margin-bottom: 1rem; }
+    .chart-wrap { position: relative; }
+
+    /* ── FILTERS ── */
+    .filters-bar {
+      background: var(--card); border-radius: 1rem; padding: 1rem 1.25rem;
+      box-shadow: 0 2px 12px rgba(11,22,41,.06); border: 1px solid var(--border);
+      display: flex; flex-wrap: wrap; gap: .75rem; align-items: flex-end;
+      margin-bottom: 1rem;
+    }
+    .filter-group { display: flex; flex-direction: column; gap: 4px; }
+    .filter-label { font-size: 11px; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: .4px; }
+    .filter-input, .filter-select {
+      padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 7px;
+      font-size: 13px; font-family: inherit; color: var(--text); background: #F8FAFC;
+      outline: none; transition: border-color .15s;
+    }
+    .filter-input:focus, .filter-select:focus { border-color: var(--teal); }
+    .filter-input { min-width: 200px; }
+    .filter-actions { display: flex; gap: .5rem; margin-left: auto; align-items: flex-end; }
+    .btn-filter {
+      padding: 7px 16px; background: var(--teal); color: #fff;
+      border: none; border-radius: 7px; font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: opacity .15s;
+    }
+    .btn-filter:hover { opacity: .85; }
+    .btn-clear {
+      padding: 7px 14px; background: transparent; color: var(--gray);
+      border: 1.5px solid var(--border); border-radius: 7px;
+      font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
+      transition: color .15s, border-color .15s;
+    }
+    .btn-clear:hover { color: var(--text); border-color: var(--gray); }
+
+    /* ── TABLE ── */
+    .table-card {
+      background: var(--card); border-radius: 1rem;
+      box-shadow: 0 2px 12px rgba(11,22,41,.06); border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .table-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .875rem 1.25rem; border-bottom: 1px solid var(--border);
+    }
+    .table-title { font-size: 13.5px; font-weight: 700; color: var(--navy); }
+    .table-count { font-size: 12px; color: var(--gray); }
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: #F8FAFC; }
+    th {
+      padding: 10px 14px; text-align: left; font-size: 11.5px; font-weight: 700;
+      color: var(--gray); text-transform: uppercase; letter-spacing: .4px;
+      border-bottom: 1px solid var(--border); white-space: nowrap;
+    }
+    td {
+      padding: 10px 14px; font-size: 13px; color: var(--text);
+      border-bottom: 1px solid #F1F5F9; vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #F8FAFC; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    }
+    .badge-green { background: #D1FAE5; color: #065F46; }
+    .badge-gray  { background: #F1F5F9; color: var(--gray); }
+    .badge-blue  { background: #DBEAFE; color: #1E40AF; }
+    .badge-orange{ background: #FFEDD5; color: #9A3412; }
+    .badge-purple{ background: #EDE9FE; color: #5B21B6; }
+    .session-id { font-family: monospace; font-size: 11.5px; color: var(--gray); }
+    .datos-cell { max-width: 260px; font-size: 11.5px; color: var(--gray); word-break: break-word; }
+    .empty-row td { text-align: center; padding: 3rem; color: var(--gray); font-size: 14px; }
+
+    /* ── PAGINATION ── */
+    .pagination {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .75rem 1.25rem; border-top: 1px solid var(--border);
+      flex-wrap: wrap; gap: .5rem;
+    }
+    .pagination-info { font-size: 12.5px; color: var(--gray); }
+    .pagination-btns { display: flex; gap: .375rem; }
+    .page-btn {
+      padding: 5px 11px; border: 1.5px solid var(--border); background: #fff;
+      border-radius: 6px; font-size: 12.5px; font-weight: 600; color: var(--gray);
+      cursor: pointer; font-family: inherit; transition: all .15s;
+    }
+    .page-btn:hover:not(:disabled) { border-color: var(--teal); color: var(--teal); }
+    .page-btn.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+    .page-btn:disabled { opacity: .4; cursor: default; }
+
+    /* ── EXPORT SECTION ── */
+    .export-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .export-card {
+      background: var(--card); border-radius: 1rem; padding: 1.5rem;
+      box-shadow: 0 2px 12px rgba(11,22,41,.06); border: 1px solid var(--border);
+    }
+    .export-card-title { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: .5rem; }
+    .export-card-sub { font-size: 13px; color: var(--gray); margin-bottom: 1.25rem; line-height: 1.5; }
+    .btn-export {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; background: var(--teal); color: #fff;
+      border: none; border-radius: 8px; font-size: 13.5px; font-weight: 700;
+      cursor: pointer; font-family: inherit; transition: opacity .15s;
+      text-decoration: none;
+    }
+    .btn-export:hover { opacity: .85; }
+    .btn-export.secondary {
+      background: transparent; color: var(--teal);
+      border: 1.5px solid var(--teal);
+    }
+    .btn-export.secondary:hover { background: rgba(14,116,144,.05); }
+
+    /* ── LOADING ── */
+    .loading-overlay {
+      position: fixed; inset: 0; background: rgba(11,22,41,.55);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 999; backdrop-filter: blur(2px);
+    }
+    .loading-overlay.hidden { display: none; }
+    .spinner {
+      width: 42px; height: 42px;
+      border: 4px solid rgba(255,255,255,.2);
+      border-top-color: var(--sky);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1100px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .charts-grid { grid-template-columns: 1fr; }
+      .export-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .sidebar { width: 100%; min-height: auto; position: static; flex-direction: row; flex-wrap: wrap; }
+      .main { margin-left: 0; padding: 1rem; }
+      .sb-nav { display: flex; padding: .5rem; }
+      .sb-logo { padding: .75rem 1rem; }
+      .sb-footer { display: none; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      body { flex-direction: column; }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-name">banko<span>.cl</span><span class="sb-logo-chip">Admin</span></div>
+  </div>
+  <nav class="sb-nav">
+    <button class="sb-nav-item active" onclick="showSection('resumen', this)">
+      <span class="icon">📊</span> Resumen
+    </button>
+    <button class="sb-nav-item" onclick="showSection('actividad', this)">
+      <span class="icon">📋</span> Actividad
+    </button>
+    <button class="sb-nav-item" onclick="showSection('exportar', this)">
+      <span class="icon">📤</span> Exportar
+    </button>
+    <div style="margin:1rem 0;border-top:1px solid rgba(255,255,255,.08)"></div>
+    <a href="/" class="sb-nav-item" style="text-decoration:none;" target="_blank">
+      <span class="icon">🌐</span> Ver sitio
+    </a>
+  </nav>
+  <div class="sb-footer">
+    <div class="sb-user-email" id="adminEmail">—</div>
+    <button class="sb-logout" onclick="handleLogout()">
+      <span>🚪</span> Cerrar sesión
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- ── RESUMEN ── -->
+  <div class="section active" id="sec-resumen">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Resumen General</div>
+        <div class="page-sub" id="lastUpdated">Actualizando...</div>
+      </div>
+      <button class="refresh-btn" onclick="loadAll()">↻ Actualizar</button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">🔍</div>
+        <div class="stat-label">Total Comparaciones</div>
+        <div class="stat-value" id="statTotal">—</div>
+        <div class="stat-sub">registradas en sistema</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-label">Sesiones Únicas</div>
+        <div class="stat-value" id="statSesiones">—</div>
+        <div class="stat-sub">usuarios distintos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-label">Usuarios Registrados</div>
+        <div class="stat-value" id="statRegistrados">—</div>
+        <div class="stat-sub">comparaciones logueados</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🕐</div>
+        <div class="stat-label">Última Actividad</div>
+        <div class="stat-value" style="font-size:1.1rem" id="statUltima">—</div>
+        <div class="stat-sub" id="statUltimaSub">—</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Comparaciones por día (últimos 30 días)</div>
+        <div class="chart-wrap" style="height:260px">
+          <canvas id="chartDiario"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Por tipo de comparación</div>
+        <div class="chart-wrap" style="height:260px">
+          <canvas id="chartTipos"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Distribución por hora del día</div>
+      <div class="chart-wrap" style="height:180px">
+        <canvas id="chartHoras"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ACTIVIDAD ── -->
+  <div class="section" id="sec-actividad">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Registro de Actividad</div>
+        <div class="page-sub">Todas las comparaciones realizadas por usuarios</div>
+      </div>
+    </div>
+
+    <div class="filters-bar">
+      <div class="filter-group">
+        <div class="filter-label">Buscar</div>
+        <input type="text" class="filter-input" id="fSearch" placeholder="Sesión, tipo, datos..." oninput="scheduleFilter()">
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Tipo</div>
+        <select class="filter-select" id="fTipo" onchange="applyFilters()">
+          <option value="">Todos</option>
+          <option value="factoring">Factoring</option>
+          <option value="leasing">Leasing</option>
+          <option value="capital">Capital de Trabajo</option>
+          <option value="credito">Créditos</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Desde</div>
+        <input type="date" class="filter-select" id="fDesde" onchange="applyFilters()">
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Hasta</div>
+        <input type="date" class="filter-select" id="fHasta" onchange="applyFilters()">
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Usuario</div>
+        <select class="filter-select" id="fUsuario" onchange="applyFilters()">
+          <option value="">Todos</option>
+          <option value="true">Registrado</option>
+          <option value="false">Anónimo</option>
+        </select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn-clear" onclick="clearFilters()">Limpiar</button>
+        <button class="btn-filter" onclick="applyFilters()">Filtrar</button>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">Registros</div>
+        <div class="table-count" id="tableCount">— registros</div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha y Hora</th>
+              <th>Tipo</th>
+              <th>Usuario</th>
+              <th>Session ID</th>
+              <th>Datos del Formulario</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr class="empty-row"><td colspan="5">Cargando datos...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+
+  <!-- ── EXPORTAR ── -->
+  <div class="section" id="sec-exportar">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Exportar Datos</div>
+        <div class="page-sub">Descarga los registros en formato CSV para análisis externo</div>
+      </div>
+    </div>
+
+    <div class="export-grid">
+      <div class="export-card">
+        <div class="export-card-title">📥 Exportar Todo</div>
+        <div class="export-card-sub">Descarga todos los registros de actividad en un archivo CSV. Incluye fecha, tipo, usuario, sesión y datos del formulario.</div>
+        <button class="btn-export" onclick="exportCSV('all')">⬇ Descargar CSV completo</button>
+      </div>
+      <div class="export-card">
+        <div class="export-card-title">🔍 Exportar Filtrado</div>
+        <div class="export-card-sub">Exporta solo los registros que coincidan con los filtros activos en la sección de Actividad. Aplica filtros primero.</div>
+        <button class="btn-export secondary" onclick="exportCSV('filtered')">⬇ Descargar CSV filtrado</button>
+      </div>
+      <div class="export-card">
+        <div class="export-card-title">📅 Reporte Últimos 7 Días</div>
+        <div class="export-card-sub">Genera un reporte automático de la última semana con resumen de uso por tipo de comparación.</div>
+        <button class="btn-export" onclick="exportCSV('week')">⬇ Reporte semanal</button>
+      </div>
+      <div class="export-card">
+        <div class="export-card-title">📅 Reporte Últimos 30 Días</div>
+        <div class="export-card-sub">Exporta los últimos 30 días de actividad con todas las columnas disponibles.</div>
+        <button class="btn-export secondary" onclick="exportCSV('month')">⬇ Reporte mensual</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  const SUPABASE_URL = 'https://hpsytgjlnhimsyaqrjvi.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhwc3l0Z2psbmhpbXN5YXFyanZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NDg4NDUsImV4cCI6MjA5MjMyNDg0NX0.8v-_gY4M04CjDfw6MUIEn8hMuk5SArroFAPK-p4H7F0';
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const PAGE_SIZE = 25;
+  let allLogs = [];
+  let filteredLogs = [];
+  let currentPage = 1;
+  let filterTimer = null;
+  let charts = {};
+
+  // ── AUTH GUARD ──
+  (async () => {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = '/admin/index.html'; return; }
+    const { data: admin } = await sb.from('admins').select('id').eq('user_id', session.user.id).maybeSingle();
+    if (!admin) { await sb.auth.signOut(); window.location.href = '/admin/index.html'; return; }
+    document.getElementById('adminEmail').textContent = session.user.email;
+    await loadAll();
+  })();
+
+  async function handleLogout() {
+    await sb.auth.signOut();
+    window.location.href = '/admin/index.html';
+  }
+
+  // ── NAVIGATION ──
+  function showSection(id, el) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.sb-nav-item').forEach(b => b.classList.remove('active'));
+    document.getElementById('sec-' + id).classList.add('active');
+    el.classList.add('active');
+    if (id === 'actividad') renderTable();
+  }
+
+  // ── LOAD ALL DATA ──
+  async function loadAll() {
+    setLoading(true);
+    try {
+      await loadLogs();
+      updateStats();
+      renderCharts();
+    } catch (e) {
+      console.error('Error loading data:', e);
+    }
+    setLoading(false);
+    document.getElementById('lastUpdated').textContent =
+      'Actualizado: ' + new Date().toLocaleString('es-CL', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+  }
+
+  async function loadLogs() {
+    const { data, error } = await sb
+      .from('activity_logs')
+      .select('*')
+      .order('timestamp', { ascending: false })
+      .limit(5000);
+    if (error) throw error;
+    allLogs = data || [];
+    filteredLogs = [...allLogs];
+    renderTable();
+  }
+
+  // ── STATS ──
+  function updateStats() {
+    document.getElementById('statTotal').textContent = allLogs.length.toLocaleString('es-CL');
+
+    const uniqueSessions = new Set(allLogs.map(l => l.session_id)).size;
+    document.getElementById('statSesiones').textContent = uniqueSessions.toLocaleString('es-CL');
+
+    const registrados = allLogs.filter(l => l.is_logged_in).length;
+    document.getElementById('statRegistrados').textContent = registrados.toLocaleString('es-CL');
+
+    if (allLogs.length > 0) {
+      const last = new Date(allLogs[0].timestamp);
+      document.getElementById('statUltima').textContent =
+        last.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('statUltimaSub').textContent =
+        last.toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' });
+    } else {
+      document.getElementById('statUltima').textContent = 'Sin datos';
+      document.getElementById('statUltimaSub').textContent = '—';
+    }
+  }
+
+  // ── CHARTS ──
+  function renderCharts() {
+    renderChartDiario();
+    renderChartTipos();
+    renderChartHoras();
+  }
+
+  function renderChartDiario() {
+    const days = 30;
+    const counts = {};
+    const now = new Date();
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      counts[d.toISOString().slice(0, 10)] = 0;
+    }
+    allLogs.forEach(l => {
+      const day = l.timestamp?.slice(0, 10);
+      if (day && counts[day] !== undefined) counts[day]++;
+    });
+    const labels = Object.keys(counts).map(d => {
+      const dt = new Date(d + 'T12:00:00');
+      return dt.toLocaleDateString('es-CL', { day: 'numeric', month: 'short' });
+    });
+    const data = Object.values(counts);
+
+    if (charts.diario) charts.diario.destroy();
+    charts.diario = new Chart(document.getElementById('chartDiario'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Comparaciones',
+          data,
+          borderColor: '#0E7490',
+          backgroundColor: 'rgba(14,116,144,.08)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 3,
+          pointBackgroundColor: '#0E7490',
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 11 }, maxRotation: 45, color: '#64748B' } },
+          y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 }, color: '#64748B' }, grid: { color: '#F1F5F9' } }
+        }
+      }
+    });
+  }
+
+  function renderChartTipos() {
+    const tipoMap = { factoring: '📄 Factoring', leasing: '🏗️ Leasing', capital: '💼 Capital', credito: '🏦 Créditos' };
+    const counts = { factoring: 0, leasing: 0, capital: 0, credito: 0 };
+    allLogs.forEach(l => { if (l.tipo_comparacion && counts[l.tipo_comparacion] !== undefined) counts[l.tipo_comparacion]++; });
+    const labels = Object.keys(counts).map(k => tipoMap[k] || k);
+    const data = Object.values(counts);
+
+    if (charts.tipos) charts.tipos.destroy();
+    charts.tipos = new Chart(document.getElementById('chartTipos'), {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [{
+          data,
+          backgroundColor: ['#0E7490', '#38BDF8', '#F97316', '#8B5CF6'],
+          borderWidth: 2, borderColor: '#fff'
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 12 } }
+        }
+      }
+    });
+  }
+
+  function renderChartHoras() {
+    const counts = Array(24).fill(0);
+    allLogs.forEach(l => {
+      if (l.timestamp) {
+        const h = new Date(l.timestamp).getHours();
+        counts[h]++;
+      }
+    });
+    const labels = counts.map((_, i) => `${String(i).padStart(2,'0')}h`);
+
+    if (charts.horas) charts.horas.destroy();
+    charts.horas = new Chart(document.getElementById('chartHoras'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Comparaciones',
+          data: counts,
+          backgroundColor: 'rgba(56,189,248,.7)',
+          borderColor: '#38BDF8',
+          borderWidth: 1,
+          borderRadius: 4,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#64748B' } },
+          y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 }, color: '#64748B' }, grid: { color: '#F1F5F9' } }
+        }
+      }
+    });
+  }
+
+  // ── FILTERS ──
+  function scheduleFilter() {
+    clearTimeout(filterTimer);
+    filterTimer = setTimeout(applyFilters, 300);
+  }
+
+  function applyFilters() {
+    const search  = document.getElementById('fSearch').value.toLowerCase().trim();
+    const tipo    = document.getElementById('fTipo').value;
+    const desde   = document.getElementById('fDesde').value;
+    const hasta   = document.getElementById('fHasta').value;
+    const usuario = document.getElementById('fUsuario').value;
+
+    filteredLogs = allLogs.filter(l => {
+      if (tipo && l.tipo_comparacion !== tipo) return false;
+      if (desde && l.timestamp < desde) return false;
+      if (hasta && l.timestamp > hasta + 'T23:59:59') return false;
+      if (usuario !== '' && String(l.is_logged_in) !== usuario) return false;
+      if (search) {
+        const haystack = [
+          l.tipo_comparacion, l.session_id,
+          JSON.stringify(l.datos || {}),
+          l.is_logged_in ? 'registrado' : 'anonimo'
+        ].join(' ').toLowerCase();
+        if (!haystack.includes(search)) return false;
+      }
+      return true;
+    });
+
+    currentPage = 1;
+    renderTable();
+  }
+
+  function clearFilters() {
+    document.getElementById('fSearch').value = '';
+    document.getElementById('fTipo').value = '';
+    document.getElementById('fDesde').value = '';
+    document.getElementById('fHasta').value = '';
+    document.getElementById('fUsuario').value = '';
+    filteredLogs = [...allLogs];
+    currentPage = 1;
+    renderTable();
+  }
+
+  // ── TABLE ──
+  const TIPO_BADGES = {
+    factoring: 'badge-blue',
+    leasing:   'badge-orange',
+    capital:   'badge-purple',
+    credito:   'badge-green',
+  };
+
+  function renderTable() {
+    const tbody = document.getElementById('tableBody');
+    const total = filteredLogs.length;
+    document.getElementById('tableCount').textContent = `${total.toLocaleString('es-CL')} registros`;
+
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const page  = filteredLogs.slice(start, start + PAGE_SIZE);
+
+    if (page.length === 0) {
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="5">Sin resultados para los filtros aplicados.</td></tr>`;
+      document.getElementById('pagination').innerHTML = '';
+      return;
+    }
+
+    tbody.innerHTML = page.map(l => {
+      const ts = new Date(l.timestamp);
+      const fecha = ts.toLocaleDateString('es-CL', { day:'2-digit', month:'2-digit', year:'numeric' });
+      const hora  = ts.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+      const tipoBadge = TIPO_BADGES[l.tipo_comparacion] || 'badge-gray';
+      const tipoLabel = { factoring:'📄 Factoring', leasing:'🏗️ Leasing', capital:'💼 Capital', credito:'🏦 Créditos' }[l.tipo_comparacion] || (l.tipo_comparacion || '—');
+      const userBadge = l.is_logged_in ? '<span class="badge badge-green">✓ Registrado</span>' : '<span class="badge badge-gray">Anónimo</span>';
+      const sessShort = (l.session_id || '').slice(0, 18) + '...';
+      const datosStr  = l.datos ? formatDatos(l.datos) : '—';
+
+      return `<tr>
+        <td><div>${fecha}</div><div style="font-size:11px;color:var(--gray)">${hora}</div></td>
+        <td><span class="badge ${tipoBadge}">${tipoLabel}</span></td>
+        <td>${userBadge}</td>
+        <td><span class="session-id" title="${l.session_id || ''}">${sessShort}</span></td>
+        <td><div class="datos-cell">${datosStr}</div></td>
+      </tr>`;
+    }).join('');
+
+    renderPagination(total);
+  }
+
+  function formatDatos(datos) {
+    if (!datos || typeof datos !== 'object') return String(datos || '—');
+    return Object.entries(datos)
+      .filter(([k]) => k !== 'tipo')
+      .map(([k, v]) => `<span style="color:var(--teal);font-weight:600">${k}:</span> ${v}`)
+      .join(' · ') || '—';
+  }
+
+  function renderPagination(total) {
+    const totalPages = Math.ceil(total / PAGE_SIZE);
+    if (totalPages <= 1) { document.getElementById('pagination').innerHTML = ''; return; }
+
+    const start = (currentPage - 1) * PAGE_SIZE + 1;
+    const end   = Math.min(currentPage * PAGE_SIZE, total);
+
+    let pagesHtml = '';
+    const window = 2;
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= currentPage - window && i <= currentPage + window)) {
+        pagesHtml += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+      } else if (i === currentPage - window - 1 || i === currentPage + window + 1) {
+        pagesHtml += `<span style="padding:5px 4px;color:var(--gray)">…</span>`;
+      }
+    }
+
+    document.getElementById('pagination').innerHTML = `
+      <div class="pagination-info">Mostrando ${start}–${end} de ${total} registros</div>
+      <div class="pagination-btns">
+        <button class="page-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>←</button>
+        ${pagesHtml}
+        <button class="page-btn" onclick="goPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>→</button>
+      </div>`;
+  }
+
+  function goPage(n) {
+    const totalPages = Math.ceil(filteredLogs.length / PAGE_SIZE);
+    if (n < 1 || n > totalPages) return;
+    currentPage = n;
+    renderTable();
+    document.querySelector('.table-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ── EXPORT CSV ──
+  function exportCSV(mode) {
+    let data;
+    const now = new Date();
+
+    if (mode === 'all') {
+      data = allLogs;
+    } else if (mode === 'filtered') {
+      data = filteredLogs;
+    } else if (mode === 'week') {
+      const weekAgo = new Date(now);
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      data = allLogs.filter(l => new Date(l.timestamp) >= weekAgo);
+    } else if (mode === 'month') {
+      const monthAgo = new Date(now);
+      monthAgo.setDate(monthAgo.getDate() - 30);
+      data = allLogs.filter(l => new Date(l.timestamp) >= monthAgo);
+    }
+
+    if (!data || data.length === 0) {
+      alert('No hay datos para exportar con los filtros actuales.');
+      return;
+    }
+
+    const headers = ['Fecha', 'Hora', 'Tipo Comparación', 'Usuario', 'Session ID', 'Datos', 'User Agent'];
+    const rows = data.map(l => {
+      const ts = new Date(l.timestamp);
+      return [
+        ts.toLocaleDateString('es-CL'),
+        ts.toLocaleTimeString('es-CL'),
+        l.tipo_comparacion || '',
+        l.is_logged_in ? 'Registrado' : 'Anónimo',
+        l.session_id || '',
+        JSON.stringify(l.datos || {}),
+        (l.user_agent || '').replace(/,/g, ';'),
+      ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
+    });
+
+    const csv = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `banko_actividad_${mode}_${now.toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ── LOADING ──
+  function setLoading(v) {
+    document.getElementById('loadingOverlay').classList.toggle('hidden', !v);
+  }
+</script>
+</body>
+</html>
