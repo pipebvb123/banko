@@ -2019,6 +2019,10 @@
 
   function checkAdmin() {
     if (!currentUser) return;
+    if (sessionStorage.getItem('banko_visit_mode')) {
+      sessionStorage.removeItem('banko_visit_mode');
+      return;
+    }
     if (ADMIN_IDS.includes(currentUser.id)) {
       window.location.href = '/admin/dashboard.html';
     }

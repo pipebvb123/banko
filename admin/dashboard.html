@@ -270,9 +270,9 @@
       <span class="icon">📤</span> Exportar
     </button>
     <div style="margin:1rem 0;border-top:1px solid rgba(255,255,255,.08)"></div>
-    <a href="/" class="sb-nav-item" style="text-decoration:none;" target="_blank">
+    <button class="sb-nav-item" onclick="visitSite()">
       <span class="icon">🌐</span> Ver sitio
-    </a>
+    </button>
   </nav>
   <div class="sb-footer">
     <div class="sb-user-email" id="adminEmail">—</div>
@@ -476,6 +476,11 @@
   async function handleLogout() {
     await sb.auth.signOut();
     window.location.href = '/admin/index.html';
+  }
+
+  function visitSite() {
+    sessionStorage.setItem('banko_visit_mode', '1');
+    window.location.href = '/';
   }
 
   // ── NAVIGATION ──
