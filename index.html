@@ -1495,49 +1495,6 @@
   </div>
 </div>
 
-<!-- EMPRESAS FINANCIERAS -->
-<section class="empresas-section" id="empresas">
-  <div class="section-inner">
-    <div class="section-tag">Directorio Financiero</div>
-    <h2 class="section-title">Empresas de Financiamiento en Chile</h2>
-    <p class="section-sub">Conoce las principales instituciones financieras que operan en Chile. Haz clic en cada una para ver su perfil completo.</p>
-    <div class="empresas-tabs">
-      <button class="emp-tab active" onclick="filterEmpresas('no-bancario', this)">Factoring No Bancario</button>
-      <button class="emp-tab" onclick="filterEmpresas('fintech', this)">Fintech</button>
-      <button class="emp-tab" onclick="filterEmpresas('bancos', this)">Bancos</button>
-    </div>
-    <div class="empresas-grid" id="empresasGrid"></div>
-  </div>
-</section>
-
-<!-- EMPRESA DETAIL MODAL -->
-<div class="emp-modal-overlay" id="empModal" onclick="closeEmpModal(event)">
-  <div class="emp-modal">
-    <button class="emp-modal-close" onclick="document.getElementById('empModal').classList.remove('open')">✕</button>
-    <div class="emp-modal-header">
-      <div class="emp-modal-logo" id="empLogo"></div>
-      <div>
-        <div class="emp-modal-name" id="empNombre"></div>
-        <div class="emp-modal-tipo" id="empTipo"></div>
-      </div>
-    </div>
-    <p class="emp-resumen" id="empResumen"></p>
-    <div class="emp-info-grid">
-      <div class="emp-info-item">
-        <div class="emp-info-label">Año de inicio</div>
-        <div class="emp-info-value" id="empAno"></div>
-      </div>
-      <div class="emp-info-item">
-        <div class="emp-info-label">Socios / Controladores</div>
-        <div class="emp-info-value" id="empSocios"></div>
-      </div>
-    </div>
-    <div class="emp-ofrece-title">¿Qué ofrecen?</div>
-    <p class="emp-ofrece" id="empOfrece"></p>
-    <a href="#" target="_blank" rel="noopener" class="emp-modal-btn" id="empBtn">Visitar sitio web →</a>
-  </div>
-</div>
-
 <!-- HOW IT WORKS -->
 <section class="section" id="como-funciona">
   <div class="section-inner">
@@ -1733,6 +1690,49 @@
   </div>
 </section>
 
+<!-- EMPRESAS FINANCIERAS -->
+<section class="empresas-section" id="empresas">
+  <div class="section-inner">
+    <div class="section-tag">Directorio Financiero</div>
+    <h2 class="section-title">Empresas de Financiamiento en Chile</h2>
+    <p class="section-sub">Conoce las principales instituciones financieras que operan en Chile. Haz clic en cada una para ver su perfil completo.</p>
+    <div class="empresas-tabs">
+      <button class="emp-tab active" onclick="filterEmpresas('no-bancario', this)">Factoring No Bancario</button>
+      <button class="emp-tab" onclick="filterEmpresas('fintech', this)">Fintech</button>
+      <button class="emp-tab" onclick="filterEmpresas('bancos', this)">Bancos</button>
+    </div>
+    <div class="empresas-grid" id="empresasGrid"></div>
+  </div>
+</section>
+
+<!-- EMPRESA DETAIL MODAL -->
+<div class="emp-modal-overlay" id="empModal" onclick="closeEmpModal(event)">
+  <div class="emp-modal">
+    <button class="emp-modal-close" onclick="document.getElementById('empModal').classList.remove('open')">✕</button>
+    <div class="emp-modal-header">
+      <div class="emp-modal-logo" id="empLogo"></div>
+      <div>
+        <div class="emp-modal-name" id="empNombre"></div>
+        <div class="emp-modal-tipo" id="empTipo"></div>
+      </div>
+    </div>
+    <p class="emp-resumen" id="empResumen"></p>
+    <div class="emp-info-grid">
+      <div class="emp-info-item">
+        <div class="emp-info-label">Año de inicio</div>
+        <div class="emp-info-value" id="empAno"></div>
+      </div>
+      <div class="emp-info-item">
+        <div class="emp-info-label">Socios / Controladores</div>
+        <div class="emp-info-value" id="empSocios"></div>
+      </div>
+    </div>
+    <div class="emp-ofrece-title">¿Qué ofrecen?</div>
+    <p class="emp-ofrece" id="empOfrece"></p>
+    <a href="#" target="_blank" rel="noopener" class="emp-modal-btn" id="empBtn">Visitar sitio web →</a>
+  </div>
+</div>
+
 <!-- FOOTER -->
 <footer>
   <div class="footer-inner">
@@ -1758,6 +1758,14 @@
           <li><a href="#">Capital de Trabajo</a></li>
           <li><a href="#">Créditos</a></li>
           <li><a href="#">Crédito Hipotecario</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Factoring</h4>
+        <ul>
+          <li><a href="#empresas" onclick="filterEmpresas('no-bancario', document.querySelector('.emp-tab'))">No bancario</a></li>
+          <li><a href="#empresas" onclick="filterEmpresas('bancos', document.querySelectorAll('.emp-tab')[2])">Bancario</a></li>
+          <li><a href="#empresas" onclick="filterEmpresas('fintech', document.querySelectorAll('.emp-tab')[1])">Fintech</a></li>
         </ul>
       </div>
       <div class="footer-col">
