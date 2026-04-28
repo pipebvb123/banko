@@ -1110,6 +1110,41 @@
       position: absolute; top: -2px; right: -2px; width: 10px; height: 10px;
       background: var(--orange); border-radius: 50%; border: 2px solid var(--navy);
     }
+
+    /* ── EMPRESAS SECTION ── */
+    .empresas-section { background: #F0F7FF; padding: 5rem 0; }
+    .empresas-tabs { display: flex; gap: .5rem; justify-content: center; margin-bottom: 2.5rem; flex-wrap: wrap; }
+    .emp-tab { padding: .55rem 1.4rem; border-radius: 50px; border: 1.5px solid var(--border); background: #fff; color: var(--gray); font-size: .88rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .2s; }
+    .emp-tab.active { background: var(--teal); border-color: var(--teal); color: #fff; }
+    .emp-tab:hover:not(.active) { border-color: var(--teal); color: var(--teal); }
+    .empresas-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+    @media (max-width: 1000px) { .empresas-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 700px) { .empresas-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 440px) { .empresas-grid { grid-template-columns: 1fr; } }
+    .empresa-card { background: #fff; border: 1.5px solid var(--border); border-radius: 1rem; padding: 1.25rem 1rem; cursor: pointer; transition: all .2s; text-align: center; }
+    .empresa-card:hover { border-color: var(--teal); box-shadow: 0 4px 20px rgba(14,116,144,.14); transform: translateY(-3px); }
+    .empresa-logo-box { width: 52px; height: 52px; border-radius: 12px; background: linear-gradient(135deg, var(--teal), var(--navy)); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 1.05rem; margin: 0 auto .75rem; letter-spacing: -.5px; }
+    .empresa-card-name { font-weight: 700; color: var(--navy); font-size: .92rem; margin-bottom: .3rem; }
+    .empresa-card-tipo { font-size: .7rem; color: var(--teal); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+    /* Empresa Modal */
+    .emp-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(11,22,41,.6); z-index: 2000; align-items: center; justify-content: center; padding: 1rem; }
+    .emp-modal-overlay.open { display: flex; }
+    .emp-modal { background: #fff; border-radius: 1.25rem; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; padding: 2rem; position: relative; }
+    .emp-modal-close { position: absolute; top: 1rem; right: 1rem; background: #F1F5F9; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 1rem; cursor: pointer; color: var(--gray); display: flex; align-items: center; justify-content: center; }
+    .emp-modal-close:hover { background: #E2E8F0; }
+    .emp-modal-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }
+    .emp-modal-logo { width: 56px; height: 56px; border-radius: 14px; background: linear-gradient(135deg, var(--teal), var(--navy)); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 1.15rem; flex-shrink: 0; }
+    .emp-modal-name { font-size: 1.3rem; font-weight: 800; color: var(--navy); line-height: 1.2; }
+    .emp-modal-tipo { font-size: .72rem; color: var(--teal); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-top: .2rem; }
+    .emp-resumen { font-size: .9rem; color: var(--gray); line-height: 1.65; margin-bottom: 1.25rem; }
+    .emp-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: 1.25rem; }
+    .emp-info-item { background: #F8FAFC; border-radius: .75rem; padding: .75rem 1rem; }
+    .emp-info-label { font-size: .68rem; font-weight: 700; text-transform: uppercase; color: var(--gray); margin-bottom: .3rem; letter-spacing: .5px; }
+    .emp-info-value { font-size: .88rem; font-weight: 600; color: var(--navy); }
+    .emp-ofrece-title { font-size: .72rem; font-weight: 700; text-transform: uppercase; color: var(--navy); letter-spacing: .5px; margin-bottom: .4rem; }
+    .emp-ofrece { font-size: .88rem; color: var(--gray); line-height: 1.65; margin-bottom: 1.5rem; }
+    .emp-modal-btn { display: block; text-align: center; background: linear-gradient(135deg, var(--teal) 0%, var(--navy) 100%); color: #fff; text-decoration: none; padding: .85rem; border-radius: .75rem; font-weight: 700; font-size: .95rem; transition: opacity .15s; }
+    .emp-modal-btn:hover { opacity: .88; }
   </style>
 </head>
 <body>
@@ -1457,6 +1492,49 @@
       <div class="logo-badge">ACF Capital</div>
       <div class="logo-badge">Banco Security</div>
     </div>
+  </div>
+</div>
+
+<!-- EMPRESAS FINANCIERAS -->
+<section class="empresas-section" id="empresas">
+  <div class="section-inner">
+    <div class="section-tag">Directorio Financiero</div>
+    <h2 class="section-title">Empresas de Financiamiento en Chile</h2>
+    <p class="section-sub">Conoce las principales instituciones financieras que operan en Chile. Haz clic en cada una para ver su perfil completo.</p>
+    <div class="empresas-tabs">
+      <button class="emp-tab active" onclick="filterEmpresas('no-bancario', this)">Factoring No Bancario</button>
+      <button class="emp-tab" onclick="filterEmpresas('fintech', this)">Fintech</button>
+      <button class="emp-tab" onclick="filterEmpresas('bancos', this)">Bancos</button>
+    </div>
+    <div class="empresas-grid" id="empresasGrid"></div>
+  </div>
+</section>
+
+<!-- EMPRESA DETAIL MODAL -->
+<div class="emp-modal-overlay" id="empModal" onclick="closeEmpModal(event)">
+  <div class="emp-modal">
+    <button class="emp-modal-close" onclick="document.getElementById('empModal').classList.remove('open')">✕</button>
+    <div class="emp-modal-header">
+      <div class="emp-modal-logo" id="empLogo"></div>
+      <div>
+        <div class="emp-modal-name" id="empNombre"></div>
+        <div class="emp-modal-tipo" id="empTipo"></div>
+      </div>
+    </div>
+    <p class="emp-resumen" id="empResumen"></p>
+    <div class="emp-info-grid">
+      <div class="emp-info-item">
+        <div class="emp-info-label">Año de inicio</div>
+        <div class="emp-info-value" id="empAno"></div>
+      </div>
+      <div class="emp-info-item">
+        <div class="emp-info-label">Socios / Controladores</div>
+        <div class="emp-info-value" id="empSocios"></div>
+      </div>
+    </div>
+    <div class="emp-ofrece-title">¿Qué ofrecen?</div>
+    <p class="emp-ofrece" id="empOfrece"></p>
+    <a href="#" target="_blank" rel="noopener" class="emp-modal-btn" id="empBtn">Visitar sitio web →</a>
   </div>
 </div>
 
@@ -1876,10 +1954,10 @@
   // --- Results data by category ---
   const resultadosPorCategoria = {
     factoring: [
-      { nombre: 'Xepelin', plan: 'Factoring Express', tasa: '1.2%', extra: 'Abono en 24h', chips: ['✓ Sin mínimo de factura','✓ 100% online','✓ Abono rápido'], url: 'https://xepelin.com', stars: '★★★★★', rating: '4.8/5', mejor: true },
-      { nombre: 'Security', plan: 'Factoring Security', tasa: '1.3%', extra: 'Hasta 90 días', chips: ['✓ Grandes montos','✓ Respaldo bancario','✓ Sin costo apertura'], url: 'https://security.cl', stars: '★★★★☆', rating: '4.5/5' },
-      { nombre: 'Eurocapital', plan: 'Factoring Pyme', tasa: '1.4%', extra: 'Aprobación 2h', chips: ['✓ Pymes bienvenidas','✓ Sin garantías','✓ Proceso digital'], url: 'https://eurocapital.cl', stars: '★★★★☆', rating: '4.3/5' },
-      { nombre: 'Tanner', plan: 'Factoring Tanner', tasa: '1.5%', extra: 'Red nacional', chips: ['✓ Cobertura nacional','✓ Asesor dedicado','✓ Facturas electrónicas'], url: 'https://tanner.cl', stars: '★★★★☆', rating: '4.2/5' },
+      { nombre: 'Xepelin', plan: 'Factoring Express', tasa: '1.2%', extra: 'Abono en 24h', chips: ['✓ Sin mínimo de factura','✓ 100% online','✓ Abono rápido'], url: 'https://www.xepelin.cl', stars: '★★★★★', rating: '4.8/5', mejor: true },
+      { nombre: 'Security', plan: 'Factoring Security', tasa: '1.3%', extra: 'Hasta 90 días', chips: ['✓ Grandes montos','✓ Respaldo bancario','✓ Sin costo apertura'], url: 'https://www.factoringsecurity.cl', stars: '★★★★☆', rating: '4.5/5' },
+      { nombre: 'Eurocapital', plan: 'Factoring Pyme', tasa: '1.4%', extra: 'Aprobación 2h', chips: ['✓ Pymes bienvenidas','✓ Sin garantías','✓ Proceso digital'], url: 'https://www.eurocapital.cl', stars: '★★★★☆', rating: '4.3/5' },
+      { nombre: 'Tanner', plan: 'Factoring Tanner', tasa: '1.5%', extra: 'Red nacional', chips: ['✓ Cobertura nacional','✓ Asesor dedicado','✓ Facturas electrónicas'], url: 'https://www.tanner.cl/empresas', stars: '★★★★☆', rating: '4.2/5' },
     ],
     leasing: [
       { nombre: 'Tattersall', plan: 'Leasing Activos', tasa: 'UF+0.42%', extra: 'Hasta 60 meses', chips: ['✓ Vehículos y maquinaria','✓ Beneficio tributario','✓ Sin pie mínimo'], url: 'https://tattersall.cl', stars: '★★★★★', rating: '4.7/5', mejor: true },
@@ -1888,16 +1966,16 @@
       { nombre: 'Mitta', plan: 'Leasing Digital', tasa: 'UF+0.51%', extra: '100% online', chips: ['✓ Proceso digital','✓ Firma electrónica','✓ Flexible'], url: 'https://mitta.cl', stars: '★★★★☆', rating: '4.1/5' },
     ],
     capital: [
-      { nombre: 'Cumplo', plan: 'Capital Rápido', tasa: '0.9% mensual', extra: 'Aprobación en horas', chips: ['✓ Sin garantías reales','✓ Plataforma P2P','✓ Flexible'], url: 'https://cumplo.cl', stars: '★★★★★', rating: '4.9/5', mejor: true },
+      { nombre: 'Cumplo', plan: 'Capital Rápido', tasa: '0.9% mensual', extra: 'Aprobación en horas', chips: ['✓ Sin garantías reales','✓ Plataforma P2P','✓ Flexible'], url: 'https://cumplo.com', stars: '★★★★★', rating: '4.9/5', mejor: true },
       { nombre: 'Levantta', plan: 'Capital Pyme', tasa: '1.1% mensual', extra: 'Hasta $500M', chips: ['✓ Grandes montos','✓ Asesor dedicado','✓ Sin costo prepago'], url: 'https://levantta.cl', stars: '★★★★☆', rating: '4.4/5' },
       { nombre: 'Fivana', plan: 'Crédito Capital', tasa: '1.2% mensual', extra: 'Respuesta 24h', chips: ['✓ Sin burocracia','✓ 100% online','✓ Pymes nuevas OK'], url: 'https://fivana.cl', stars: '★★★★☆', rating: '4.3/5' },
       { nombre: 'ACF Capital', plan: 'Financiamiento ACF', tasa: '1.3% mensual', extra: 'Hasta 36 meses', chips: ['✓ Largo plazo','✓ Tasa fija','✓ Sin sorpresas'], url: 'https://acf.cl', stars: '★★★★☆', rating: '4.1/5' },
     ],
     credito: [
-      { nombre: 'BancoEstado', plan: 'Crédito BancoEstado', tasa: '0.69% mensual', extra: 'Desde $500.000', chips: ['✓ Sin cuenta corriente','✓ Aprobación en línea','✓ Tasa fija'], url: 'https://bancoestado.cl', stars: '★★★★★', rating: '4.6/5', mejor: true },
-      { nombre: 'Banco de Chile', plan: 'Crédito de Consumo', tasa: '0.79% mensual', extra: 'Hasta 72 meses', chips: ['✓ Largo plazo','✓ Sin seguro obligatorio','✓ Prepago sin costo'], url: 'https://bancochile.cl', stars: '★★★★☆', rating: '4.4/5' },
-      { nombre: 'Santander', plan: 'Crédito Smart', tasa: '0.85% mensual', extra: 'Aprobación express', chips: ['✓ 100% digital','✓ Sin papeleos','✓ Dinero en 24h'], url: 'https://santander.cl', stars: '★★★★☆', rating: '4.3/5' },
-      { nombre: 'Banco Security', plan: 'Crédito Security', tasa: '0.91% mensual', extra: 'Atención personalizada', chips: ['✓ Asesor exclusivo','✓ Tasa negociable','✓ Beneficios adicionales'], url: 'https://security.cl', stars: '★★★★☆', rating: '4.2/5' },
+      { nombre: 'BancoEstado', plan: 'Crédito BancoEstado', tasa: '0.69% mensual', extra: 'Desde $500.000', chips: ['✓ Sin cuenta corriente','✓ Aprobación en línea','✓ Tasa fija'], url: 'https://www.bancoestado.cl/content/bancoestado-public/cl/es/home/inicio---bancoestado-empresas.html#/', stars: '★★★★★', rating: '4.6/5', mejor: true },
+      { nombre: 'Banco de Chile', plan: 'Crédito de Consumo', tasa: '0.79% mensual', extra: 'Hasta 72 meses', chips: ['✓ Largo plazo','✓ Sin seguro obligatorio','✓ Prepago sin costo'], url: 'https://sitiospublicos.bancochile.cl/empresas', stars: '★★★★☆', rating: '4.4/5' },
+      { nombre: 'BCI', plan: 'Crédito Pyme BCI', tasa: '0.85% mensual', extra: 'Aprobación express', chips: ['✓ 100% digital','✓ Sin papeleos','✓ Dinero en 24h'], url: 'https://www.bci.cl/pyme', stars: '★★★★☆', rating: '4.3/5' },
+      { nombre: 'Banco Bice', plan: 'Crédito Empresas', tasa: '0.91% mensual', extra: 'Atención personalizada', chips: ['✓ Asesor exclusivo','✓ Tasa negociable','✓ Beneficios adicionales'], url: 'https://banco.bice.cl/empresas', stars: '★★★★☆', rating: '4.2/5' },
     ],
   };
 
@@ -1946,6 +2024,122 @@
   function toggleMenu() {
     document.getElementById('navLinks').classList.toggle('mobile-open');
   }
+
+  // ── EMPRESAS FINANCIERAS ──
+  const TIPO_LABEL = {
+    'no-bancario': 'Factoring No Bancario',
+    'fintech': 'Fintech',
+    'bancos': 'Banco',
+  };
+
+  const EMPRESAS_DATA = {
+    'no-bancario': [
+      { nombre: 'Security', url: 'https://www.factoringsecurity.cl', ano: '~2001', socios: 'Grupo Security S.A.', resumen: 'Filial de Grupo Security, uno de los grupos financieros privados más grandes de Chile. Especializada en factoring para empresas medianas y grandes con alto volumen de facturación.', ofrece: 'Factoring nacional e internacional, confirming, descuento de documentos, cesión de créditos.' },
+      { nombre: 'Baninter', url: 'https://www.baninterfactoring.cl', ano: 'N/D', socios: 'N/D', resumen: 'Empresa chilena especializada en factoring no bancario con cobertura nacional, enfocada en el financiamiento de pymes mediante el anticipo de facturas.', ofrece: 'Factoring de facturas electrónicas, cheques y letras de cambio.' },
+      { nombre: 'Finameris', url: 'https://www.finameris.com', ano: 'N/D', socios: 'N/D', resumen: 'Institución financiera no bancaria chilena orientada al financiamiento ágil de pymes y empresas medianas mediante soluciones de factoring.', ofrece: 'Factoring, descuento de documentos, financiamiento de corto plazo.' },
+      { nombre: 'Orsan', url: 'https://www.orsan.cl', ano: 'N/D', socios: 'N/D', resumen: 'Empresa chilena con presencia en el mercado del factoring no bancario, orientada a empresas del sector productivo y de servicios.', ofrece: 'Factoring de facturas, financiamiento de capital de trabajo.' },
+      { nombre: 'Primus Capital', url: 'https://www.primuscapital.cl', ano: 'N/D', socios: 'N/D', resumen: 'Empresa de servicios financieros chilena dedicada al factoring y financiamiento de capital de trabajo para pymes y medianas empresas.', ofrece: 'Factoring, capital de trabajo, financiamiento empresarial.' },
+      { nombre: 'Banpro', url: 'https://www.banpro.cl', ano: 'N/D', socios: 'N/D', resumen: 'Institución financiera no bancaria chilena especializada en financiamiento a través de factoring y descuento de documentos.', ofrece: 'Factoring de facturas y documentos, capital de trabajo.' },
+      { nombre: 'ACF Capital', url: 'https://www.acfcapital.cl', ano: 'N/D', socios: 'N/D', resumen: 'Empresa de factoring y financiamiento no bancario en Chile. Ofrece soluciones ágiles para la liquidez de empresas de diversos sectores.', ofrece: 'Factoring, leasing, crédito empresarial.' },
+      { nombre: 'Logros', url: 'https://www.empresaslogros.cl', ano: 'N/D', socios: 'N/D', resumen: 'Grupo empresarial chileno con foco en soluciones financieras no bancarias para empresas. Reconocido por su servicio personalizado.', ofrece: 'Factoring, financiamiento empresarial, servicios financieros.' },
+      { nombre: 'Eurocapital', url: 'https://www.eurocapital.cl', ano: '~2009', socios: 'N/D', resumen: 'Empresa chilena de factoring especializada en pymes. Destaca por su proceso ágil y aprobaciones en pocas horas, con presencia nacional.', ofrece: 'Factoring de facturas electrónicas, capital de trabajo, financiamiento pyme.' },
+      { nombre: 'Yakora', url: 'https://www.yakora.cl', ano: 'N/D', socios: 'N/D', resumen: 'Empresa chilena de factoring con enfoque digital, orientada a simplificar el acceso al financiamiento para pymes y startups.', ofrece: 'Factoring digital, anticipo de facturas, financiamiento ágil.' },
+      { nombre: 'Vantrust Capital', url: 'https://www.vantrustcapital.cl', ano: 'N/D', socios: 'N/D', resumen: 'Empresa de servicios financieros chilena especializada en factoring y capital de trabajo para empresas en crecimiento.', ofrece: 'Factoring, capital de trabajo, financiamiento empresarial.' },
+      { nombre: 'Capital Express', url: 'https://capitalexpress.cl', ano: 'N/D', socios: 'N/D', resumen: 'Institución financiera no bancaria que destaca por la rapidez en el proceso de factoring, ofreciendo liquidez en plazos muy cortos.', ofrece: 'Factoring express, descuento de documentos, financiamiento rápido.' },
+      { nombre: 'CFC Capital', url: 'https://cfccapital.cl', ano: 'N/D', socios: 'N/D', resumen: 'Empresa chilena de capital y factoring no bancario, con soluciones adaptadas a distintos sectores productivos del país.', ofrece: 'Factoring, financiamiento de capital de trabajo, descuento de documentos.' },
+      { nombre: 'Banproyecta', url: 'https://www.banproyecta.cl', ano: 'N/D', socios: 'N/D', resumen: 'Empresa financiera no bancaria chilena orientada a proyectos empresariales y financiamiento de capital de trabajo mediante factoring.', ofrece: 'Factoring, financiamiento de proyectos, capital de trabajo.' },
+      { nombre: 'Contempora', url: 'https://contempora.com', ano: 'N/D', socios: 'N/D', resumen: 'Empresa de factoring y servicios financieros chilena con experiencia en el mercado de financiamiento no bancario para pymes.', ofrece: 'Factoring, descuento de documentos, financiamiento empresarial.' },
+      { nombre: 'Coval', url: 'https://coval.cl', ano: 'N/D', socios: 'N/D', resumen: 'Institución financiera no bancaria chilena con foco en la entrega de liquidez rápida a través de factoring para empresas de distintos rubros.', ofrece: 'Factoring, capital de trabajo, financiamiento ágil.' },
+      { nombre: 'ECR Group', url: 'https://ecrgroup.cl', ano: 'N/D', socios: 'N/D', resumen: 'Grupo chileno de servicios financieros con presencia en factoring y otras soluciones de financiamiento para empresas del país.', ofrece: 'Factoring, financiamiento empresarial, servicios financieros.' },
+      { nombre: 'Credyt', url: 'https://www.credyt.cl', ano: 'N/D', socios: 'N/D', resumen: 'Empresa fintech chilena que combina tecnología con factoring tradicional para ofrecer financiamiento ágil a pymes en crecimiento.', ofrece: 'Factoring digital, crédito empresarial, anticipo de facturas.' },
+      { nombre: 'Factor Plus', url: 'https://www.factorplus.cl', ano: 'N/D', socios: 'N/D', resumen: 'Empresa chilena de factoring enfocada en maximizar la liquidez de pymes con procesos simples y rápidos sin burocracia.', ofrece: 'Factoring, descuento de documentos, capital de trabajo.' },
+      { nombre: 'Factoriza', url: 'https://www.factoriza.cl', ano: 'N/D', socios: 'N/D', resumen: 'Plataforma chilena de factoring que facilita el acceso al financiamiento mediante un proceso digital ágil para empresas de todo tamaño.', ofrece: 'Factoring digital, anticipo de facturas, financiamiento pyme.' },
+      { nombre: 'Interfactor', url: 'https://www.interfactor.cl', ano: 'N/D', socios: 'N/D', resumen: 'Empresa de factoring no bancario chilena con amplia experiencia en el mercado. Trabaja con empresas de distintos tamaños y sectores.', ofrece: 'Factoring, cesión de facturas, financiamiento empresarial.' },
+      { nombre: 'Finterra', url: 'https://finterra.cl', ano: 'N/D', socios: 'N/D', resumen: 'Empresa chilena de factoring con enfoque en soluciones financieras para el sector agrícola y pymes del interior del país.', ofrece: 'Factoring, financiamiento agrícola, capital de trabajo.' },
+      { nombre: 'Mercantil', url: 'https://www.factoringmercantil.cl', ano: 'N/D', socios: 'N/D', resumen: 'Empresa chilena especializada en factoring mercantil, con foco en el financiamiento de empresas del comercio y la industria nacional.', ofrece: 'Factoring mercantil, descuento de documentos, financiamiento empresarial.' },
+      { nombre: 'Penta', url: 'https://www.pentafinanciero.cl', ano: '~2000', socios: 'Grupo Penta', resumen: 'Filial del Grupo Penta, uno de los grupos económicos más importantes de Chile. Ofrece factoring y financiamiento con el respaldo de un gran conglomerado financiero.', ofrece: 'Factoring, leasing, crédito empresarial, financiamiento estructurado.' },
+      { nombre: 'Progreso', url: 'https://www.progreso.cl', ano: 'N/D', socios: 'N/D', resumen: 'Empresa financiera chilena no bancaria con trayectoria en el mercado de factoring y financiamiento de capital de trabajo para pymes.', ofrece: 'Factoring, capital de trabajo, financiamiento empresarial.' },
+      { nombre: 'Tattersall', url: 'https://bantattersall.cl', ano: '~1993', socios: 'Martínez y Cía (Grupo Tattersall)', resumen: 'Parte del histórico Grupo Tattersall, con raíces en Chile desde el siglo XIX. Banco Tattersall se especializa en factoring y financiamiento para empresas agroindustriales y exportadoras.', ofrece: 'Factoring, leasing, crédito empresarial, financiamiento de exportaciones.' },
+      { nombre: 'Omega (OSF)', url: 'https://osf.cl', ano: 'N/D', socios: 'N/D', resumen: 'OSF - Omega Servicios Financieros, empresa chilena de factoring y servicios financieros no bancarios con cobertura nacional.', ofrece: 'Factoring, descuento de documentos, financiamiento pyme.' },
+      { nombre: 'Factor Andes', url: 'https://factorandes.cl', ano: 'N/D', socios: 'N/D', resumen: 'Empresa chilena de factoring con foco en el financiamiento de pymes y empresas medianas en distintas regiones del país.', ofrece: 'Factoring, capital de trabajo, cesión de créditos.' },
+      { nombre: 'Financia Capital', url: 'https://www.financiacapital.cl', ano: 'N/D', socios: 'N/D', resumen: 'Empresa financiera chilena que ofrece soluciones de factoring y capital de trabajo para empresas en distintas etapas de crecimiento.', ofrece: 'Factoring, capital de trabajo, financiamiento empresarial.' },
+      { nombre: 'Latam Trade', url: 'https://www.latamtradecapital.com/chile/', ano: 'N/D', socios: 'N/D', resumen: 'Empresa de financiamiento comercial con presencia en Chile y otros países de Latinoamérica. Especializada en trade finance y factoring internacional.', ofrece: 'Factoring internacional, trade finance, financiamiento de comercio exterior.' },
+      { nombre: 'Boreal', url: 'https://www.borealchile.cl', ano: 'N/D', socios: 'N/D', resumen: 'Empresa financiera chilena no bancaria con soluciones de factoring y financiamiento para pymes y medianas empresas de distintos sectores.', ofrece: 'Factoring, capital de trabajo, descuento de documentos.' },
+      { nombre: 'Finfast', url: 'https://www.finfast.com', ano: 'N/D', socios: 'N/D', resumen: 'Plataforma chilena de financiamiento ágil para empresas, con foco en rapidez de aprobación y procesos digitales simplificados.', ofrece: 'Factoring express, financiamiento rápido, capital de trabajo.' },
+    ],
+    'fintech': [
+      { nombre: 'Xepelin', url: 'https://www.xepelin.cl', ano: '2019', socios: 'Nicolás de Camino, Sebastián Kreis', resumen: 'Plataforma digital B2B líder en Latinoamérica. Fundada en Chile, ha recibido inversiones de fondos como Kaszek y Creandum. Ofrece factoring 100% online con abono en menos de 24 horas.', ofrece: 'Factoring digital, adelanto de facturas, financiamiento de cadena de suministro, pago a proveedores.' },
+      { nombre: 'Redcapital', url: 'https://redcapital.cl', ano: '~2015', socios: 'Ricardo Rothhammer y socios fundadores', resumen: 'Plataforma chilena pionera en la digitalización del factoring. Permite acceder a tasas competitivas mediante un proceso completamente en línea, sin papeles ni filas.', ofrece: 'Factoring online, leasing, crédito pyme, financiamiento ágil.' },
+      { nombre: 'Cumplo', url: 'https://cumplo.com', ano: '2012', socios: 'Francisco Klapp, Cristóbal Larraín', resumen: 'Una de las primeras fintechs de Chile. Plataforma P2P que conecta empresas que necesitan financiamiento con inversionistas. También opera en México y Perú.', ofrece: 'Factoring P2P, capital de trabajo, inversión para personas, financiamiento colectivo empresarial.' },
+      { nombre: 'Chita', url: 'https://chita.cl', ano: 'N/D', socios: 'N/D', resumen: 'Fintech chilena de factoring 100% digital, diseñada para que pymes accedan a liquidez de manera simple y rápida sin papeleo ni garantías complejas.', ofrece: 'Factoring digital, anticipo de facturas, financiamiento pyme.' },
+      { nombre: 'Fingo', url: 'https://fingo.cl', ano: 'N/D', socios: 'N/D', resumen: 'Plataforma fintech chilena que facilita el acceso al financiamiento para pymes a través de soluciones digitales ágiles y transparentes.', ofrece: 'Factoring digital, financiamiento pyme, servicios financieros online.' },
+    ],
+    'bancos': [
+      { nombre: 'BancoEstado', url: 'https://www.bancoestado.cl/content/bancoestado-public/cl/es/home/inicio---bancoestado-empresas.html#/', ano: '1953', socios: 'Estado de Chile (100%)', resumen: 'El único banco estatal de Chile, con presencia en todo el territorio nacional. Principal banco de pymes chilenas por su cobertura geográfica y tasas competitivas.', ofrece: 'Crédito empresarial, factoring, leasing, cuentas corrientes, comercio exterior.' },
+      { nombre: 'Banco de Chile', url: 'https://sitiospublicos.bancochile.cl/empresas', ano: '1893', socios: 'Grupo Luksic (controlador principal)', resumen: 'Uno de los bancos más antiguos y grandes de Chile. Fundado en 1893, es controlado por el Grupo Luksic. Líder en banca empresas con presencia nacional e internacional.', ofrece: 'Crédito empresarial, factoring, leasing, comercio exterior, financiamiento pyme.' },
+      { nombre: 'Banco BCI', url: 'https://www.bci.cl/pyme', ano: '1937', socios: 'Familia Yarur (controlador)', resumen: 'Tercer banco más grande de Chile por activos. Fundado por la familia Yarur. Reconocido por su innovación digital y su fuerte oferta para pymes y emprendedores.', ofrece: 'Crédito pyme, factoring, leasing, cuentas corrientes, financiamiento digital.' },
+      { nombre: 'Banco Bice', url: 'https://banco.bice.cl/empresas', ano: '1979', socios: 'Grupo Matte', resumen: 'Banco chileno especializado en banca de empresas y personas de alto patrimonio. Parte del Grupo Matte, uno de los grupos económicos más importantes del país.', ofrece: 'Crédito empresarial, leasing, comercio exterior, banca corporativa.' },
+      { nombre: 'Banco Itaú', url: 'https://www.itau.cl/empresas', ano: '1944 (en Chile)', socios: 'Itaú Unibanco (Brasil)', resumen: 'Filial chilena del mayor banco privado de América Latina. Con fuerte presencia en empresas y banca corporativa, ofrece soluciones financieras de alcance internacional.', ofrece: 'Crédito empresarial, factoring, leasing, comercio exterior, banca corporativa.' },
+      { nombre: 'Banco Falabella', url: 'https://www.bancofalabella.cl/empresa', ano: '1998', socios: 'Grupo Falabella', resumen: 'Banco del Grupo Falabella, uno de los retailers más grandes de Latinoamérica. Especializado en crédito de consumo y financiamiento para empresas proveedoras del grupo.', ofrece: 'Crédito empresa, leasing, cuentas corrientes, financiamiento comercial.' },
+      { nombre: 'Banco Internacional', url: 'https://www.internacional.cl/productos/cuenta-corriente-empresas', ano: '1944', socios: 'Accionistas privados chilenos', resumen: 'Banco chileno con foco en banca de empresas medianas y grandes. Reconocido por su atención personalizada y flexibilidad en soluciones financieras a medida.', ofrece: 'Crédito empresarial, factoring, leasing, comercio exterior, cuentas corrientes.' },
+      { nombre: 'Banco Consorcio', url: 'https://sitio.consorcio.cl/banca-empresas', ano: '2014', socios: 'Grupo Consorcio (familias Fernández-León y Hurtado-Vicuña)', resumen: 'Banco chileno parte del Grupo Consorcio. Especializado en banca empresas con tasas competitivas en financiamiento empresarial e inversión.', ofrece: 'Crédito empresarial, cuentas corrientes, depósitos, financiamiento.' },
+      { nombre: 'Scotiabank', url: 'https://www.scotiabankchile.cl/Grandes-Empresas', ano: '1990 (en Chile)', socios: 'Bank of Nova Scotia (Canadá)', resumen: 'Filial chilena del banco canadiense Scotiabank. Con foco en grandes empresas y banca corporativa, ofrece productos de alcance internacional.', ofrece: 'Crédito grandes empresas, financiamiento corporativo, comercio exterior, tesorería.' },
+      { nombre: 'Banco Tanner', url: 'https://www.tanner.cl/empresas', ano: '2012', socios: 'Grupo Tanner (accionistas privados chilenos)', resumen: 'Banco chileno surgido de la histórica empresa Tanner. Especializado en factoring, leasing y crédito automotriz, con amplia red de sucursales.', ofrece: 'Factoring, leasing, crédito automotriz, cuentas corrientes, financiamiento empresarial.' },
+    ],
+  };
+
+  let categoriaActual = 'no-bancario';
+
+  function renderEmpresas(categoria) {
+    const lista = EMPRESAS_DATA[categoria] || [];
+    const grid = document.getElementById('empresasGrid');
+    grid.innerHTML = lista.map(e => {
+      const iniciales = e.nombre.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      return `
+        <div class="empresa-card" onclick="openEmpModal('${categoria}', '${e.nombre.replace(/'/g, "\\'")}')">
+          <div class="empresa-logo-box">${iniciales}</div>
+          <div class="empresa-card-name">${e.nombre}</div>
+          <div class="empresa-card-tipo">${TIPO_LABEL[categoria]}</div>
+        </div>`;
+    }).join('');
+  }
+
+  function filterEmpresas(categoria, btn) {
+    document.querySelectorAll('.emp-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    categoriaActual = categoria;
+    renderEmpresas(categoria);
+  }
+
+  function openEmpModal(categoria, nombre) {
+    const empresa = EMPRESAS_DATA[categoria].find(e => e.nombre === nombre);
+    if (!empresa) return;
+    const iniciales = empresa.nombre.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    document.getElementById('empLogo').textContent = iniciales;
+    document.getElementById('empNombre').textContent = empresa.nombre;
+    document.getElementById('empTipo').textContent = TIPO_LABEL[categoria];
+    document.getElementById('empResumen').textContent = empresa.resumen;
+    document.getElementById('empAno').textContent = empresa.ano;
+    document.getElementById('empSocios').textContent = empresa.socios;
+    document.getElementById('empOfrece').textContent = empresa.ofrece;
+    document.getElementById('empBtn').href = empresa.url;
+    document.getElementById('empModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeEmpModal(e) {
+    if (e.target === document.getElementById('empModal')) {
+      document.getElementById('empModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  }
+
+  document.querySelector('.emp-modal-close').addEventListener('click', () => {
+    document.getElementById('empModal').classList.remove('open');
+    document.body.style.overflow = '';
+  });
+
+  renderEmpresas('no-bancario');
 
   // --- Loading + Modal ---
   function startComparison() {
