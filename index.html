@@ -1722,24 +1722,6 @@
   </div>
 </section>
 
-<!-- EMPRESAS FINANCIERAS -->
-<section class="empresas-section" id="empresas">
-  <div class="section-inner">
-    <div class="section-tag">Directorio Financiero</div>
-    <h2 class="section-title">Empresas de Financiamiento en Chile</h2>
-    <p class="section-sub">Conoce las principales instituciones financieras que operan en Chile. Haz clic en cada una para ver su perfil completo.</p>
-    <div class="empresas-tabs">
-      <button class="emp-tab active" onclick="filterEmpresas('no-bancario', this)">No Bancarias</button>
-      <button class="emp-tab" onclick="filterEmpresas('fintech', this)">Fintech</button>
-      <button class="emp-tab" onclick="filterEmpresas('bancos', this)">Bancarias</button>
-    </div>
-    <div class="emp-search-wrap">
-      <input type="text" class="emp-search" id="empSearch" placeholder="Buscar empresa..." oninput="searchEmpresas(this.value)">
-    </div>
-    <div class="empresas-grid" id="empresasGrid"></div>
-  </div>
-</section>
-
 <!-- EMPRESA DETAIL MODAL -->
 <div class="emp-modal-overlay" id="empModal" onclick="closeEmpModal(event)">
   <div class="emp-modal">
