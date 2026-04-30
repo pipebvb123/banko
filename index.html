@@ -2863,9 +2863,6 @@
     }).join('');
   }
 
-  document.getElementById('dirSearch').addEventListener('input', function() {
-    renderDirList(dirCategoriaActual, this.value);
-  });
 </script>
 
 <!-- DIRECTORIO PANEL -->
@@ -2880,7 +2877,7 @@
       <button class="dir-tab" onclick="filterDirTab('fintech', this)">Fintech</button>
       <button class="dir-tab" onclick="filterDirTab('bancos', this)">Bancarias</button>
     </div>
-    <input type="text" class="dir-search" id="dirSearch" placeholder="🔍  Buscar empresa...">
+    <input type="text" class="dir-search" id="dirSearch" placeholder="🔍  Buscar empresa..." oninput="renderDirList(dirCategoriaActual, this.value)">
     <div class="dir-list" id="dirList"></div>
   </div>
 </div>
