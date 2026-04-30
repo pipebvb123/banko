@@ -1121,11 +1121,18 @@
     @media (max-width: 1000px) { .empresas-grid { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 700px) { .empresas-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 440px) { .empresas-grid { grid-template-columns: 1fr; } }
-    .empresa-card { background: #fff; border: 1.5px solid var(--border); border-radius: 1rem; padding: 1.25rem 1rem; cursor: pointer; transition: all .2s; text-align: center; }
-    .empresa-card:hover { border-color: var(--teal); box-shadow: 0 4px 20px rgba(14,116,144,.14); transform: translateY(-3px); }
-    .empresa-logo-box { width: 52px; height: 52px; border-radius: 12px; background: linear-gradient(135deg, var(--teal), var(--navy)); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 1.05rem; margin: 0 auto .75rem; letter-spacing: -.5px; }
-    .empresa-card-name { font-weight: 700; color: var(--navy); font-size: .92rem; margin-bottom: .3rem; }
-    .empresa-card-tipo { font-size: .7rem; color: var(--teal); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+    .emp-search-wrap { margin-bottom: 1.5rem; }
+    .emp-search { width: 100%; max-width: 420px; padding: .7rem 1.1rem .7rem 2.6rem; border: 1.5px solid var(--border); border-radius: 50px; font-size: .9rem; font-family: inherit; color: var(--text); background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748B' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.415l-3.868-3.833zm-5.242 1.656a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") no-repeat .9rem center; outline: none; transition: border-color .18s; display: block; }
+    .emp-search:focus { border-color: var(--teal); }
+    .empresas-grid { display: flex; flex-direction: column; gap: .75rem; }
+    .empresa-card { background: #fff; border: 1.5px solid var(--border); border-radius: 1rem; padding: 1rem 1.25rem; cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 1.1rem; }
+    .empresa-card:hover { border-color: var(--teal); box-shadow: 0 4px 20px rgba(14,116,144,.12); transform: translateX(4px); }
+    .empresa-logo-box { width: 52px; height: 52px; border-radius: 12px; background: linear-gradient(135deg, var(--teal), var(--navy)); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 1.05rem; flex-shrink: 0; letter-spacing: -.5px; }
+    .empresa-card-info { flex: 1; min-width: 0; }
+    .empresa-card-name { font-weight: 700; color: var(--navy); font-size: .95rem; margin-bottom: .15rem; }
+    .empresa-card-ano { font-size: .75rem; color: var(--gray); }
+    .empresa-card-resumen { font-size: .8rem; color: var(--gray); margin-top: .25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 600px; }
+    .empresa-card-arrow { color: var(--teal); font-size: 1.1rem; flex-shrink: 0; }
     /* Empresa Modal */
     .emp-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(11,22,41,.6); z-index: 2000; align-items: center; justify-content: center; padding: 1rem; }
     .emp-modal-overlay.open { display: flex; }
@@ -1564,20 +1571,20 @@
     <div class="benefits-grid">
       <div>
         <div class="section-tag">¿Por qué Banko?</div>
-        <h2 class="section-title">Somos tu aliado financiero, no el de los bancos.</h2>
+        <h2 class="section-title">Somos tu aliado financiero y de nadie más.</h2>
         <div class="benefit-list">
           <div class="benefit-item">
             <div class="benefit-icon">🏆</div>
             <div class="benefit-text">
-              <h4>Comparación 100% imparcial</h4>
-              <p>No favorecemos a ninguna institución. Te mostramos la verdad ordenada por lo que más importa: tasa real y condiciones.</p>
+              <h4>Financiamiento 100% imparcial</h4>
+              <p>No favorecemos a ninguna institución. Te mostramos la verdad ordenada de acorde a tus necesidades y condiciones.</p>
             </div>
           </div>
           <div class="benefit-item">
             <div class="benefit-icon">⚡</div>
             <div class="benefit-text">
-              <h4>Simulaciones en tiempo real</h4>
-              <p>Nuestro motor compara +15 instituciones al instante. Resultados actualizados, sin formularios duplicados.</p>
+              <h4>Alternativas financieras</h4>
+              <p>En nuestra plataforma encuentra todo lo que tu empresa necesita del mercado financiero. Con los mejores actores actuales.</p>
             </div>
           </div>
           <div class="benefit-item">
@@ -1600,26 +1607,26 @@
       <!-- Visual stack -->
       <div class="visual-card-stack">
         <div class="v-card v-card-1">
-          <div class="v-card-title">📄 Factoring — Comparando...</div>
-          <div class="v-card-value">+15 opciones</div>
-          <div class="v-card-sub">Encontramos resultados en 1.8 segundos</div>
+          <div class="v-card-title">💼 Capital de trabajo — Buscando...</div>
+          <div class="v-card-value">+10 opciones</div>
+          <div class="v-card-sub">Elige...</div>
         </div>
         <div class="v-card v-card-2">
-          <div class="v-card-title">Simulaciones encontradas</div>
+          <div class="v-card-title">Alternativas encontradas</div>
           <div class="compare-row">
-            <span class="name">Xepelin</span>
-            <span class="badge-best">Mejor tasa</span>
-            <span class="price">1.2%</span>
+            <span class="name">Financiera 1</span>
+            <span></span>
+            <span class="price">95%</span>
           </div>
           <div class="compare-row">
-            <span class="name">Security</span>
-            <span></span>
-            <span class="price">1.3%</span>
+            <span class="name">Financiera 2</span>
+            <span class="badge-best">Match</span>
+            <span class="price">100%</span>
           </div>
           <div class="compare-row">
-            <span class="name">Tanner</span>
+            <span class="name">Financiera 3</span>
             <span></span>
-            <span class="price">1.5%</span>
+            <span class="price">90%</span>
           </div>
         </div>
         <div class="v-card v-card-3">
@@ -1680,8 +1687,8 @@
 <section class="cta-banner" id="contacto">
   <div class="cta-inner">
     <h2>¿Listo para financiar mejor tu empresa?</h2>
-    <p>Compara gratis en 2 minutos y descubre cuánto puedes ahorrar en tasas y comisiones.</p>
-    <button class="btn-cta-white" onclick="openModal()">Comparar soluciones ahora →</button>
+    <p>Alternativas gratis en 2 minutos y descubre cuánto puedes ahorrar para tu empresa.</p>
+    <button class="btn-cta-white" onclick="openModal()">Buscar soluciones ahora →</button>
     <div class="cta-features">
       <span class="cta-feat">Gratis y sin compromiso</span>
       <span class="cta-feat">Sin spam ni llamadas no deseadas</span>
@@ -1697,9 +1704,12 @@
     <h2 class="section-title">Empresas de Financiamiento en Chile</h2>
     <p class="section-sub">Conoce las principales instituciones financieras que operan en Chile. Haz clic en cada una para ver su perfil completo.</p>
     <div class="empresas-tabs">
-      <button class="emp-tab active" onclick="filterEmpresas('no-bancario', this)">Factoring No Bancario</button>
+      <button class="emp-tab active" onclick="filterEmpresas('no-bancario', this)">No Bancarias</button>
       <button class="emp-tab" onclick="filterEmpresas('fintech', this)">Fintech</button>
-      <button class="emp-tab" onclick="filterEmpresas('bancos', this)">Bancos</button>
+      <button class="emp-tab" onclick="filterEmpresas('bancos', this)">Bancarias</button>
+    </div>
+    <div class="emp-search-wrap">
+      <input type="text" class="emp-search" id="empSearch" placeholder="Buscar empresa..." oninput="searchEmpresas(this.value)">
     </div>
     <div class="empresas-grid" id="empresasGrid"></div>
   </div>
@@ -2150,25 +2160,38 @@
 
   let categoriaActual = 'no-bancario';
 
-  function renderEmpresas(categoria) {
-    const lista = EMPRESAS_DATA[categoria] || [];
+  function renderEmpresas(categoria, filtro) {
+    let lista = EMPRESAS_DATA[categoria] || [];
+    if (filtro) lista = lista.filter(e => e.nombre.toLowerCase().includes(filtro.toLowerCase()) || e.resumen.toLowerCase().includes(filtro.toLowerCase()));
     const grid = document.getElementById('empresasGrid');
-    grid.innerHTML = lista.map(e => {
-      const iniciales = e.nombre.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-      return `
-        <div class="empresa-card" onclick="openEmpModal('${categoria}', '${e.nombre.replace(/'/g, "\\'")}')">
-          <div class="empresa-logo-box">${iniciales}</div>
-          <div class="empresa-card-name">${e.nombre}</div>
-          <div class="empresa-card-tipo">${TIPO_LABEL[categoria]}</div>
-        </div>`;
-    }).join('');
+    grid.innerHTML = lista.length === 0
+      ? '<p style="color:var(--gray);padding:1rem 0">No se encontraron resultados.</p>'
+      : lista.map(e => {
+          const iniciales = e.nombre.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+          return `
+            <div class="empresa-card" onclick="openEmpModal('${categoria}', '${e.nombre.replace(/'/g, "\\'")}')">
+              <div class="empresa-logo-box">${iniciales}</div>
+              <div class="empresa-card-info">
+                <div class="empresa-card-name">${e.nombre}</div>
+                <div class="empresa-card-ano">${e.ano !== 'N/D' ? 'Desde ' + e.ano : TIPO_LABEL[categoria]}</div>
+                <div class="empresa-card-resumen">${e.resumen}</div>
+              </div>
+              <div class="empresa-card-arrow">›</div>
+            </div>`;
+        }).join('');
   }
 
   function filterEmpresas(categoria, btn) {
     document.querySelectorAll('.emp-tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
+    if (btn) btn.classList.add('active');
     categoriaActual = categoria;
+    const search = document.getElementById('empSearch');
+    if (search) search.value = '';
     renderEmpresas(categoria);
+  }
+
+  function searchEmpresas(valor) {
+    renderEmpresas(categoriaActual, valor);
   }
 
   function openEmpModal(categoria, nombre) {
