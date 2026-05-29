@@ -535,6 +535,13 @@
       </div>
     </div>
 
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+      <button class="btn-export" onclick="exportSolicitudesCSV('all')" style="flex:1;min-width:160px">⬇ Exportar todas</button>
+      <button class="btn-export secondary" onclick="exportSolicitudesCSV('filtered')" style="flex:1;min-width:160px">⬇ Exportar filtradas</button>
+      <button class="btn-export" onclick="exportSolicitudesCSV('week')" style="flex:1;min-width:160px">⬇ Últimos 7 días</button>
+      <button class="btn-export secondary" onclick="exportSolicitudesCSV('month')" style="flex:1;min-width:160px">⬇ Últimos 30 días</button>
+    </div>
+
     <div class="table-card">
       <div class="table-header">
         <div class="table-title">Solicitudes</div>
@@ -621,6 +628,7 @@
       return;
     }
     allSolicitudes = data || [];
+    renderTable(); // Re-render actividad para actualizar badges
 
     const empresas = [...new Set(allSolicitudes.map(s => s.empresa))].filter(Boolean).sort();
     const sel = document.getElementById('fSolEmpresa');
@@ -678,7 +686,7 @@
   async function loadAll() {
     setLoading(true);
     try {
-      await loadLogs();
+      await Promise.all([loadLogs(), loadSolicitudesData()]);
       updateStats();
       renderCharts();
     } catch (e) {
@@ -687,6 +695,12 @@
     setLoading(false);
     document.getElementById('lastUpdated').textContent =
       'Actualizado: ' + new Date().toLocaleString('es-CL', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+  }
+
+  // Carga solicitudes en background para vincular con actividad
+  async function loadSolicitudesData() {
+    const { data } = await sb.from('solicitudes').select('*').order('created_at', { ascending: false }).limit(1000);
+    allSolicitudes = data || [];
   }
 
   async function loadLogs() {
@@ -978,10 +992,19 @@
       const sessShort = (l.session_id || '').slice(0, 18) + '...';
       const datosStr  = l.datos ? formatDatos(l.datos) : '—';
 
+      // Vincular con solicitudes por session_id o user_id
+      const solMatch = allSolicitudes.find(s =>
+        (l.session_id && s.session_id === l.session_id) ||
+        (l.user_id && s.user_id === l.user_id)
+      );
+      const solBadge = solMatch
+        ? `<div style="margin-top:4px"><span style="background:#fef3c7;color:#92400e;font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px;white-space:nowrap">📨 Solicitó: ${solMatch.empresa}</span></div>`
+        : '';
+
       return `<tr>
         <td><div>${fecha}</div><div style="font-size:11px;color:var(--gray)">${hora}</div></td>
         <td><span class="badge ${tipoBadge}">${tipoLabel}</span></td>
-        <td>${userBadge}</td>
+        <td>${userBadge}${solBadge}</td>
         <td><span class="session-id" title="${l.session_id || ''}">${sessShort}</span></td>
         <td><div class="datos-cell">${datosStr}</div></td>
       </tr>`;
@@ -1085,6 +1108,55 @@
     const a    = document.createElement('a');
     a.href = url;
     a.download = `banko_actividad_${mode}_${now.toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ── EXPORT SOLICITUDES CSV ──
+  function exportSolicitudesCSV(mode) {
+    const now = new Date();
+    let data;
+    if (mode === 'all') {
+      data = allSolicitudes;
+    } else if (mode === 'filtered') {
+      data = filteredSolicitudes;
+    } else if (mode === 'week') {
+      const weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate() - 7);
+      data = allSolicitudes.filter(s => new Date(s.created_at) >= weekAgo);
+    } else if (mode === 'month') {
+      const monthAgo = new Date(now); monthAgo.setDate(monthAgo.getDate() - 30);
+      data = allSolicitudes.filter(s => new Date(s.created_at) >= monthAgo);
+    }
+
+    if (!data || data.length === 0) {
+      alert('No hay solicitudes para exportar con los filtros actuales.');
+      return;
+    }
+
+    const headers = ['Fecha', 'Hora', 'Empresa', 'Plan', 'Tipo', 'Tasa', 'Cliente', 'Email', 'Teléfono', 'Estado', 'Session ID'];
+    const rows = data.map(s => {
+      const ts = new Date(s.created_at);
+      return [
+        ts.toLocaleDateString('es-CL'),
+        ts.toLocaleTimeString('es-CL'),
+        s.empresa || '',
+        s.plan    || '',
+        s.tipo    || '',
+        s.tasa    || '',
+        s.nombre  || '',
+        s.email   || '',
+        s.telefono || '',
+        s.estado  || 'pendiente',
+        s.session_id || '',
+      ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
+    });
+
+    const csv  = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `banko_solicitudes_${mode}_${now.toISOString().slice(0,10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
