@@ -296,6 +296,9 @@
     <button class="sb-nav-item" onclick="showSection('exportar', this)">
       <span class="icon">📤</span> Exportar
     </button>
+    <button class="sb-nav-item" onclick="showSection('solicitudes', this)">
+      <span class="icon">📨</span> Solicitudes
+    </button>
     <div style="margin:1rem 0;border-top:1px solid rgba(255,255,255,.08)"></div>
     <button class="sb-nav-item" onclick="visitSite()">
       <span class="icon">🌐</span> Ver sitio
@@ -492,6 +495,72 @@
     </div>
   </div>
 
+  <!-- ── SOLICITUDES ── -->
+  <div class="section" id="sec-solicitudes">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Solicitudes de Clientes</div>
+        <div class="page-sub">Clientes que solicitaron contacto con una empresa</div>
+      </div>
+      <button class="refresh-btn" onclick="loadSolicitudesAdmin()">↻ Actualizar</button>
+    </div>
+
+    <div class="filters-bar">
+      <div class="filter-group">
+        <div class="filter-label">Empresa</div>
+        <select class="filter-select" id="fSolEmpresa" onchange="filtrarSolicitudesAdmin()">
+          <option value="">Todas las empresas</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Tipo</div>
+        <select class="filter-select" id="fSolTipo" onchange="filtrarSolicitudesAdmin()">
+          <option value="">Todos</option>
+          <option value="factoring">Factoring</option>
+          <option value="leasing">Leasing</option>
+          <option value="capital">Capital de Trabajo</option>
+          <option value="credito">Créditos</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Estado</div>
+        <select class="filter-select" id="fSolEstado" onchange="filtrarSolicitudesAdmin()">
+          <option value="">Todos</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="contactado">Contactado</option>
+        </select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn-clear" onclick="limpiarFiltrosSol()">Limpiar</button>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">Solicitudes</div>
+        <div class="table-count" id="solCount">— solicitudes</div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Empresa</th>
+              <th>Plan / Tipo</th>
+              <th>Cliente</th>
+              <th>Email</th>
+              <th>Teléfono</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="solTableBody">
+            <tr class="empty-row"><td colspan="7">Haz clic en Actualizar para cargar las solicitudes.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <script>
@@ -533,6 +602,76 @@
     document.getElementById('sec-' + id).classList.add('active');
     el.classList.add('active');
     if (id === 'actividad') renderTable();
+    if (id === 'solicitudes') loadSolicitudesAdmin();
+  }
+
+  // ── SOLICITUDES ADMIN ──
+  let allSolicitudes = [];
+  let filteredSolicitudes = [];
+
+  async function loadSolicitudesAdmin() {
+    document.getElementById('solTableBody').innerHTML = '<tr class="empty-row"><td colspan="7">Cargando...</td></tr>';
+    const { data, error } = await sb
+      .from('solicitudes')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(1000);
+    if (error) {
+      document.getElementById('solTableBody').innerHTML = '<tr class="empty-row"><td colspan="7">Error al cargar datos.</td></tr>';
+      return;
+    }
+    allSolicitudes = data || [];
+
+    const empresas = [...new Set(allSolicitudes.map(s => s.empresa))].filter(Boolean).sort();
+    const sel = document.getElementById('fSolEmpresa');
+    const current = sel.value;
+    sel.innerHTML = '<option value="">Todas las empresas</option>' +
+      empresas.map(e => `<option value="${e}"${e===current?' selected':''}>${e}</option>`).join('');
+
+    filtrarSolicitudesAdmin();
+  }
+
+  function filtrarSolicitudesAdmin() {
+    const empresa = document.getElementById('fSolEmpresa').value;
+    const tipo    = document.getElementById('fSolTipo').value;
+    const estado  = document.getElementById('fSolEstado').value;
+    filteredSolicitudes = allSolicitudes.filter(s =>
+      (!empresa || s.empresa === empresa) &&
+      (!tipo    || s.tipo    === tipo)    &&
+      (!estado  || s.estado  === estado)
+    );
+    renderSolicitudesTable();
+  }
+
+  function limpiarFiltrosSol() {
+    document.getElementById('fSolEmpresa').value = '';
+    document.getElementById('fSolTipo').value    = '';
+    document.getElementById('fSolEstado').value  = '';
+    filtrarSolicitudesAdmin();
+  }
+
+  function renderSolicitudesTable() {
+    const tbody = document.getElementById('solTableBody');
+    document.getElementById('solCount').textContent = filteredSolicitudes.length.toLocaleString('es-CL') + ' solicitudes';
+    if (filteredSolicitudes.length === 0) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No hay solicitudes con estos filtros.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = filteredSolicitudes.map(s => {
+      const fecha = new Date(s.created_at).toLocaleString('es-CL', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+      const estadoBadge = s.estado === 'contactado'
+        ? '<span style="color:#10b981;font-weight:600">● Contactado</span>'
+        : '<span style="color:#f59e0b;font-weight:600">● Pendiente</span>';
+      return `<tr>
+        <td style="white-space:nowrap">${fecha}</td>
+        <td><strong>${s.empresa || '—'}</strong></td>
+        <td>${s.plan || '—'}<br><small style="color:#6b7280">${s.tipo || ''}</small></td>
+        <td>${s.nombre || '—'}</td>
+        <td>${s.email || '—'}</td>
+        <td>${s.telefono || '—'}</td>
+        <td>${estadoBadge}</td>
+      </tr>`;
+    }).join('');
   }
 
   // ── LOAD ALL DATA ──

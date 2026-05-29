@@ -1215,6 +1215,9 @@
     <div class="ud-item" onclick="openHistorial()">
       <span class="ud-icon">📋</span> Mis cotizaciones
     </div>
+    <div class="ud-item" onclick="openSolicitudesPanel()">
+      <span class="ud-icon">📨</span> Mis solicitudes
+    </div>
     <div class="ud-item" onclick="openPerfil()">
       <span class="ud-icon">👤</span> Mi perfil
     </div>
@@ -1937,6 +1940,62 @@
   </div>
 </div>
 
+<!-- SOLICITUDES PANEL (user) -->
+<div class="historial-overlay" id="solicitudesOverlay" onclick="closeSolicitudesPanelOutside(event)">
+  <div class="historial-panel">
+    <div class="historial-head">
+      <h3>📨 Mis solicitudes</h3>
+      <button onclick="closeSolicitudesPanel()">✕</button>
+    </div>
+    <div class="historial-body" id="solicitudesBody">
+      <div class="hist-empty"><div class="hist-empty-icon">📭</div><p>Aún no tienes solicitudes enviadas.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- SOLICITUD CONFIRM MODAL -->
+<div class="modal-overlay" id="solicitudOverlay" onclick="cerrarSolicitudOutside(event)" style="z-index:4000">
+  <div class="modal" style="max-width:460px;padding:32px">
+    <button class="modal-close" onclick="cerrarSolicitud()">✕</button>
+
+    <div id="solicitudFormWrap">
+      <div class="modal-title" id="solicitudEmpresa" style="font-size:20px"></div>
+      <div class="modal-sub" id="solicitudPlan"></div>
+
+      <p style="margin:16px 0 20px;font-size:14px;color:#4b5563;line-height:1.6">
+        Un vendedor de la empresa se comunicará contigo para guiarte en el proceso.
+      </p>
+
+      <div class="form-group">
+        <div class="form-label">Nombre completo *</div>
+        <input type="text" id="solNombre" class="form-input" placeholder="Tu nombre">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Email *</div>
+        <input type="email" id="solEmail" class="form-input" placeholder="tu@email.com">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Teléfono</div>
+        <input type="tel" id="solTelefono" class="form-input" placeholder="+56 9 1234 5678">
+      </div>
+
+      <button id="btnEnviarSolicitud" class="btn-select" style="width:100%;margin-top:8px;font-size:15px;padding:13px" onclick="enviarSolicitud()">
+        Enviar solicitud
+      </button>
+      <div id="solMsg" class="auth-msg" style="margin-top:10px"></div>
+    </div>
+
+    <div id="solicitudSuccessWrap" style="display:none;text-align:center;padding:20px 0">
+      <div style="font-size:56px;margin-bottom:12px">✅</div>
+      <h3 style="font-size:20px;color:#0d1b2a;margin-bottom:10px">¡Perfecto!</h3>
+      <p style="font-size:14px;color:#4b5563;line-height:1.6">
+        Ahora revisaremos tu solicitud y un vendedor<br>se comunicará contigo a la brevedad.
+      </p>
+      <button onclick="cerrarSolicitud()" class="btn-select" style="margin-top:24px;padding:12px 28px">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <!-- WHATSAPP FLOAT -->
 <a class="whatsapp-float" href="https://wa.me/56900000000" target="_blank" title="Hablar por WhatsApp">💬</a>
 
@@ -2063,13 +2122,46 @@
     credito:   { titulo: '🏦 Créditos',   sub: 'Comparando 10 bancos · Tasas de referencia',          valueLabel: 'Tasa mensual', valuePeriod: 'CAE referencial' },
   };
 
+  let currentTipo = 'factoring';
+
+  function parseTasaNum(tasa) {
+    if (tasa.includes('UF+')) { const m = tasa.match(/UF\+([0-9.]+)/); return m ? parseFloat(m[1]) : 999; }
+    const m = tasa.match(/([0-9.]+)%/);
+    return m ? parseFloat(m[1]) : 999;
+  }
+
+  function extractPlazoMeses(r) {
+    const text = r.extra + ' ' + r.chips.join(' ');
+    const m = text.match(/(\d+)\s*meses?/i);
+    if (m) return parseInt(m[1]);
+    const d = text.match(/(\d+)\s*d[íi]as?/i);
+    if (d) return Math.round(parseInt(d[1]) / 30);
+    return 0;
+  }
+
+  function isRapida(r) {
+    const text = (r.extra + ' ' + r.chips.join(' ')).toLowerCase();
+    return ['rápid','24h','hora','express','inmediata','ágil','digital','online'].some(k => text.includes(k));
+  }
+
   function renderResultados(tipo) {
-    const items = resultadosPorCategoria[tipo] || resultadosPorCategoria.factoring;
+    currentTipo = tipo;
     const labels = labelPorCategoria[tipo] || labelPorCategoria.factoring;
     document.getElementById('modalTitle').textContent = labels.titulo;
     document.getElementById('modalSub').textContent   = labels.sub;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.filter-btn').classList.add('active');
+    renderCards(resultadosPorCategoria[tipo] || resultadosPorCategoria.factoring);
+  }
+
+  function renderCards(items) {
+    const labels = labelPorCategoria[currentTipo] || labelPorCategoria.factoring;
     const container = document.getElementById('resultsContainer');
-    container.innerHTML = items.map((r, i) => `
+    if (items.length === 0) {
+      container.innerHTML = '<div style="text-align:center;padding:40px;color:#888">No hay opciones con este filtro.</div>';
+      return;
+    }
+    container.innerHTML = items.map(r => `
       <div class="result-card${r.mejor ? ' best-pick' : ''}">
         ${r.mejor ? '<div class="best-label">⭐ Mejor elección</div>' : ''}
         <div class="result-insurer">
@@ -2091,7 +2183,13 @@
           <div class="price-label">${labels.valueLabel}</div>
           <div class="price-value" style="font-size:22px">${r.tasa}</div>
           <div class="price-period">${labels.valuePeriod}</div>
-          <a href="${r.url}" target="_blank" rel="noopener" class="btn-select" style="text-decoration:none;display:block;text-align:center">Solicitar →</a>
+          <button class="btn-select"
+            onclick="abrirSolicitud(this)"
+            data-empresa="${r.nombre.replace(/"/g,'&quot;')}"
+            data-plan="${r.plan.replace(/"/g,'&quot;')}"
+            data-tasa="${r.tasa.replace(/"/g,'&quot;')}"
+            data-url="${r.url}"
+            data-tipo="${currentTipo}">Solicitar →</button>
         </div>
       </div>
     `).join('');
@@ -2417,6 +2515,17 @@
   function setFilter(el) {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
+    const filtro = el.textContent.trim();
+    const allItems = resultadosPorCategoria[currentTipo] || resultadosPorCategoria.factoring;
+    let items = [...allItems];
+    if (filtro === 'Menor tasa') {
+      items.sort((a, b) => parseTasaNum(a.tasa) - parseTasaNum(b.tasa));
+    } else if (filtro === 'Mejor plazo') {
+      items.sort((a, b) => extractPlazoMeses(b) - extractPlazoMeses(a));
+    } else if (filtro === 'Aprobación rápida') {
+      items = items.filter(r => isRapida(r));
+    }
+    renderCards(items);
   }
 
   // --- Navbar scroll effect ---
@@ -2763,6 +2872,133 @@
           </div>` : ''}
         </div>`;
     }).join('');
+  }
+
+  // ===== SOLICITUDES PANEL (user) =====
+  function openSolicitudesPanel() {
+    document.getElementById('userDropdown').classList.remove('open');
+    document.getElementById('solicitudesOverlay').classList.add('open');
+    loadSolicitudesUsuario();
+  }
+  function closeSolicitudesPanel() {
+    document.getElementById('solicitudesOverlay').classList.remove('open');
+  }
+  function closeSolicitudesPanelOutside(e) {
+    if (e.target === document.getElementById('solicitudesOverlay')) closeSolicitudesPanel();
+  }
+
+  async function loadSolicitudesUsuario() {
+    const body = document.getElementById('solicitudesBody');
+    if (!currentUser) {
+      body.innerHTML = '<div class="hist-empty"><div class="hist-empty-icon">🔒</div><p>Inicia sesión para ver tus solicitudes.</p></div>';
+      return;
+    }
+    body.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray-text)">Cargando...</div>';
+    const { data } = await sb.from('solicitudes')
+      .select('*').eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false }).limit(50);
+    if (!data || data.length === 0) {
+      body.innerHTML = '<div class="hist-empty"><div class="hist-empty-icon">📭</div><p>Aún no tienes solicitudes enviadas.</p></div>';
+      return;
+    }
+    body.innerHTML = data.map(s => {
+      const fecha = new Date(s.created_at).toLocaleDateString('es-CL', { day:'numeric', month:'short', year:'numeric' });
+      const estadoColor = s.estado === 'contactado' ? '#10b981' : '#f59e0b';
+      return `
+        <div class="hist-item">
+          <div class="hist-item-top">
+            <div class="hist-tipo">${s.empresa}</div>
+            <div class="hist-date">${fecha}</div>
+          </div>
+          <div style="font-size:13px;color:var(--gray-text);margin:4px 0">${s.plan} · ${s.tasa}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+            <span class="hist-tag">${s.tipo}</span>
+            <span style="font-size:11px;color:${estadoColor};font-weight:600;text-transform:uppercase">${s.estado || 'pendiente'}</span>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ===== SOLICITUD CONFIRM MODAL =====
+  let _solicitudData = {};
+
+  function abrirSolicitud(btn) {
+    _solicitudData = {
+      empresa: btn.dataset.empresa,
+      plan:    btn.dataset.plan,
+      tasa:    btn.dataset.tasa,
+      url:     btn.dataset.url,
+      tipo:    btn.dataset.tipo,
+    };
+    document.getElementById('solicitudEmpresa').textContent = _solicitudData.empresa;
+    document.getElementById('solicitudPlan').textContent    = _solicitudData.plan + ' · ' + _solicitudData.tasa;
+
+    if (currentUser) {
+      const meta = currentUser.user_metadata || {};
+      document.getElementById('solNombre').value   = meta.full_name || '';
+      document.getElementById('solEmail').value    = currentUser.email || '';
+      document.getElementById('solTelefono').value = meta.telefono || '';
+    } else {
+      document.getElementById('solNombre').value   = '';
+      document.getElementById('solEmail').value    = '';
+      document.getElementById('solTelefono').value = '';
+    }
+
+    document.getElementById('solicitudFormWrap').style.display    = 'block';
+    document.getElementById('solicitudSuccessWrap').style.display = 'none';
+    document.getElementById('solMsg').textContent = '';
+    document.getElementById('btnEnviarSolicitud').disabled = false;
+    document.getElementById('btnEnviarSolicitud').textContent = 'Enviar solicitud';
+    document.getElementById('solicitudOverlay').classList.add('open');
+  }
+
+  async function enviarSolicitud() {
+    const nombre   = document.getElementById('solNombre').value.trim();
+    const email    = document.getElementById('solEmail').value.trim();
+    const telefono = document.getElementById('solTelefono').value.trim();
+    const msg      = document.getElementById('solMsg');
+    const btn      = document.getElementById('btnEnviarSolicitud');
+
+    if (!nombre || !email) {
+      msg.className = 'auth-msg error';
+      msg.textContent = 'Por favor completa nombre y email.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    const { error } = await sb.from('solicitudes').insert({
+      user_id:    currentUser?.id ?? null,
+      session_id: getOrCreateSessionId(),
+      empresa:    _solicitudData.empresa,
+      plan:       _solicitudData.plan,
+      tipo:       _solicitudData.tipo,
+      tasa:       _solicitudData.tasa,
+      url:        _solicitudData.url,
+      nombre,
+      email,
+      telefono,
+      estado:     'pendiente',
+    });
+
+    if (error) {
+      btn.disabled = false;
+      btn.textContent = 'Enviar solicitud';
+      msg.className = 'auth-msg error';
+      msg.textContent = 'Error al enviar. Intenta de nuevo.';
+      return;
+    }
+
+    document.getElementById('solicitudFormWrap').style.display    = 'none';
+    document.getElementById('solicitudSuccessWrap').style.display = 'block';
+  }
+
+  function cerrarSolicitud() {
+    document.getElementById('solicitudOverlay').classList.remove('open');
+  }
+  function cerrarSolicitudOutside(e) {
+    if (e.target === document.getElementById('solicitudOverlay')) cerrarSolicitud();
   }
 
   function openPerfil() {

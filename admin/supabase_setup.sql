@@ -15,7 +15,43 @@ CREATE TABLE IF NOT EXISTS public.activity_logs (
   user_agent       TEXT
 );
 
--- 2. Tabla de administradores
+-- 2. Tabla de solicitudes de clientes
+CREATE TABLE IF NOT EXISTS public.solicitudes (
+  id         UUID        DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  user_id    UUID        REFERENCES auth.users(id) ON DELETE SET NULL,
+  session_id TEXT        NOT NULL,
+  empresa    TEXT        NOT NULL,
+  plan       TEXT,
+  tipo       TEXT,
+  tasa       TEXT,
+  url        TEXT,
+  nombre     TEXT,
+  email      TEXT,
+  telefono   TEXT,
+  estado     TEXT        DEFAULT 'pendiente'
+);
+
+ALTER TABLE public.solicitudes ENABLE ROW LEVEL SECURITY;
+
+-- Cualquiera puede insertar (anónimo y autenticado)
+CREATE POLICY "allow_insert_solicitudes" ON public.solicitudes
+  FOR INSERT WITH CHECK (true);
+
+-- Cada usuario solo puede leer sus propias solicitudes
+CREATE POLICY "allow_user_select_solicitudes" ON public.solicitudes
+  FOR SELECT USING (
+    auth.uid() = user_id OR
+    EXISTS (SELECT 1 FROM public.admins WHERE user_id = auth.uid())
+  );
+
+-- Solo admins pueden actualizar el estado
+CREATE POLICY "allow_admin_update_solicitudes" ON public.solicitudes
+  FOR UPDATE USING (
+    EXISTS (SELECT 1 FROM public.admins WHERE user_id = auth.uid())
+  );
+
+-- 3. Tabla de administradores
 CREATE TABLE IF NOT EXISTS public.admins (
   id         UUID        DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id    UUID        REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE NOT NULL,
