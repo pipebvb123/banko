@@ -1501,6 +1501,9 @@
       <button class="btn-compare" onclick="startComparison()">
         Ver y comparar opciones →
       </button>
+      <div id="formError" style="display:none;color:#ef4444;font-size:13px;text-align:center;margin-top:8px;font-weight:600">
+        ⚠ Por favor completa todos los campos obligatorios antes de continuar.
+      </div>
 
       <div class="trust-badges">
         <div class="trust-badge"><span class="icon">🔒</span> 100% Seguro</div>
@@ -1961,6 +1964,7 @@
     <div id="solicitudFormWrap">
       <div class="modal-title" id="solicitudEmpresa" style="font-size:20px"></div>
       <div class="modal-sub" id="solicitudPlan"></div>
+      <div id="solicitudMultiList" style="display:none;margin:10px 0;padding:10px 14px;background:#f0fdf4;border-radius:8px;font-size:13px;color:#166534"></div>
 
       <p style="margin:16px 0 20px;font-size:14px;color:#4b5563;line-height:1.6">
         Un vendedor de la empresa se comunicará contigo para guiarte en el proceso.
@@ -2022,6 +2026,14 @@
 
     <!-- RESULT CARDS -->
     <div id="resultsContainer">
+    </div>
+
+    <!-- BARRA MULTI-SELECT -->
+    <div id="enviarTodosBar" style="display:none;position:sticky;bottom:0;background:#fff;border-top:2px solid var(--teal);padding:14px 20px;display:none;align-items:center;justify-content:space-between;gap:12px;border-radius:0 0 16px 16px">
+      <div style="font-size:13px;color:var(--navy);font-weight:600" id="seleccionLabel">0 seleccionadas</div>
+      <button onclick="abrirSolicitudMultiple()" style="background:var(--teal);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:14px;font-weight:700;cursor:pointer">
+        Enviar todos →
+      </button>
     </div>
   </div>
 </div>
@@ -2190,6 +2202,16 @@
             data-tasa="${r.tasa.replace(/"/g,'&quot;')}"
             data-url="${r.url}"
             data-tipo="${currentTipo}">Solicitar →</button>
+          <button class="btn-sel-multi"
+            onclick="toggleSeleccion(this)"
+            data-empresa="${r.nombre.replace(/"/g,'&quot;')}"
+            data-plan="${r.plan.replace(/"/g,'&quot;')}"
+            data-tasa="${r.tasa.replace(/"/g,'&quot;')}"
+            data-url="${r.url}"
+            data-tipo="${currentTipo}"
+            style="width:100%;margin-top:6px;padding:7px;border:2px solid var(--border);border-radius:8px;background:#fff;color:var(--navy);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s">
+            ☐ Seleccionar
+          </button>
         </div>
       </div>
     `).join('');
@@ -2349,6 +2371,8 @@
   function closeModal() {
     document.getElementById('modalOverlay').classList.remove('open');
     document.body.style.overflow = '';
+    selectedAlternativas = [];
+    document.getElementById('enviarTodosBar').style.display = 'none';
   }
 
   function closeModalOutside(e) {
@@ -2476,14 +2500,30 @@
     document.getElementById('pagadorLabel').textContent = nombre;
     document.getElementById('pagadorBtn').classList.remove('open');
     document.getElementById('pagadorDropdown').classList.remove('open');
-    // Autocompletar RUT del pagador
-    const rutInput = document.getElementById('pagadorRutInput');
-    if (rutInput) rutInput.value = rut || '';
+    const rutInput  = document.getElementById('pagadorRutInput');
     const otroInput = document.getElementById('pagadorOtroInput');
     if (nombre === 'Otro') {
+      // Editable: limpiar y dejar que el cliente ingrese el RUT
+      if (rutInput) {
+        rutInput.value       = '';
+        rutInput.readOnly    = false;
+        rutInput.placeholder = 'Ingresa el RUT del pagador';
+        rutInput.style.background  = '';
+        rutInput.style.color       = '';
+        rutInput.style.fontWeight  = '';
+        rutInput.focus();
+      }
       otroInput.classList.add('show');
       otroInput.focus();
     } else {
+      if (rutInput) {
+        rutInput.value       = rut || '';
+        rutInput.readOnly    = true;
+        rutInput.placeholder = 'Se autocompleta al seleccionar';
+        rutInput.style.background = '#F0F7FF';
+        rutInput.style.color      = 'var(--teal)';
+        rutInput.style.fontWeight = '600';
+      }
       otroInput.classList.remove('show');
       otroInput.value = '';
     }
@@ -2809,14 +2849,67 @@
     sb.from('activity_logs').insert(payload).then(() => {});
   }
 
-  // Override startComparison para guardar
+  // ===== VALIDACIÓN DE FORMULARIO =====
+  function validateForm() {
+    const tipo    = document.querySelector('.product-tab.active')?.dataset.type || 'factoring';
+    const section = document.getElementById('form-' + tipo);
+    if (!section) return true;
+    let valid = true;
+
+    section.querySelectorAll('input.form-input').forEach(inp => {
+      const isReadonly = inp.readOnly && inp.id !== 'pagadorRutInput';
+      const isOtroHidden = inp.classList.contains('pagador-otro-input') && !inp.classList.contains('show');
+      if (!isReadonly && !isOtroHidden) {
+        if (!inp.value.trim()) {
+          inp.style.borderColor = '#ef4444';
+          inp.style.boxShadow   = '0 0 0 3px rgba(239,68,68,0.15)';
+          valid = false;
+        } else {
+          inp.style.borderColor = '';
+          inp.style.boxShadow   = '';
+        }
+      }
+    });
+
+    if (tipo === 'factoring') {
+      const pagLabel = document.getElementById('pagadorLabel')?.textContent?.trim();
+      const pagBtn   = document.getElementById('pagadorBtn');
+      if (pagLabel === 'Seleccionar pagador') {
+        if (pagBtn) { pagBtn.style.borderColor = '#ef4444'; pagBtn.style.boxShadow = '0 0 0 3px rgba(239,68,68,0.15)'; }
+        valid = false;
+      } else {
+        if (pagBtn) { pagBtn.style.borderColor = ''; pagBtn.style.boxShadow = ''; }
+      }
+      const rutInput = document.getElementById('pagadorRutInput');
+      if (rutInput && !rutInput.value.trim()) {
+        rutInput.style.borderColor = '#ef4444';
+        rutInput.style.boxShadow   = '0 0 0 3px rgba(239,68,68,0.15)';
+        valid = false;
+      } else if (rutInput) {
+        rutInput.style.borderColor = '';
+        rutInput.style.boxShadow   = '';
+      }
+    }
+
+    const errDiv = document.getElementById('formError');
+    if (errDiv) errDiv.style.display = valid ? 'none' : 'block';
+    if (!valid) {
+      section.querySelector('input.form-input[style*="ef4444"]')?.scrollIntoView({ behavior:'smooth', block:'center' });
+    }
+    return valid;
+  }
+
+  // Override startComparison para validar y guardar
   const _startComparison = startComparison;
   window.startComparison = async function() {
+    if (!validateForm()) return;
+    document.getElementById('formError').style.display = 'none';
     const tipoActivo = document.querySelector('.product-tab.active')?.dataset.type || 'factoring';
     const tipoMap = { factoring: '📄 Factoring', leasing: '🏗️ Leasing', capital: '💼 Capital de Trabajo', credito: '🏦 Créditos' };
     const formDatos = collectFormData(tipoActivo);
     await saveCotizacion(tipoMap[tipoActivo] || '📄 Factoring', { tipo: tipoActivo });
     trackActivity(tipoActivo, { tipo: tipoActivo, ...formDatos });
+    selectedAlternativas = [];
     _startComparison();
   };
 
@@ -2944,11 +3037,14 @@
       document.getElementById('solTelefono').value = '';
     }
 
+    document.getElementById('solicitudMultiList').style.display = 'none';
     document.getElementById('solicitudFormWrap').style.display    = 'block';
     document.getElementById('solicitudSuccessWrap').style.display = 'none';
     document.getElementById('solMsg').textContent = '';
-    document.getElementById('btnEnviarSolicitud').disabled = false;
-    document.getElementById('btnEnviarSolicitud').textContent = 'Enviar solicitud';
+    const btnEnv = document.getElementById('btnEnviarSolicitud');
+    btnEnv.disabled    = false;
+    btnEnv.textContent = 'Enviar solicitud';
+    btnEnv.onclick     = enviarSolicitud;
     document.getElementById('solicitudOverlay').classList.add('open');
   }
 
@@ -2996,9 +3092,132 @@
 
   function cerrarSolicitud() {
     document.getElementById('solicitudOverlay').classList.remove('open');
+    selectedAlternativas = [];
+    document.querySelectorAll('.btn-sel-multi').forEach(b => {
+      b.textContent = '☐ Seleccionar';
+      b.style.borderColor = 'var(--border)';
+      b.style.background = '#fff';
+      b.style.color = 'var(--navy)';
+    });
+    actualizarBarraMulti();
   }
   function cerrarSolicitudOutside(e) {
     if (e.target === document.getElementById('solicitudOverlay')) cerrarSolicitud();
+  }
+
+  // ===== MULTI-SELECCIÓN (hasta 3) =====
+  let selectedAlternativas = [];
+
+  function toggleSeleccion(btn) {
+    const empresa = btn.dataset.empresa;
+    const idx = selectedAlternativas.findIndex(s => s.empresa === empresa);
+    if (idx >= 0) {
+      selectedAlternativas.splice(idx, 1);
+      btn.innerHTML = '☐ Seleccionar';
+      btn.style.borderColor = 'var(--border)';
+      btn.style.background = '#fff';
+      btn.style.color = 'var(--navy)';
+    } else {
+      if (selectedAlternativas.length >= 3) {
+        btn.animate([{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}], {duration:300});
+        return;
+      }
+      selectedAlternativas.push({
+        empresa: btn.dataset.empresa,
+        plan:    btn.dataset.plan,
+        tasa:    btn.dataset.tasa,
+        url:     btn.dataset.url,
+        tipo:    btn.dataset.tipo,
+      });
+      btn.innerHTML = '☑ Seleccionado';
+      btn.style.borderColor = 'var(--teal)';
+      btn.style.background = 'rgba(0,201,167,.08)';
+      btn.style.color = 'var(--teal)';
+    }
+    actualizarBarraMulti();
+  }
+
+  function actualizarBarraMulti() {
+    const bar = document.getElementById('enviarTodosBar');
+    const n = selectedAlternativas.length;
+    if (n > 0) {
+      bar.style.display = 'flex';
+      document.getElementById('seleccionLabel').textContent =
+        n === 1 ? '1 seleccionada' : `${n} seleccionadas (máx. 3)`;
+    } else {
+      bar.style.display = 'none';
+    }
+  }
+
+  function abrirSolicitudMultiple() {
+    if (selectedAlternativas.length === 0) return;
+    const nombres = selectedAlternativas.map(s => `<strong>${s.empresa}</strong> (${s.plan})`).join('<br>');
+    document.getElementById('solicitudEmpresa').textContent =
+      selectedAlternativas.length === 1 ? selectedAlternativas[0].empresa : `${selectedAlternativas.length} empresas seleccionadas`;
+    document.getElementById('solicitudPlan').textContent =
+      selectedAlternativas.length === 1 ? selectedAlternativas[0].plan + ' · ' + selectedAlternativas[0].tasa : '';
+    document.getElementById('solicitudMultiList').style.display = selectedAlternativas.length > 1 ? 'block' : 'none';
+    document.getElementById('solicitudMultiList').innerHTML = '📋 Solicitudes para:<br>' + nombres;
+
+    if (currentUser) {
+      const meta = currentUser.user_metadata || {};
+      document.getElementById('solNombre').value   = meta.full_name || '';
+      document.getElementById('solEmail').value    = currentUser.email || '';
+      document.getElementById('solTelefono').value = meta.telefono || '';
+    } else {
+      document.getElementById('solNombre').value   = '';
+      document.getElementById('solEmail').value    = '';
+      document.getElementById('solTelefono').value = '';
+    }
+
+    _solicitudData = selectedAlternativas[0];
+    document.getElementById('btnEnviarSolicitud').onclick = enviarSolicitudMultiple;
+    document.getElementById('btnEnviarSolicitud').textContent = selectedAlternativas.length > 1
+      ? `Enviar a ${selectedAlternativas.length} empresas` : 'Enviar solicitud';
+    document.getElementById('solicitudFormWrap').style.display    = 'block';
+    document.getElementById('solicitudSuccessWrap').style.display = 'none';
+    document.getElementById('solMsg').textContent = '';
+    document.getElementById('btnEnviarSolicitud').disabled = false;
+    document.getElementById('solicitudOverlay').classList.add('open');
+  }
+
+  async function enviarSolicitudMultiple() {
+    const nombre   = document.getElementById('solNombre').value.trim();
+    const email    = document.getElementById('solEmail').value.trim();
+    const telefono = document.getElementById('solTelefono').value.trim();
+    const msg      = document.getElementById('solMsg');
+    const btn      = document.getElementById('btnEnviarSolicitud');
+    if (!nombre || !email) {
+      msg.className = 'auth-msg error';
+      msg.textContent = 'Por favor completa nombre y email.';
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    const lista = selectedAlternativas.length > 0 ? selectedAlternativas : [_solicitudData];
+    const inserts = lista.map(s => ({
+      user_id:    currentUser?.id ?? null,
+      session_id: getOrCreateSessionId(),
+      empresa:    s.empresa,
+      plan:       s.plan,
+      tipo:       s.tipo,
+      tasa:       s.tasa,
+      url:        s.url,
+      nombre, email, telefono,
+      estado: 'pendiente',
+    }));
+
+    const { error } = await sb.from('solicitudes').insert(inserts);
+    if (error) {
+      btn.disabled = false;
+      btn.textContent = 'Enviar solicitud';
+      msg.className = 'auth-msg error';
+      msg.textContent = 'Error al enviar. Intenta de nuevo.';
+      return;
+    }
+    document.getElementById('solicitudFormWrap').style.display    = 'none';
+    document.getElementById('solicitudSuccessWrap').style.display = 'block';
   }
 
   function openPerfil() {
