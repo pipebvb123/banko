@@ -279,45 +279,8 @@
       border-color: var(--teal);
       box-shadow: 0 0 0 3px rgba(0,201,167,0.12);
     }
-    /* Pagador dropdown */
+    /* Pagador */
     .pagador-wrap { width: 100%; }
-    .pagador-btn {
-      width: 100%; padding: 12px 14px;
-      border: 2px solid var(--border); border-radius: 10px;
-      font-size: 14px; font-family: 'Inter', sans-serif; color: var(--navy);
-      background: var(--white); text-align: left; cursor: pointer;
-      display: flex; justify-content: space-between; align-items: center;
-      transition: all 0.2s; outline: none;
-    }
-    .pagador-btn:focus, .pagador-btn.open { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(0,201,167,0.12); }
-    .pagador-btn .arrow { font-size: 10px; color: var(--gray); transition: transform .2s; }
-    .pagador-btn.open .arrow { transform: rotate(180deg); }
-    .pagador-dropdown {
-      display: none; margin-top: 4px;
-      background: #fff; border: 2px solid var(--border); border-radius: 10px;
-      box-shadow: 0 8px 24px rgba(11,22,41,.12); overflow: hidden;
-    }
-    .pagador-dropdown.open { display: block; }
-    .pagador-search {
-      width: 100%; padding: 10px 12px; border: none; border-bottom: 1px solid var(--border);
-      font-size: 13px; font-family: 'Inter', sans-serif; outline: none; color: var(--navy);
-      background: #F8FAFC;
-    }
-    .pagador-list { max-height: 200px; overflow-y: auto; }
-    .pagador-option {
-      padding: 10px 14px; font-size: 13px; color: var(--navy);
-      cursor: pointer; transition: background .12s;
-    }
-    .pagador-option:hover { background: #F0F7FF; }
-    .pagador-option.selected { background: rgba(14,116,144,.08); font-weight: 600; color: var(--teal); }
-    .pagador-otro-input {
-      display: none; width: 100%; padding: 10px 14px;
-      border: 2px solid var(--teal); border-radius: 10px;
-      font-size: 14px; font-family: 'Inter', sans-serif; color: var(--navy);
-      outline: none; margin-top: 6px; background: #fff;
-      box-shadow: 0 0 0 3px rgba(0,201,167,0.12);
-    }
-    .pagador-otro-input.show { display: block; }
 
     .btn-compare {
       width: 100%;
@@ -1313,17 +1276,10 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Nombre del pagador</label>
-            <div class="pagador-wrap">
-              <button type="button" class="pagador-btn" id="pagadorBtn" onclick="togglePagador()">
-                <span id="pagadorLabel">Seleccionar pagador</span>
-                <span class="arrow">▼</span>
-              </button>
-              <div class="pagador-dropdown" id="pagadorDropdown">
-                <input type="text" class="pagador-search" placeholder="🔍 Buscar pagador..." oninput="filterPagador(this.value)">
-                <div class="pagador-list" id="pagadorList"></div>
-              </div>
-              <input type="text" class="pagador-otro-input" id="pagadorOtroInput" placeholder="Escribe el nombre del pagador..." />
-            </div>
+            <select class="form-select" id="pagadorSelect" onchange="onPagadorSelect(this)" style="height:46px;font-size:14px">
+              <option value="">— Seleccionar pagador —</option>
+            </select>
+            <input type="text" class="form-input" id="pagadorOtroInput" placeholder="Nombre del pagador (escríbelo)" style="display:none;margin-top:6px" />
           </div>
           <div class="form-group">
             <label class="form-label">RUT del pagador</label>
@@ -2475,81 +2431,76 @@
   ];
 
   function initPagador() {
-    renderPagadorList(PAGADORES);
+    const sel = document.getElementById('pagadorSelect');
+    if (!sel) return;
+    // Agrupar por categoría usando la posición en el array
+    const categorias = [
+      { label: 'Banca', desde: 1, hasta: 15 },
+      { label: 'Retail', desde: 15, hasta: 23 },
+      { label: 'Minería', desde: 23, hasta: 31 },
+      { label: 'Energía', desde: 31, hasta: 41 },
+      { label: 'Telecomunicaciones', desde: 41, hasta: 46 },
+      { label: 'Forestal / Papel', desde: 46, hasta: 47 },
+      { label: 'Transporte / Logística', desde: 47, hasta: 52 },
+      { label: 'Alimentos / Bebidas', desde: 52, hasta: 58 },
+      { label: 'Salud', desde: 58, hasta: 62 },
+      { label: 'Construcción / Inmobiliaria', desde: 62, hasta: 66 },
+      { label: 'Seguros / AFP', desde: 66, hasta: 72 },
+      { label: 'Estado / Semipúblico', desde: 72, hasta: 75 },
+    ];
+
+    sel.innerHTML = '<option value="">— Seleccionar pagador —</option>';
+
+    categorias.forEach(cat => {
+      const group = document.createElement('optgroup');
+      group.label = cat.label;
+      PAGADORES.slice(cat.desde, cat.hasta).forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.nombre;
+        opt.dataset.rut = p.rut;
+        opt.textContent = p.nombre + (p.rut ? ' — ' + p.rut : '');
+        group.appendChild(opt);
+      });
+      sel.appendChild(group);
+    });
+
+    // Opción Otro al final
+    const otro = document.createElement('option');
+    otro.value = 'Otro';
+    otro.dataset.rut = '';
+    otro.textContent = 'Otro (no está en la lista)';
+    sel.appendChild(otro);
   }
 
-  function renderPagadorList(items) {
-    const list = document.getElementById('pagadorList');
-    if (!list) return;
-    list.innerHTML = items.map(p => `
-      <div class="pagador-option" onclick="selectPagador('${p.nombre.replace(/'/g,"\\'")}','${p.rut}')">
-        <div style="font-weight:600;font-size:13px">${p.nombre}</div>
-        ${p.rut ? `<div style="font-size:11px;color:var(--gray)">RUT: ${p.rut}</div>` : ''}
-      </div>
-    `).join('');
-  }
-
-  function filterPagador(q) {
-    const filtered = q
-      ? PAGADORES.filter(p => p.nombre.toLowerCase().includes(q.toLowerCase()) || p.rut.includes(q))
-      : PAGADORES;
-    renderPagadorList(filtered);
-  }
-
-  function selectPagador(nombre, rut) {
-    document.getElementById('pagadorLabel').textContent = nombre;
-    document.getElementById('pagadorBtn').classList.remove('open');
-    document.getElementById('pagadorDropdown').classList.remove('open');
+  function onPagadorSelect(sel) {
+    const nombre    = sel.value;
+    const rut       = sel.options[sel.selectedIndex]?.dataset?.rut || '';
     const rutInput  = document.getElementById('pagadorRutInput');
     const otroInput = document.getElementById('pagadorOtroInput');
+
     if (nombre === 'Otro') {
-      // Editable: limpiar y dejar que el cliente ingrese el RUT
-      if (rutInput) {
-        rutInput.value       = '';
-        rutInput.readOnly    = false;
-        rutInput.placeholder = 'Ingresa el RUT del pagador';
-        rutInput.style.background  = '';
-        rutInput.style.color       = '';
-        rutInput.style.fontWeight  = '';
-        rutInput.focus();
-      }
-      otroInput.classList.add('show');
+      rutInput.value       = '';
+      rutInput.readOnly    = false;
+      rutInput.placeholder = 'Ingresa el RUT del pagador';
+      rutInput.style.background = '';
+      rutInput.style.color      = '';
+      rutInput.style.fontWeight = '';
+      otroInput.style.display   = 'block';
       otroInput.focus();
     } else {
-      if (rutInput) {
-        rutInput.value       = rut || '';
-        rutInput.readOnly    = true;
-        rutInput.placeholder = 'Se autocompleta al seleccionar';
-        rutInput.style.background = '#F0F7FF';
-        rutInput.style.color      = 'var(--teal)';
-        rutInput.style.fontWeight = '600';
-      }
-      otroInput.classList.remove('show');
-      otroInput.value = '';
+      rutInput.value       = rut;
+      rutInput.readOnly    = true;
+      rutInput.placeholder = 'Se autocompleta al seleccionar';
+      rutInput.style.background = '#F0F7FF';
+      rutInput.style.color      = 'var(--teal)';
+      rutInput.style.fontWeight = '600';
+      otroInput.style.display   = 'none';
+      otroInput.value            = '';
     }
   }
 
-  function togglePagador() {
-    const btn = document.getElementById('pagadorBtn');
-    const dd  = document.getElementById('pagadorDropdown');
-    btn.classList.toggle('open');
-    dd.classList.toggle('open');
-    if (dd.classList.contains('open')) {
-      const search = dd.querySelector('.pagador-search');
-      search.value = '';
-      renderPagadorList(PAGADORES);
-      search.focus();
-    }
-  }
-
-  document.addEventListener('click', e => {
-    if (!e.target.closest('.pagador-wrap')) {
-      document.getElementById('pagadorBtn')?.classList.remove('open');
-      document.getElementById('pagadorDropdown')?.classList.remove('open');
-    }
-  });
-
-  window.addEventListener('DOMContentLoaded', initPagador);
+  // Inicializar inmediatamente (el script corre después de que el DOM está listo)
+  initPagador();
 
   // --- Filter buttons ---
   function setFilter(el) {
@@ -2872,13 +2823,14 @@
     });
 
     if (tipo === 'factoring') {
-      const pagLabel = document.getElementById('pagadorLabel')?.textContent?.trim();
-      const pagBtn   = document.getElementById('pagadorBtn');
-      if (pagLabel === 'Seleccionar pagador') {
-        if (pagBtn) { pagBtn.style.borderColor = '#ef4444'; pagBtn.style.boxShadow = '0 0 0 3px rgba(239,68,68,0.15)'; }
+      const pagSel = document.getElementById('pagadorSelect');
+      if (pagSel && !pagSel.value) {
+        pagSel.style.borderColor = '#ef4444';
+        pagSel.style.boxShadow   = '0 0 0 3px rgba(239,68,68,0.15)';
         valid = false;
-      } else {
-        if (pagBtn) { pagBtn.style.borderColor = ''; pagBtn.style.boxShadow = ''; }
+      } else if (pagSel) {
+        pagSel.style.borderColor = '';
+        pagSel.style.boxShadow   = '';
       }
       const rutInput = document.getElementById('pagadorRutInput');
       if (rutInput && !rutInput.value.trim()) {
