@@ -2843,8 +2843,8 @@
 
     section.querySelectorAll('input.form-input').forEach(inp => {
       const isReadonly = inp.readOnly && inp.id !== 'pagadorRutInput';
-      const isOtroHidden = inp.classList.contains('pagador-otro-input') && !inp.classList.contains('show');
-      if (!isReadonly && !isOtroHidden) {
+      const isHidden   = inp.style.display === 'none' || inp.offsetParent === null;
+      if (!isReadonly && !isHidden) {
         if (!inp.value.trim()) {
           inp.style.borderColor = '#ef4444';
           inp.style.boxShadow   = '0 0 0 3px rgba(239,68,68,0.15)';
