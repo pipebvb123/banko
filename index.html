@@ -1276,7 +1276,7 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Nombre del pagador</label>
-            <select class="form-select" id="pagadorSelect" onchange="onPagadorSelect(this)" style="height:46px;font-size:14px">
+            <select class="form-select" id="pagadorSelect" onmousedown="restorePagadorTexts(this)" onfocus="restorePagadorTexts(this)" onchange="onPagadorSelect(this)" style="height:46px;font-size:14px">
               <option value="">— Seleccionar pagador —</option>
               <optgroup label="Banca">
                 <option value="Banco de Chile" data-rut="97.004.000-5">Banco de Chile — 97.004.000-5</option>
@@ -2509,11 +2509,27 @@
     { nombre: 'Otro', rut: '' },
   ];
 
+  function restorePagadorTexts(sel) {
+    Array.from(sel.options).forEach(opt => {
+      const orig = opt.getAttribute('data-orig-text');
+      if (orig) opt.text = orig;
+    });
+  }
+
   function onPagadorSelect(sel) {
+    const selectedOption = sel.options[sel.selectedIndex];
     const nombre    = sel.value;
-    const rut       = sel.options[sel.selectedIndex]?.getAttribute('data-rut') || '';
+    const rut       = selectedOption?.getAttribute('data-rut') || '';
     const rutInput  = document.getElementById('pagadorRutInput');
     const otroInput = document.getElementById('pagadorOtroInput');
+
+    // Guardar texto original y mostrar solo el nombre en el campo cerrado
+    if (nombre && nombre !== 'Otro') {
+      if (!selectedOption.getAttribute('data-orig-text')) {
+        selectedOption.setAttribute('data-orig-text', selectedOption.text);
+      }
+      selectedOption.text = nombre;
+    }
 
     if (nombre === 'Otro') {
       rutInput.value       = '';
