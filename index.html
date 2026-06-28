@@ -11,19 +11,19 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --navy: #0F172A;
-      --navy-mid: #1E3A5F;
-      --teal: #00C9A7;
-      --teal-dark: #00A88C;
-      --orange: #FF6B35;
-      --orange-dark: #E55A28;
-      --sky: #0EA5E9;
-      --light-bg: #F8FAFC;
+      --navy: #1B2D6B;
+      --navy-mid: #243580;
+      --teal: #C8102E;
+      --teal-dark: #A50D24;
+      --orange: #C8102E;
+      --orange-dark: #A50D24;
+      --sky: #1B2D6B;
+      --light-bg: #F7F8FC;
       --white: #FFFFFF;
       --gray-text: #64748B;
-      --border: #E8EDF2;
-      --card-shadow: 0 2px 16px rgba(15,23,42,0.07);
-      --card-shadow-hover: 0 8px 32px rgba(15,23,42,0.13);
+      --border: #E2E6F0;
+      --card-shadow: 0 2px 16px rgba(27,45,107,0.08);
+      --card-shadow-hover: 0 8px 32px rgba(27,45,107,0.16);
     }
 
     html { scroll-behavior: smooth; }
@@ -135,19 +135,15 @@
       gap: 10px;
       text-decoration: none;
     }
-    .logo-icon {
-      width: 36px; height: 36px;
-      background: linear-gradient(135deg, var(--teal), var(--sky));
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; font-weight: 900; color: #fff;
-    }
+    .logo-icon { display: none; }
     .logo-text {
-      font-size: 22px; font-weight: 800;
-      color: var(--white);
+      font-size: 24px; font-weight: 900;
       letter-spacing: -0.5px;
+      font-family: 'Georgia', 'Times New Roman', serif;
     }
-    .logo-text span { color: var(--teal); }
+    .logo-text .m-letra { color: #C8102E; }
+    .logo-text .ulty-letra { color: #ffffff; }
+    .logo-text .cl-letra { color: rgba(255,255,255,0.5); font-size: 14px; font-weight: 600; vertical-align: middle; margin-left: 1px; font-family: 'Inter', sans-serif; }
     .nav-links {
       display: flex;
       align-items: center;
@@ -177,7 +173,7 @@
     /* ===== HERO ===== */
     .hero {
       min-height: 100vh;
-      background: linear-gradient(135deg, #0F172A 0%, #0D2B3E 40%, #0A3D2E 100%);
+      background: linear-gradient(135deg, #0F1440 0%, #1B2D6B 50%, #2D1020 100%);
       position: relative;
       overflow: hidden;
       display: flex;
@@ -1294,8 +1290,7 @@
 <nav class="navbar" id="navbar">
   <div class="nav-inner">
     <a href="#" class="logo">
-      <div class="logo-icon">M</div>
-      <span class="logo-text">multy<span>.cl</span></span>
+      <span class="logo-text"><span class="m-letra">M</span><span class="ulty-letra">ULTY</span><span class="cl-letra">.cl</span></span>
     </a>
     <ul class="nav-links" id="navLinks">
       <li><a href="#como-funciona">¿Cómo funciona?</a></li>
@@ -1960,8 +1955,7 @@
     <div class="footer-grid">
       <div class="footer-brand">
         <a href="#" class="logo">
-          <div class="logo-icon">M</div>
-          <span class="logo-text">multy<span>.cl</span></span>
+          <span class="logo-text"><span class="m-letra">M</span><span class="ulty-letra">ULTY</span><span class="cl-letra">.cl</span></span>
         </a>
         <p>Comparamos soluciones financieras de forma transparente e imparcial. Somos el puente entre pymes chilenas y las mejores instituciones de financiamiento.</p>
         <div class="social-links">
