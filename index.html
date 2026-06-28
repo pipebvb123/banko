@@ -3597,34 +3597,36 @@
 <!-- NOTICIAS SCRIPT -->
 <script>
 (function () {
-  const PROXY   = 'https://api.allorigins.win/raw?url=';
-  const MAX_AGE = 3 * 24 * 60 * 60 * 1000; // 3 días en ms
+  const PROXY    = 'https://api.allorigins.win/raw?url=';
+  const ES       = '&hl=es-419&gl=CL&ceid=CL:es-419';
+  const BASE     = 'https://news.google.com/rss/search?q=';
+  const MIN_NEWS = 6;
 
-  // when:3d fuerza noticias de los últimos 3 días en Google News
+  // Todas las fuentes en español — nacionales e internacionales
   const SOURCES = [
     {
-      url:   'https://news.google.com/rss/search?q=finanzas+economia+chile+when:3d&hl=es-419&gl=CL&ceid=CL:es-419',
-      label: 'Finanzas Chile', color: '#00C9A7', bg: 'rgba(0,201,167,0.1)', icon: '📈',
+      q: 'finanzas+economia+chile', label: 'Finanzas Chile',
+      color: '#00C9A7', bg: 'rgba(0,201,167,0.1)', icon: '📈',
     },
     {
-      url:   'https://news.google.com/rss/search?q=global+finance+markets+economy+when:3d&hl=en-US&gl=US&ceid=US:en',
-      label: 'Finanzas Global', color: '#00C9A7', bg: 'rgba(0,201,167,0.1)', icon: '🌐',
+      q: 'economia+mundial+mercados+financieros+bolsa', label: 'Economía Global',
+      color: '#00A88C', bg: 'rgba(0,168,140,0.1)', icon: '🌐',
     },
     {
-      url:   'https://news.google.com/rss/search?q=empresas+negocios+pymes+chile+when:3d&hl=es-419&gl=CL&ceid=CL:es-419',
-      label: 'Empresas Chile', color: '#FF6B35', bg: 'rgba(255,107,53,0.1)', icon: '🏢',
+      q: 'petroleo+cobre+oro+materias+primas+precios', label: 'Materias Primas',
+      color: '#F59E0B', bg: 'rgba(245,158,11,0.1)', icon: '⛏️',
     },
     {
-      url:   'https://news.google.com/rss/search?q=business+companies+mergers+acquisitions+when:3d&hl=en-US&gl=US&ceid=US:en',
-      label: 'Negocios Global', color: '#FF6B35', bg: 'rgba(255,107,53,0.1)', icon: '💼',
+      q: 'empresas+negocios+pymes+emprendimiento+chile', label: 'Empresas Chile',
+      color: '#FF6B35', bg: 'rgba(255,107,53,0.1)', icon: '🏢',
     },
     {
-      url:   'https://news.google.com/rss/search?q=tecnologia+inteligencia+artificial+fintech+chile+when:3d&hl=es-419&gl=CL&ceid=CL:es-419',
-      label: 'Tech Chile', color: '#00B4D8', bg: 'rgba(0,180,216,0.1)', icon: '💻',
+      q: 'negocios+inversiones+fusiones+adquisiciones+mundo', label: 'Negocios Global',
+      color: '#E55A28', bg: 'rgba(229,90,40,0.1)', icon: '💼',
     },
     {
-      url:   'https://news.google.com/rss/search?q=artificial+intelligence+tech+startups+fintech+when:3d&hl=en-US&gl=US&ceid=US:en',
-      label: 'Tech Global', color: '#00B4D8', bg: 'rgba(0,180,216,0.1)', icon: '🤖',
+      q: 'tecnologia+inteligencia+artificial+fintech+innovacion', label: 'Tecnología',
+      color: '#00B4D8', bg: 'rgba(0,180,216,0.1)', icon: '🤖',
     },
   ];
 
