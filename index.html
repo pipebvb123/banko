@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Banko.cl — Compara y Elige el Mejor Seguro</title>
+  <title>Multy.cl — Compara y Elige el Mejor Seguro</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1148,8 +1148,8 @@
 <nav class="navbar" id="navbar">
   <div class="nav-inner">
     <a href="#" class="logo">
-      <div class="logo-icon">B</div>
-      <span class="logo-text">banko<span>.cl</span></span>
+      <div class="logo-icon">M</div>
+      <span class="logo-text">multy<span>.cl</span></span>
     </a>
     <ul class="nav-links" id="navLinks">
       <li><a href="#como-funciona">¿Cómo funciona?</a></li>
@@ -1636,7 +1636,7 @@
   <div class="section-inner">
     <div class="benefits-grid">
       <div>
-        <div class="section-tag">¿Por qué Banko?</div>
+        <div class="section-tag">¿Por qué Multy?</div>
         <h2 class="section-title">Somos tu aliado financiero y de nadie más.</h2>
         <div class="benefit-list">
           <div class="benefit-item">
@@ -1710,11 +1710,11 @@
   <div class="section-inner">
     <div class="section-tag">Casos de éxito</div>
     <h2 class="section-title">Pymes chilenas que ya financian mejor</h2>
-    <p class="section-sub">Empresas reales que compararon y encontraron mejores condiciones con Banko.</p>
+    <p class="section-sub">Empresas reales que compararon y encontraron mejores condiciones con Multy.</p>
     <div class="testimonials-grid">
       <div class="testimonial-card">
         <div class="stars">★★★★★</div>
-        <p class="testimonial-text">"Necesitaba liquidez urgente y con Banko encontré factoring a 1.2% cuando me cotizaban 2.5% directo. En 5 minutos tenía todo comparado."</p>
+        <p class="testimonial-text">"Necesitaba liquidez urgente y con Multy encontré factoring a 1.2% cuando me cotizaban 2.5% directo. En 5 minutos tenía todo comparado."</p>
         <div class="testimonial-author">
           <div class="author-avatar" style="background:linear-gradient(135deg,#00C9A7,#00B4D8)">C</div>
           <div>
@@ -1725,7 +1725,7 @@
       </div>
       <div class="testimonial-card">
         <div class="stars">★★★★★</div>
-        <p class="testimonial-text">"Comparé leasing para 3 camionetas y encontré una cuota $80.000 más barata por vehículo. Banko me ahorró más de $2M al año."</p>
+        <p class="testimonial-text">"Comparé leasing para 3 camionetas y encontré una cuota $80.000 más barata por vehículo. Multy me ahorró más de $2M al año."</p>
         <div class="testimonial-author">
           <div class="author-avatar" style="background:linear-gradient(135deg,#FF6B35,#F77F00)">V</div>
           <div>
@@ -1736,7 +1736,7 @@
       </div>
       <div class="testimonial-card">
         <div class="stars">★★★★☆</div>
-        <p class="testimonial-text">"Nunca había pedido un crédito empresarial y me parecía complicado. Banko me mostró todas las opciones ordenadas y encontré la tasa perfecta."</p>
+        <p class="testimonial-text">"Nunca había pedido un crédito empresarial y me parecía complicado. Multy me mostró todas las opciones ordenadas y encontré la tasa perfecta."</p>
         <div class="testimonial-author">
           <div class="author-avatar" style="background:linear-gradient(135deg,#667eea,#764ba2)">M</div>
           <div>
@@ -1797,8 +1797,8 @@
     <div class="footer-grid">
       <div class="footer-brand">
         <a href="#" class="logo">
-          <div class="logo-icon">B</div>
-          <span class="logo-text">banko<span>.cl</span></span>
+          <div class="logo-icon">M</div>
+          <span class="logo-text">multy<span>.cl</span></span>
         </a>
         <p>Comparamos soluciones financieras de forma transparente e imparcial. Somos el puente entre pymes chilenas y las mejores instituciones de financiamiento.</p>
         <div class="social-links">
@@ -1848,7 +1848,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 Banko.cl · Todos los derechos reservados · RUT 77.XXX.XXX-X · Supervisado por CMF</p>
+      <p>© 2025 Multy.cl · Todos los derechos reservados · RUT 77.XXX.XXX-X · Supervisado por CMF</p>
       <div class="footer-payments">
         <div class="pay-badge">Webpay</div>
         <div class="pay-badge">VISA</div>
@@ -1865,8 +1865,8 @@
     <div class="auth-header">
       <button class="auth-close" onclick="closeAuth()">✕</button>
       <div class="auth-logo">
-        <div class="logo-icon">B</div>
-        <span class="logo-text">banko<span>.cl</span></span>
+        <div class="logo-icon">M</div>
+        <span class="logo-text">multy<span>.cl</span></span>
       </div>
       <div class="auth-tabs">
         <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Iniciar sesión</button>
@@ -2679,8 +2679,8 @@
   function checkAdmin() {
     if (!currentUser || _adminChecked) return;
     _adminChecked = true;
-    if (sessionStorage.getItem('banko_visit_mode')) {
-      sessionStorage.removeItem('banko_visit_mode');
+    if (sessionStorage.getItem('multy_visit_mode')) {
+      sessionStorage.removeItem('multy_visit_mode');
       return;
     }
     if (ADMIN_IDS.includes(currentUser.id)) {
@@ -2802,10 +2802,10 @@
 
   // ── ACTIVITY TRACKING ──
   function getOrCreateSessionId() {
-    let id = sessionStorage.getItem('banko_sid');
+    let id = sessionStorage.getItem('multy_sid');
     if (!id) {
       id = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
-      sessionStorage.setItem('banko_sid', id);
+      sessionStorage.setItem('multy_sid', id);
     }
     return id;
   }

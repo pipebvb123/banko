@@ -32,5 +32,5 @@ http.createServer((req, res) => {
     res.end(data);
   });
 }).listen(PORT, () => {
-  console.log(`\n  Banko.cl corriendo en → http://localhost:${PORT}\n`);
+  console.log(`\n  Multy.cl corriendo en → http://localhost:${PORT}\n`);
 });

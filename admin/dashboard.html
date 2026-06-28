@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Banko.cl — Dashboard Admin</title>
+  <title>Multy.cl — Dashboard Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
@@ -284,7 +284,7 @@
 <!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sb-logo">
-    <div class="sb-logo-name">banko<span>.cl</span><span class="sb-logo-chip">Admin</span></div>
+    <div class="sb-logo-name">multy<span>.cl</span><span class="sb-logo-chip">Admin</span></div>
   </div>
   <nav class="sb-nav">
     <button class="sb-nav-item active" onclick="showSection('resumen', this)">
@@ -598,7 +598,7 @@
   }
 
   function visitSite() {
-    sessionStorage.setItem('banko_visit_mode', '1');
+    sessionStorage.setItem('multy_visit_mode', '1');
     window.location.href = '/';
   }
 
@@ -1107,7 +1107,7 @@
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
     a.href = url;
-    a.download = `banko_actividad_${mode}_${now.toISOString().slice(0,10)}.csv`;
+    a.download = `multy_actividad_${mode}_${now.toISOString().slice(0,10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -1156,7 +1156,7 @@
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
     a.href = url;
-    a.download = `banko_solicitudes_${mode}_${now.toISOString().slice(0,10)}.csv`;
+    a.download = `multy_solicitudes_${mode}_${now.toISOString().slice(0,10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
