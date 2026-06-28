@@ -3636,33 +3636,28 @@
       const div = document.createElement('div');
       div.innerHTML = descHTML;
       const img = div.querySelector('img');
-      return img ? (img.src || img.getAttribute('src') || '') : '';
+      return img ? (img.getAttribute('src') || img.src || '') : '';
     } catch (e) { return ''; }
   }
 
-  function parseXML(text) {
-    const parser = new DOMParser();
-    const xml    = parser.parseFromString(text, 'text/xml');
-    const cutoff = Date.now() - MAX_AGE;
-    return Array.from(xml.querySelectorAll('item'))
-      .map(el => {
-        const pubDate = el.querySelector('pubDate')?.textContent || '';
-        const desc    = el.querySelector('description')?.textContent || '';
-        // Intenta extraer imagen del description (CDATA con HTML)
-        const img = extractImage(desc)
-                 || el.querySelector('enclosure')?.getAttribute('url')
-                 || el.getElementsByTagNameNS('*','thumbnail')[0]?.getAttribute('url')
-                 || el.getElementsByTagNameNS('*','content')[0]?.getAttribute('url')
-                 || '';
-        return {
-          title:   el.querySelector('title')?.textContent?.replace(/<!\[CDATA\[|\]\]>/g,'').trim() || '',
-          link:    el.querySelector('link')?.textContent?.trim() || '',
-          pubDate,
-          source:  el.querySelector('source')?.textContent?.trim() || '',
-          img,
-        };
-      })
-      .filter(item => item.title && item.link && new Date(item.pubDate) > cutoff);
+  function parseItems(text, maxAgeDays) {
+    const parser  = new DOMParser();
+    const xml     = parser.parseFromString(text, 'text/xml');
+    const cutoff  = Date.now() - maxAgeDays * 86400000;
+    return Array.from(xml.querySelectorAll('item')).map(el => {
+      const pubDate = el.querySelector('pubDate')?.textContent || '';
+      const desc    = el.querySelector('description')?.textContent || '';
+      const img     = extractImage(desc)
+                   || el.querySelector('enclosure')?.getAttribute('url')
+                   || el.getElementsByTagNameNS('*','thumbnail')[0]?.getAttribute('url')
+                   || el.getElementsByTagNameNS('*','content')[0]?.getAttribute('url')
+                   || '';
+      return {
+        title:   el.querySelector('title')?.textContent?.replace(/<!\[CDATA\[|\]\]>/g,'').trim() || '',
+        link:    el.querySelector('link')?.textContent?.trim() || '',
+        pubDate, source: el.querySelector('source')?.textContent?.trim() || '', img,
+      };
+    }).filter(i => i.title && i.link && (!i.pubDate || new Date(i.pubDate) > cutoff));
   }
 
   function timeAgo(dateStr) {
@@ -3674,13 +3669,12 @@
   }
 
   function buildCard(item, src) {
-    const ago  = timeAgo(item.pubDate);
+    const ago     = timeAgo(item.pubDate);
     const imgHtml = item.img
       ? `<img class="news-card-img" src="${item.img}" alt="" loading="lazy"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
          <div class="news-card-img-placeholder" style="display:none;background:linear-gradient(135deg,${src.color}33,${src.color}55);font-size:36px">${src.icon}</div>`
       : `<div class="news-card-img-placeholder" style="background:linear-gradient(135deg,${src.color}33,${src.color}55);font-size:36px">${src.icon}</div>`;
-
     return `<a class="news-card" href="${item.link}" target="_blank" rel="noopener noreferrer">
       ${imgHtml}
       <div class="news-card-body">
@@ -3697,19 +3691,41 @@
     </a>`;
   }
 
+  async function fetchSource(src, days) {
+    const when = days <= 7 ? `+when:${days}d` : '';
+    const url  = BASE + encodeURIComponent(src.q + when) + ES;
+    const res  = await fetch(PROXY + encodeURIComponent(url));
+    const text = await res.text();
+    return parseItems(text, days);
+  }
+
   async function loadNews() {
     const grid = document.getElementById('newsGrid');
-    const allCards = [];
+    const seen = new Set();
+    let allCards = [];
 
+    // Intento 1: últimos 4 días
     await Promise.all(SOURCES.map(async (src) => {
       try {
-        const res   = await fetch(PROXY + encodeURIComponent(src.url));
-        const text  = await res.text();
-        const items = parseXML(text);
-        // 1 artículo por fuente para balancear las 6 áreas
-        if (items.length > 0) allCards.push({ item: items[0], src });
+        const items = await fetchSource(src, 4);
+        if (items.length > 0 && !seen.has(items[0].link)) {
+          seen.add(items[0].link);
+          allCards.push({ item: items[0], src });
+        }
       } catch (e) {}
     }));
+
+    // Si hay menos de 6, ampliar a 7 días sin filtro when:
+    if (allCards.length < MIN_NEWS) {
+      await Promise.all(SOURCES.map(async (src) => {
+        if (allCards.find(c => c.src === src)) return; // ya tiene artículo
+        try {
+          const items = await fetchSource(src, 7);
+          const fresh = items.find(i => !seen.has(i.link));
+          if (fresh) { seen.add(fresh.link); allCards.push({ item: fresh, src }); }
+        } catch (e) {}
+      }));
+    }
 
     if (allCards.length > 0) {
       allCards.sort((a, b) => new Date(b.item.pubDate) - new Date(a.item.pubDate));
