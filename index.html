@@ -3410,70 +3410,92 @@
 <!-- TICKER SCRIPT -->
 <script>
 (function() {
-  const ITEMS = [
-    { code: 'USD',  label: 'Dólar USA',   icon: 'icons/flag-usd.png', w:32, h:21, apiId: null,      type: 'fx',     base: 'CLP' },
-    { code: 'EUR',  label: 'Euro',         icon: 'icons/flag-eur.png', w:32, h:21, apiId: null,      type: 'fx',     base: 'CLP' },
-    { code: 'CLP',  label: 'Peso Chileno', icon: 'icons/flag-clp.png', w:32, h:21, apiId: null,      type: 'clp' },
-    { code: 'BTC',  label: 'Bitcoin',      icon: 'icons/btc.png',      w:24, h:24, apiId: 'bitcoin', type: 'crypto', vsCurrency: 'clp' },
-    { code: 'ETH',  label: 'Ethereum',     icon: 'icons/eth.png',      w:24, h:24, apiId: 'ethereum',type: 'crypto', vsCurrency: 'clp' },
-  ];
 
-  function fmt(n) {
-    if (n >= 1000000) return '$' + (n/1000000).toFixed(2) + 'M';
-    if (n >= 1000)    return '$' + Math.round(n).toLocaleString('es-CL');
-    return '$' + n.toFixed(2);
+  // Formato CLP: $940  /  $36.420  (sin decimales, separador de miles)
+  function fmtCLP(n) {
+    return '$' + Math.round(n).toLocaleString('es-CL');
+  }
+
+  // Formato USD: $65.420  (sin decimales)
+  function fmtUSD(n) {
+    return 'USD $' + Math.round(n).toLocaleString('es-CL');
   }
 
   function buildItem(d) {
     const changeHtml = d.change != null
       ? `<span class="t-change ${d.change >= 0 ? 'up' : 'down'}">${d.change >= 0 ? '+' : ''}${d.change.toFixed(2)}%</span>`
       : '';
+    const suffix = d.suffix ? `<span style="font-size:10px;color:rgba(255,255,255,0.45);margin-left:2px">${d.suffix}</span>` : '';
     return `<div class="ticker-item">
-      <img src="${d.icon}" width="${d.w}" height="${d.h}" alt="${d.code}" style="border-radius:${d.w===24?'50%':'2px'}">
+      <img src="${d.icon}" width="${d.w}" height="${d.h}" alt="${d.code}" style="border-radius:${d.round?'50%':'2px'}">
       <span class="t-code">${d.code}</span>
-      <span class="t-price">${fmt(d.price)}</span>
+      <span class="t-price">${d.priceStr}</span>
+      ${suffix}
       ${changeHtml}
     </div>`;
   }
 
-  function renderTicker(data) {
+  function renderTicker(items) {
     const track = document.getElementById('tickerTrack');
-    const html = data.map(buildItem).join('');
-    track.innerHTML = html + html; // duplicar para loop continuo
+    const html = items.map(buildItem).join('');
+    track.innerHTML = html + html;
   }
 
   async function fetchData() {
-    const results = [];
+    const items = [];
+
+    // ── USD y EUR en CLP ──────────────────────────────
     try {
-      // Forex: USD y EUR vs CLP
-      const fxRes = await fetch('https://api.exchangerate-api.com/v4/latest/CLP');
-      const fxData = await fxRes.json();
-      const usdClp = 1 / fxData.rates['USD'];
-      const eurClp = 1 / fxData.rates['EUR'];
-      results.push({ ...ITEMS[0], price: usdClp, change: null });
-      results.push({ ...ITEMS[1], price: eurClp, change: null });
-      results.push({ ...ITEMS[2], price: 1,       change: null });
+      const res  = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+      const data = await res.json();
+      const usdClp = data.rates['CLP'];            // cuántos pesos vale 1 dólar
+      const eurClp = usdClp / data.rates['EUR'];   // cuántos pesos vale 1 euro
+      items.push({ code:'USD', icon:'icons/flag-usd.png', w:32, h:21, round:false,
+                   priceStr: fmtCLP(usdClp), suffix:'CLP', change: null });
+      items.push({ code:'EUR', icon:'icons/flag-eur.png', w:32, h:21, round:false,
+                   priceStr: fmtCLP(eurClp), suffix:'CLP', change: null });
     } catch(e) {
-      results.push({ ...ITEMS[0], price: 940,  change: null });
-      results.push({ ...ITEMS[1], price: 1020, change: null });
-      results.push({ ...ITEMS[2], price: 1,    change: null });
+      items.push({ code:'USD', icon:'icons/flag-usd.png', w:32, h:21, round:false,
+                   priceStr:'$940', suffix:'CLP', change: null });
+      items.push({ code:'EUR', icon:'icons/flag-eur.png', w:32, h:21, round:false,
+                   priceStr:'$1.020', suffix:'CLP', change: null });
     }
+
+    // ── UF en CLP (mindicador.cl) ─────────────────────
     try {
-      // Crypto: BTC y ETH en CLP
-      const cgRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=clp&include_24hr_change=true');
-      const cgData = await cgRes.json();
-      results.push({ ...ITEMS[3], price: cgData.bitcoin.clp,  change: cgData.bitcoin.clp_24h_change });
-      results.push({ ...ITEMS[4], price: cgData.ethereum.clp, change: cgData.ethereum.clp_24h_change });
+      const res  = await fetch('https://mindicador.cl/api/uf');
+      const data = await res.json();
+      const uf   = data.serie[0].valor;
+      items.push({ code:'UF', icon:'icons/flag-clp.png', w:32, h:21, round:false,
+                   priceStr: fmtCLP(uf), suffix:'CLP', change: null });
     } catch(e) {
-      results.push({ ...ITEMS[3], price: 65000000, change: null });
-      results.push({ ...ITEMS[4], price:  3500000, change: null });
+      items.push({ code:'UF', icon:'icons/flag-clp.png', w:32, h:21, round:false,
+                   priceStr:'$38.500', suffix:'CLP', change: null });
     }
-    renderTicker(results);
+
+    // ── BTC y ETH en USD (CoinGecko) ─────────────────
+    try {
+      const res  = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true');
+      const data = await res.json();
+      items.push({ code:'BTC', icon:'icons/btc.png', w:24, h:24, round:true,
+                   priceStr: fmtUSD(data.bitcoin.usd),
+                   suffix: '', change: data.bitcoin.usd_24h_change });
+      items.push({ code:'ETH', icon:'icons/eth.png', w:24, h:24, round:true,
+                   priceStr: fmtUSD(data.ethereum.usd),
+                   suffix: '', change: data.ethereum.usd_24h_change });
+    } catch(e) {
+      items.push({ code:'BTC', icon:'icons/btc.png', w:24, h:24, round:true,
+                   priceStr:'USD $65.420', suffix:'', change: null });
+      items.push({ code:'ETH', icon:'icons/eth.png', w:24, h:24, round:true,
+                   priceStr:'USD $3.210',  suffix:'', change: null });
+    }
+
+    renderTicker(items);
   }
 
   document.addEventListener('DOMContentLoaded', () => {
     fetchData();
-    setInterval(fetchData, 60000); // actualiza cada 60s
+    setInterval(fetchData, 60000);
   });
 })();
 </script>
