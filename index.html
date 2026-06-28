@@ -35,10 +35,85 @@
       overflow-x: hidden;
     }
 
+    /* ===== TICKER ===== */
+    .ticker-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1001;
+      background: #0a1628;
+      border-bottom: 1px solid rgba(0,201,167,0.2);
+      height: 32px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+    .ticker-label {
+      flex-shrink: 0;
+      padding: 0 14px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--teal);
+      border-right: 1px solid rgba(255,255,255,0.1);
+      white-space: nowrap;
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+    .ticker-track-wrap {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+    .ticker-track {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      white-space: nowrap;
+      animation: ticker-scroll 38s linear infinite;
+      will-change: transform;
+    }
+    .ticker-track:hover { animation-play-state: paused; }
+    @keyframes ticker-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0 22px;
+      border-right: 1px solid rgba(255,255,255,0.07);
+      font-size: 12px;
+      color: rgba(255,255,255,0.85);
+      cursor: default;
+    }
+    .ticker-item img {
+      display: block;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .ticker-item .t-code {
+      font-weight: 700;
+      color: #fff;
+      font-size: 11px;
+      letter-spacing: 0.3px;
+    }
+    .ticker-item .t-price { font-size: 12px; }
+    .ticker-item .t-change {
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+    .ticker-item .t-change.up   { color: #00C9A7; background: rgba(0,201,167,0.12); }
+    .ticker-item .t-change.down { color: #FF6B6B; background: rgba(255,107,107,0.12); }
+
     /* ===== NAVBAR ===== */
     .navbar {
       position: fixed;
-      top: 0; left: 0; right: 0;
+      top: 32px; left: 0; right: 0;
       z-index: 1000;
       background: rgba(13, 27, 42, 0.95);
       backdrop-filter: blur(12px);
@@ -107,7 +182,7 @@
       overflow: hidden;
       display: flex;
       align-items: center;
-      padding-top: 68px;
+      padding-top: 100px;
     }
     .hero-orb {
       position: absolute;
@@ -1145,6 +1220,16 @@
 <body>
 
 <!-- NAVBAR -->
+<!-- TICKER -->
+<div class="ticker-bar" id="tickerBar">
+  <div class="ticker-label">Mercados</div>
+  <div class="ticker-track-wrap">
+    <div class="ticker-track" id="tickerTrack">
+      <!-- items se insertan por JS -->
+    </div>
+  </div>
+</div>
+
 <nav class="navbar" id="navbar">
   <div class="nav-inner">
     <a href="#" class="logo">
@@ -3320,6 +3405,77 @@
     }).join('');
   }
 
+</script>
+
+<!-- TICKER SCRIPT -->
+<script>
+(function() {
+  const ITEMS = [
+    { code: 'USD',  label: 'Dólar USA',   icon: 'icons/flag-usd.png', w:32, h:21, apiId: null,      type: 'fx',     base: 'CLP' },
+    { code: 'EUR',  label: 'Euro',         icon: 'icons/flag-eur.png', w:32, h:21, apiId: null,      type: 'fx',     base: 'CLP' },
+    { code: 'CLP',  label: 'Peso Chileno', icon: 'icons/flag-clp.png', w:32, h:21, apiId: null,      type: 'clp' },
+    { code: 'BTC',  label: 'Bitcoin',      icon: 'icons/btc.png',      w:24, h:24, apiId: 'bitcoin', type: 'crypto', vsCurrency: 'clp' },
+    { code: 'ETH',  label: 'Ethereum',     icon: 'icons/eth.png',      w:24, h:24, apiId: 'ethereum',type: 'crypto', vsCurrency: 'clp' },
+  ];
+
+  function fmt(n) {
+    if (n >= 1000000) return '$' + (n/1000000).toFixed(2) + 'M';
+    if (n >= 1000)    return '$' + Math.round(n).toLocaleString('es-CL');
+    return '$' + n.toFixed(2);
+  }
+
+  function buildItem(d) {
+    const changeHtml = d.change != null
+      ? `<span class="t-change ${d.change >= 0 ? 'up' : 'down'}">${d.change >= 0 ? '+' : ''}${d.change.toFixed(2)}%</span>`
+      : '';
+    return `<div class="ticker-item">
+      <img src="${d.icon}" width="${d.w}" height="${d.h}" alt="${d.code}" style="border-radius:${d.w===24?'50%':'2px'}">
+      <span class="t-code">${d.code}</span>
+      <span class="t-price">${fmt(d.price)}</span>
+      ${changeHtml}
+    </div>`;
+  }
+
+  function renderTicker(data) {
+    const track = document.getElementById('tickerTrack');
+    const html = data.map(buildItem).join('');
+    track.innerHTML = html + html; // duplicar para loop continuo
+  }
+
+  async function fetchData() {
+    const results = [];
+    try {
+      // Forex: USD y EUR vs CLP
+      const fxRes = await fetch('https://api.exchangerate-api.com/v4/latest/CLP');
+      const fxData = await fxRes.json();
+      const usdClp = 1 / fxData.rates['USD'];
+      const eurClp = 1 / fxData.rates['EUR'];
+      results.push({ ...ITEMS[0], price: usdClp, change: null });
+      results.push({ ...ITEMS[1], price: eurClp, change: null });
+      results.push({ ...ITEMS[2], price: 1,       change: null });
+    } catch(e) {
+      results.push({ ...ITEMS[0], price: 940,  change: null });
+      results.push({ ...ITEMS[1], price: 1020, change: null });
+      results.push({ ...ITEMS[2], price: 1,    change: null });
+    }
+    try {
+      // Crypto: BTC y ETH en CLP
+      const cgRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=clp&include_24hr_change=true');
+      const cgData = await cgRes.json();
+      results.push({ ...ITEMS[3], price: cgData.bitcoin.clp,  change: cgData.bitcoin.clp_24h_change });
+      results.push({ ...ITEMS[4], price: cgData.ethereum.clp, change: cgData.ethereum.clp_24h_change });
+    } catch(e) {
+      results.push({ ...ITEMS[3], price: 65000000, change: null });
+      results.push({ ...ITEMS[4], price:  3500000, change: null });
+    }
+    renderTicker(results);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    fetchData();
+    setInterval(fetchData, 60000); // actualiza cada 60s
+  });
+})();
 </script>
 
 <!-- DIRECTORIO PANEL -->
