@@ -3597,31 +3597,47 @@
 <!-- NOTICIAS SCRIPT -->
 <script>
 (function () {
-  const RSS2JSON = 'https://api.rss2json.com/v1/api.json?count=2&rss_url=';
-
-  // 3 áreas: Finanzas, Empresas, Tecnología — 2 artículos por fuente = 6 tarjetas
+  // Google News RSS — confiable, sin CORS, cubre Chile en español
   const SOURCES = [
     {
-      url:   'https://rss.emol.com/emol/economia.xml',
+      url:   'https://news.google.com/rss/search?q=finanzas+economia+chile+factoring+credito&hl=es-419&gl=CL&ceid=CL:es-419',
       label: 'Finanzas',
       color: '#00C9A7',
       bg:    'rgba(0,201,167,0.1)',
+      icon:  '💹',
     },
     {
-      url:   'https://www.latercera.com/rss/pulso.xml',
+      url:   'https://news.google.com/rss/search?q=empresas+negocios+pymes+chile&hl=es-419&gl=CL&ceid=CL:es-419',
       label: 'Empresas',
       color: '#FF6B35',
       bg:    'rgba(255,107,53,0.1)',
+      icon:  '🏢',
     },
     {
-      url:   'https://rss.emol.com/emol/tecnologia.xml',
+      url:   'https://news.google.com/rss/search?q=tecnologia+fintech+startups+chile&hl=es-419&gl=CL&ceid=CL:es-419',
       label: 'Tecnología',
       color: '#00B4D8',
       bg:    'rgba(0,180,216,0.1)',
+      icon:  '💻',
     },
   ];
 
+  // CORS proxy: convierte RSS a texto plano sin bloqueos
+  const PROXY = 'https://api.allorigins.win/raw?url=';
+
+  function parseXML(text) {
+    const parser = new DOMParser();
+    const xml    = parser.parseFromString(text, 'text/xml');
+    return Array.from(xml.querySelectorAll('item')).slice(0, 2).map(el => ({
+      title:   el.querySelector('title')?.textContent?.replace(/<!\[CDATA\[|\]\]>/g, '').trim() || '',
+      link:    el.querySelector('link')?.textContent?.trim() || '',
+      pubDate: el.querySelector('pubDate')?.textContent || '',
+      source:  el.querySelector('source')?.textContent?.trim() || '',
+    }));
+  }
+
   function timeAgo(dateStr) {
+    if (!dateStr) return '';
     const diff = (Date.now() - new Date(dateStr)) / 1000;
     if (diff < 3600)  return Math.floor(diff / 60) + ' min';
     if (diff < 86400) return Math.floor(diff / 3600) + ' h';
@@ -3629,22 +3645,21 @@
   }
 
   function buildCard(item, src) {
-    const img = item.thumbnail || (item.enclosure && item.enclosure.link) || '';
-    const imgHtml = img
-      ? `<img class="news-card-img" src="${img}" alt="" loading="lazy"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-        + `<div class="news-card-img-placeholder" style="display:none">$</div>`
-      : `<div class="news-card-img-placeholder">$</div>`;
-    const ago = item.pubDate
-      ? `<span style="font-size:11px;color:#9ca3af">${timeAgo(item.pubDate)}</span>` : '';
-    return `<a class="news-card" href="${item.link}" target="_blank" rel="noopener">
+    const ago    = timeAgo(item.pubDate);
+    const source = item.source ? `<span style="font-size:11px;color:#9ca3af">${item.source}</span>` : '';
+    // Placeholder con ícono del área ya que Google News no incluye imágenes en el RSS
+    const imgHtml = `<div class="news-card-img-placeholder" style="background:linear-gradient(135deg,${src.color}22,${src.color}44);font-size:40px">${src.icon}</div>`;
+    return `<a class="news-card" href="${item.link}" target="_blank" rel="noopener noreferrer">
       ${imgHtml}
       <div class="news-card-body">
-        <span class="news-tag" style="color:${src.color};background:${src.bg}">${src.label}</span>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span class="news-tag" style="color:${src.color};background:${src.bg}">${src.label}</span>
+          ${ago ? `<span style="font-size:11px;color:#9ca3af">${ago}</span>` : ''}
+        </div>
         <div class="news-title">${item.title}</div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto">
           <span class="news-link" style="color:${src.color}">Leer artículo →</span>
-          ${ago}
+          ${source}
         </div>
       </div>
     </a>`;
@@ -3656,20 +3671,18 @@
 
     await Promise.all(SOURCES.map(async (src) => {
       try {
-        const res  = await fetch(RSS2JSON + encodeURIComponent(src.url));
-        const data = await res.json();
-        if (data.status === 'ok' && data.items?.length) {
-          data.items.slice(0, 2).forEach(item => allCards.push({ item, src }));
-        }
+        const res   = await fetch(PROXY + encodeURIComponent(src.url));
+        const text  = await res.text();
+        const items = parseXML(text);
+        items.forEach(item => { if (item.title && item.link) allCards.push({ item, src }); });
       } catch (e) {}
     }));
 
     if (allCards.length > 0) {
-      // Ordenar por fecha más reciente primero
       allCards.sort((a, b) => new Date(b.item.pubDate) - new Date(a.item.pubDate));
       grid.innerHTML = allCards.map(({ item, src }) => buildCard(item, src)).join('');
     } else {
-      grid.innerHTML = '<p style="color:#6b7280;grid-column:1/-1;text-align:center">No se pudieron cargar las noticias en este momento.</p>';
+      grid.innerHTML = '<p style="color:#6b7280;grid-column:1/-1;text-align:center;padding:40px 0">No se pudieron cargar las noticias en este momento.</p>';
     }
   }
 
