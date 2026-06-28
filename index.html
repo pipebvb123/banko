@@ -724,7 +724,7 @@
     .news-section { background: var(--light-bg); padding: 72px 0; }
     .news-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 24px;
       margin-top: 40px;
     }
@@ -777,8 +777,8 @@
     @keyframes shimmer {
       0%,100% { opacity: 1; } 50% { opacity: 0.5; }
     }
-    @media (max-width: 900px) { .news-grid { grid-template-columns: repeat(2,1fr); } }
-    @media (max-width: 560px) { .news-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 1000px) { .news-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width:  560px) { .news-grid { grid-template-columns: 1fr; } }
 
     /* ===== FOOTER ===== */
     footer {
@@ -1943,6 +1943,8 @@
     <h2 class="section-title">Noticias del mundo financiero</h2>
     <p class="section-sub">Información actualizada de los principales medios económicos de Chile.</p>
     <div class="news-grid" id="newsGrid">
+      <div class="news-skeleton"></div>
+      <div class="news-skeleton"></div>
       <div class="news-skeleton"></div>
       <div class="news-skeleton"></div>
       <div class="news-skeleton"></div>
@@ -3596,31 +3598,52 @@
 <script>
 (function () {
   const RSS2JSON = 'https://api.rss2json.com/v1/api.json?count=2&rss_url=';
+
+  // 3 áreas: Finanzas, Empresas, Tecnología — 2 artículos por fuente = 6 tarjetas
   const SOURCES = [
-    { url: 'https://rss.emol.com/emol/economia.xml',        label: 'Emol Economía' },
-    { url: 'https://www.latercera.com/rss/pulso.xml',       label: 'La Tercera Pulso' },
+    {
+      url:   'https://rss.emol.com/emol/economia.xml',
+      label: 'Finanzas',
+      color: '#00C9A7',
+      bg:    'rgba(0,201,167,0.1)',
+    },
+    {
+      url:   'https://www.latercera.com/rss/pulso.xml',
+      label: 'Empresas',
+      color: '#FF6B35',
+      bg:    'rgba(255,107,53,0.1)',
+    },
+    {
+      url:   'https://rss.emol.com/emol/tecnologia.xml',
+      label: 'Tecnología',
+      color: '#00B4D8',
+      bg:    'rgba(0,180,216,0.1)',
+    },
   ];
 
   function timeAgo(dateStr) {
     const diff = (Date.now() - new Date(dateStr)) / 1000;
-    if (diff < 3600)  return Math.floor(diff/60) + ' min';
-    if (diff < 86400) return Math.floor(diff/3600) + ' h';
-    return Math.floor(diff/86400) + ' d';
+    if (diff < 3600)  return Math.floor(diff / 60) + ' min';
+    if (diff < 86400) return Math.floor(diff / 3600) + ' h';
+    return Math.floor(diff / 86400) + ' d';
   }
 
-  function buildCard(item, label) {
+  function buildCard(item, src) {
     const img = item.thumbnail || (item.enclosure && item.enclosure.link) || '';
     const imgHtml = img
-      ? `<img class="news-card-img" src="${img}" alt="" loading="lazy" onerror="this.parentNode.innerHTML='<div class=\'news-card-img-placeholder\'>$</div>'">`
+      ? `<img class="news-card-img" src="${img}" alt="" loading="lazy"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        + `<div class="news-card-img-placeholder" style="display:none">$</div>`
       : `<div class="news-card-img-placeholder">$</div>`;
-    const ago = item.pubDate ? `<span style="font-size:11px;color:#9ca3af">${timeAgo(item.pubDate)}</span>` : '';
+    const ago = item.pubDate
+      ? `<span style="font-size:11px;color:#9ca3af">${timeAgo(item.pubDate)}</span>` : '';
     return `<a class="news-card" href="${item.link}" target="_blank" rel="noopener">
       ${imgHtml}
       <div class="news-card-body">
-        <span class="news-tag">${label}</span>
+        <span class="news-tag" style="color:${src.color};background:${src.bg}">${src.label}</span>
         <div class="news-title">${item.title}</div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto">
-          <span class="news-link">Leer artículo →</span>
+          <span class="news-link" style="color:${src.color}">Leer artículo →</span>
           ${ago}
         </div>
       </div>
@@ -3629,20 +3652,22 @@
 
   async function loadNews() {
     const grid = document.getElementById('newsGrid');
-    const cards = [];
+    const allCards = [];
 
     await Promise.all(SOURCES.map(async (src) => {
       try {
         const res  = await fetch(RSS2JSON + encodeURIComponent(src.url));
         const data = await res.json();
         if (data.status === 'ok' && data.items?.length) {
-          data.items.slice(0, 2).forEach(item => cards.push(buildCard(item, src.label)));
+          data.items.slice(0, 2).forEach(item => allCards.push({ item, src }));
         }
-      } catch(e) {}
+      } catch (e) {}
     }));
 
-    if (cards.length > 0) {
-      grid.innerHTML = cards.join('');
+    if (allCards.length > 0) {
+      // Ordenar por fecha más reciente primero
+      allCards.sort((a, b) => new Date(b.item.pubDate) - new Date(a.item.pubDate));
+      grid.innerHTML = allCards.map(({ item, src }) => buildCard(item, src)).join('');
     } else {
       grid.innerHTML = '<p style="color:#6b7280;grid-column:1/-1;text-align:center">No se pudieron cargar las noticias en este momento.</p>';
     }
