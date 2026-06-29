@@ -1417,85 +1417,85 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Nombre del pagador</label>
-            <select class="form-select" id="pagadorSelect" onmousedown="restorePagadorTexts(this)" onfocus="restorePagadorTexts(this)" onchange="onPagadorSelect(this)" style="height:46px;font-size:14px">
+            <select class="form-select" id="pagadorSelect" onchange="onPagadorSelect(this)" style="height:46px;font-size:14px">
               <option value="">— Seleccionar pagador —</option>
               <optgroup label="Banca">
-                <option value="Banco de Chile" data-rut="97.004.000-5">Banco de Chile — 97.004.000-5</option>
-                <option value="BancoEstado" data-rut="97.030.000-7">BancoEstado — 97.030.000-7</option>
-                <option value="Banco Santander-Chile" data-rut="97.036.000-K">Banco Santander-Chile — 97.036.000-K</option>
-                <option value="Banco BCI" data-rut="97.006.000-6">Banco BCI — 97.006.000-6</option>
-                <option value="Banco Itaú Chile" data-rut="97.023.000-9">Banco Itaú Chile — 97.023.000-9</option>
-                <option value="Banco Security" data-rut="97.053.000-2">Banco Security — 97.053.000-2</option>
-                <option value="Banco Falabella" data-rut="97.049.000-8">Banco Falabella — 97.049.000-8</option>
-                <option value="Banco Ripley" data-rut="97.052.000-6">Banco Ripley — 97.052.000-6</option>
-                <option value="Scotiabank Chile" data-rut="97.018.000-1">Scotiabank Chile — 97.018.000-1</option>
-                <option value="Banco Internacional" data-rut="97.012.000-4">Banco Internacional — 97.012.000-4</option>
-                <option value="BICE" data-rut="97.080.000-K">BICE — 97.080.000-K</option>
-                <option value="Banco Consorcio" data-rut="97.048.000-1">Banco Consorcio — 97.048.000-1</option>
+                <option value="Banco de Chile" data-rut="97.004.000-5">Banco de Chile</option>
+                <option value="BancoEstado" data-rut="97.030.000-7">BancoEstado</option>
+                <option value="Banco Santander-Chile" data-rut="97.036.000-K">Banco Santander-Chile</option>
+                <option value="Banco BCI" data-rut="97.006.000-6">Banco BCI</option>
+                <option value="Banco Itaú Chile" data-rut="97.023.000-9">Banco Itaú Chile</option>
+                <option value="Banco Security" data-rut="97.053.000-2">Banco Security</option>
+                <option value="Banco Falabella" data-rut="97.049.000-8">Banco Falabella</option>
+                <option value="Banco Ripley" data-rut="97.052.000-6">Banco Ripley</option>
+                <option value="Scotiabank Chile" data-rut="97.018.000-1">Scotiabank Chile</option>
+                <option value="Banco Internacional" data-rut="97.012.000-4">Banco Internacional</option>
+                <option value="BICE" data-rut="97.080.000-K">BICE</option>
+                <option value="Banco Consorcio" data-rut="97.048.000-1">Banco Consorcio</option>
               </optgroup>
               <optgroup label="Retail">
-                <option value="S.A.C.I. Falabella" data-rut="99.015.000-0">S.A.C.I. Falabella — 99.015.000-0</option>
-                <option value="Sodimac S.A." data-rut="96.792.430-9">Sodimac S.A. — 96.792.430-9</option>
-                <option value="Cencosud S.A." data-rut="93.834.000-0">Cencosud S.A. — 93.834.000-0</option>
-                <option value="Walmart Chile S.A." data-rut="96.793.810-9">Walmart Chile S.A. — 96.793.810-9</option>
-                <option value="Ripley Corp S.A." data-rut="96.874.030-K">Ripley Corp S.A. — 96.874.030-K</option>
-                <option value="SMU S.A. (Unimarc)" data-rut="76.089.800-2">SMU S.A. (Unimarc) — 76.089.800-2</option>
-                <option value="Tottus S.A." data-rut="96.943.030-5">Tottus S.A. — 96.943.030-5</option>
+                <option value="S.A.C.I. Falabella" data-rut="99.015.000-0">S.A.C.I. Falabella</option>
+                <option value="Sodimac S.A." data-rut="96.792.430-9">Sodimac S.A.</option>
+                <option value="Cencosud S.A." data-rut="93.834.000-0">Cencosud S.A.</option>
+                <option value="Walmart Chile S.A." data-rut="96.793.810-9">Walmart Chile S.A.</option>
+                <option value="Ripley Corp S.A." data-rut="96.874.030-K">Ripley Corp S.A.</option>
+                <option value="SMU S.A. (Unimarc)" data-rut="76.089.800-2">SMU S.A. (Unimarc)</option>
+                <option value="Tottus S.A." data-rut="96.943.030-5">Tottus S.A.</option>
               </optgroup>
               <optgroup label="Minería">
-                <option value="Codelco" data-rut="61.704.000-K">Codelco — 61.704.000-K</option>
-                <option value="SQM S.A." data-rut="93.007.000-9">SQM S.A. — 93.007.000-9</option>
-                <option value="Minera Escondida (BHP)" data-rut="76.362.380-K">Minera Escondida (BHP) — 76.362.380-K</option>
-                <option value="Anglo American Sur S.A." data-rut="76.228.999-5">Anglo American Sur S.A. — 76.228.999-5</option>
-                <option value="Antofagasta Minerals S.A." data-rut="76.645.030-K">Antofagasta Minerals S.A. — 76.645.030-K</option>
-                <option value="Minera Los Pelambres" data-rut="96.577.700-9">Minera Los Pelambres — 96.577.700-9</option>
-                <option value="Collahuasi" data-rut="96.542.300-5">Collahuasi — 96.542.300-5</option>
-                <option value="CAP S.A." data-rut="91.110.000-5">CAP S.A. — 91.110.000-5</option>
+                <option value="Codelco" data-rut="61.704.000-K">Codelco</option>
+                <option value="SQM S.A." data-rut="93.007.000-9">SQM S.A.</option>
+                <option value="Minera Escondida (BHP)" data-rut="76.362.380-K">Minera Escondida (BHP)</option>
+                <option value="Anglo American Sur S.A." data-rut="76.228.999-5">Anglo American Sur S.A.</option>
+                <option value="Antofagasta Minerals S.A." data-rut="76.645.030-K">Antofagasta Minerals S.A.</option>
+                <option value="Minera Los Pelambres" data-rut="96.577.700-9">Minera Los Pelambres</option>
+                <option value="Collahuasi" data-rut="96.542.300-5">Collahuasi</option>
+                <option value="CAP S.A." data-rut="91.110.000-5">CAP S.A.</option>
               </optgroup>
               <optgroup label="Energía">
-                <option value="Enel Chile S.A." data-rut="91.081.000-6">Enel Chile S.A. — 91.081.000-6</option>
-                <option value="Empresas Copec S.A." data-rut="91.622.000-3">Empresas Copec S.A. — 91.622.000-3</option>
-                <option value="ENAP" data-rut="91.784.000-3">ENAP — 91.784.000-3</option>
-                <option value="Colbún S.A." data-rut="91.745.000-K">Colbún S.A. — 91.745.000-K</option>
-                <option value="AES Andes S.A." data-rut="94.272.000-9">AES Andes S.A. — 94.272.000-9</option>
-                <option value="Arauco (Celulosa Arauco)" data-rut="93.849.000-4">Arauco (Celulosa Arauco) — 93.849.000-4</option>
-                <option value="Aguas Andinas S.A." data-rut="61.808.000-5">Aguas Andinas S.A. — 61.808.000-5</option>
+                <option value="Enel Chile S.A." data-rut="91.081.000-6">Enel Chile S.A.</option>
+                <option value="Empresas Copec S.A." data-rut="91.622.000-3">Empresas Copec S.A.</option>
+                <option value="ENAP" data-rut="91.784.000-3">ENAP</option>
+                <option value="Colbún S.A." data-rut="91.745.000-K">Colbún S.A.</option>
+                <option value="AES Andes S.A." data-rut="94.272.000-9">AES Andes S.A.</option>
+                <option value="Arauco (Celulosa Arauco)" data-rut="93.849.000-4">Arauco (Celulosa Arauco)</option>
+                <option value="Aguas Andinas S.A." data-rut="61.808.000-5">Aguas Andinas S.A.</option>
               </optgroup>
               <optgroup label="Telecomunicaciones">
-                <option value="Entel S.A." data-rut="92.580.000-7">Entel S.A. — 92.580.000-7</option>
-                <option value="Movistar Chile" data-rut="96.805.760-8">Movistar Chile — 96.805.760-8</option>
-                <option value="Claro Chile S.A." data-rut="96.559.660-9">Claro Chile S.A. — 96.559.660-9</option>
-                <option value="VTR GlobalCom S.A." data-rut="76.509.430-K">VTR GlobalCom S.A. — 76.509.430-K</option>
+                <option value="Entel S.A." data-rut="92.580.000-7">Entel S.A.</option>
+                <option value="Movistar Chile" data-rut="96.805.760-8">Movistar Chile</option>
+                <option value="Claro Chile S.A." data-rut="96.559.660-9">Claro Chile S.A.</option>
+                <option value="VTR GlobalCom S.A." data-rut="76.509.430-K">VTR GlobalCom S.A.</option>
               </optgroup>
               <optgroup label="Alimentos y Bebidas">
-                <option value="CCU" data-rut="91.091.000-2">CCU (Cervecerías Unidas) — 91.091.000-2</option>
-                <option value="Embotelladora Andina S.A." data-rut="91.043.000-7">Embotelladora Andina S.A. — 91.043.000-7</option>
-                <option value="Empresas Carozzi S.A." data-rut="91.527.000-5">Empresas Carozzi S.A. — 91.527.000-5</option>
-                <option value="Agrosuper S.A." data-rut="76.001.481-3">Agrosuper S.A. — 76.001.481-3</option>
-                <option value="Watt's S.A." data-rut="91.589.000-4">Watt's S.A. — 91.589.000-4</option>
+                <option value="CCU" data-rut="91.091.000-2">CCU (Cervecerías Unidas)</option>
+                <option value="Embotelladora Andina S.A." data-rut="91.043.000-7">Embotelladora Andina S.A.</option>
+                <option value="Empresas Carozzi S.A." data-rut="91.527.000-5">Empresas Carozzi S.A.</option>
+                <option value="Agrosuper S.A." data-rut="76.001.481-3">Agrosuper S.A.</option>
+                <option value="Watt's S.A." data-rut="91.589.000-4">Watt's S.A.</option>
               </optgroup>
               <optgroup label="Construcción e Inmobiliaria">
-                <option value="Mall Plaza S.A." data-rut="76.027.583-6">Mall Plaza S.A. — 76.027.583-6</option>
-                <option value="Parque Arauco S.A." data-rut="96.965.300-1">Parque Arauco S.A. — 96.965.300-1</option>
-                <option value="Empresas Besalco S.A." data-rut="76.236.652-7">Empresas Besalco S.A. — 76.236.652-7</option>
+                <option value="Mall Plaza S.A." data-rut="76.027.583-6">Mall Plaza S.A.</option>
+                <option value="Parque Arauco S.A." data-rut="96.965.300-1">Parque Arauco S.A.</option>
+                <option value="Empresas Besalco S.A." data-rut="76.236.652-7">Empresas Besalco S.A.</option>
               </optgroup>
               <optgroup label="Transporte y Logística">
-                <option value="LATAM Airlines Group S.A." data-rut="89.862.200-2">LATAM Airlines — 89.862.200-2</option>
-                <option value="Metro S.A." data-rut="62.642.000-2">Metro S.A. — 62.642.000-2</option>
-                <option value="Correos de Chile" data-rut="70.096.100-K">Correos de Chile — 70.096.100-K</option>
-                <option value="SAAM S.A." data-rut="93.186.000-2">SAAM S.A. — 93.186.000-2</option>
+                <option value="LATAM Airlines Group S.A." data-rut="89.862.200-2">LATAM Airlines</option>
+                <option value="Metro S.A." data-rut="62.642.000-2">Metro S.A.</option>
+                <option value="Correos de Chile" data-rut="70.096.100-K">Correos de Chile</option>
+                <option value="SAAM S.A." data-rut="93.186.000-2">SAAM S.A.</option>
               </optgroup>
               <optgroup label="Salud">
-                <option value="Clínica Las Condes S.A." data-rut="96.501.870-K">Clínica Las Condes — 96.501.870-K</option>
-                <option value="Red de Salud UC Christus" data-rut="96.613.570-0">Red de Salud UC Christus — 96.613.570-0</option>
-                <option value="Bupa Chile" data-rut="76.607.370-5">Bupa Chile (Cruz Blanca) — 76.607.370-5</option>
+                <option value="Clínica Las Condes S.A." data-rut="96.501.870-K">Clínica Las Condes</option>
+                <option value="Red de Salud UC Christus" data-rut="96.613.570-0">Red de Salud UC Christus</option>
+                <option value="Bupa Chile" data-rut="76.607.370-5">Bupa Chile (Cruz Blanca)</option>
               </optgroup>
               <optgroup label="Estado / Semipúblico">
-                <option value="Codelco" data-rut="61.704.000-K">Codelco — 61.704.000-K</option>
-                <option value="ENAP" data-rut="91.784.000-3">ENAP — 91.784.000-3</option>
-                <option value="Metro S.A." data-rut="62.642.000-2">Metro S.A. — 62.642.000-2</option>
-                <option value="TVN" data-rut="70.085.200-3">TVN — 70.085.200-3</option>
-                <option value="EFE" data-rut="70.562.000-7">EFE (Ferrocarriles) — 70.562.000-7</option>
+                <option value="Codelco" data-rut="61.704.000-K">Codelco</option>
+                <option value="ENAP" data-rut="91.784.000-3">ENAP</option>
+                <option value="Metro S.A." data-rut="62.642.000-2">Metro S.A.</option>
+                <option value="TVN" data-rut="70.085.200-3">TVN</option>
+                <option value="EFE" data-rut="70.562.000-7">EFE (Ferrocarriles)</option>
               </optgroup>
               <option value="Otro">Otro (no está en la lista)</option>
             </select>
@@ -1690,24 +1690,6 @@
   </div>
 </section>
 
-<!-- LOGOS STRIP -->
-<div class="logos-strip">
-  <div class="logos-strip-inner">
-    <p class="logos-label">Encuentra alternativas con las principales instituciones financieras en Chile</p>
-    <div class="logos-grid">
-      <div class="logo-badge">Xepelin</div>
-      <div class="logo-badge">Cumplo</div>
-      <div class="logo-badge">Tanner</div>
-      <div class="logo-badge">BancoEstado</div>
-      <div class="logo-badge">Eurocapital</div>
-      <div class="logo-badge">Gama Mobility</div>
-      <div class="logo-badge">Levantta</div>
-      <div class="logo-badge">Tattersall</div>
-      <div class="logo-badge">ACF Capital</div>
-      <div class="logo-badge">Banco Security</div>
-    </div>
-  </div>
-</div>
 
 <!-- HOW IT WORKS -->
 <section class="section" id="como-funciona">
@@ -2666,27 +2648,12 @@
     { nombre: 'Otro', rut: '' },
   ];
 
-  function restorePagadorTexts(sel) {
-    Array.from(sel.options).forEach(opt => {
-      const orig = opt.getAttribute('data-orig-text');
-      if (orig) opt.text = orig;
-    });
-  }
-
   function onPagadorSelect(sel) {
     const selectedOption = sel.options[sel.selectedIndex];
     const nombre    = sel.value;
     const rut       = selectedOption?.getAttribute('data-rut') || '';
     const rutInput  = document.getElementById('pagadorRutInput');
     const otroInput = document.getElementById('pagadorOtroInput');
-
-    // Guardar texto original y mostrar solo el nombre en el campo cerrado
-    if (nombre && nombre !== 'Otro') {
-      if (!selectedOption.getAttribute('data-orig-text')) {
-        selectedOption.setAttribute('data-orig-text', selectedOption.text);
-      }
-      selectedOption.text = nombre;
-    }
 
     if (nombre === 'Otro') {
       rutInput.value       = '';
