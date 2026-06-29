@@ -864,11 +864,19 @@
       display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; justify-content: center;
     }
     .curr-chip {
-      padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+      padding: 6px 12px; border-radius: 20px; border: 1.5px solid var(--border);
       font-size: 13px; font-weight: 600; cursor: pointer; background: #fff;
       color: var(--navy); transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 6px;
     }
+    .curr-chip img { width: 18px; height: 18px; object-fit: contain; border-radius: 3px; }
     .curr-chip.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+    .conv-badge {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 8px;
+    }
+    .conv-badge img { width: 28px; height: 28px; object-fit: contain; border-radius: 4px; }
+    .conv-badge-name { font-size: 14px; font-weight: 700; color: var(--navy); }
     @media (max-width: 560px) {
       .converter-row { grid-template-columns: 1fr; }
       .converter-swap { transform: rotate(90deg); margin: 0 auto; }
@@ -2042,37 +2050,37 @@
 
     <div class="converter-box">
       <div class="converter-currencies" id="currChips">
-        <button class="curr-chip active" onclick="setFromCurr('USD',this)">USD</button>
-        <button class="curr-chip" onclick="setFromCurr('EUR',this)">EUR</button>
-        <button class="curr-chip" onclick="setFromCurr('UF',this)">UF</button>
-        <button class="curr-chip" onclick="setFromCurr('BTC',this)">BTC</button>
-        <button class="curr-chip" onclick="setFromCurr('ETH',this)">ETH</button>
-        <button class="curr-chip" onclick="setFromCurr('CLP',this)">CLP</button>
+        <button class="curr-chip active" onclick="setFromCurr('USD',this)"><img src="icons/flag-usd.png">USD</button>
+        <button class="curr-chip" onclick="setFromCurr('EUR',this)"><img src="icons/flag-eur.png">EUR</button>
+        <button class="curr-chip" onclick="setFromCurr('UF',this)"><img src="icons/flag-clp.png">UF</button>
+        <button class="curr-chip" onclick="setFromCurr('BTC',this)"><img src="icons/btc.png">BTC</button>
+        <button class="curr-chip" onclick="setFromCurr('ETH',this)"><img src="icons/eth.png">ETH</button>
+        <button class="curr-chip" onclick="setFromCurr('CLP',this)"><img src="icons/flag-clp.png">CLP</button>
       </div>
 
       <div class="converter-row">
         <div class="converter-field">
-          <label>Monto</label>
+          <div class="conv-badge"><img id="iconFrom" src="icons/flag-usd.png"><span class="conv-badge-name" id="nameFrom">Dólar (USD)</span></div>
           <input type="number" id="convAmount" value="1" min="0" oninput="convertNow()" />
           <select id="convFrom" onchange="convertNow()">
-            <option value="USD">🇺🇸 Dólar (USD)</option>
-            <option value="EUR">🇪🇺 Euro (EUR)</option>
-            <option value="UF">🇨🇱 UF</option>
-            <option value="BTC">₿ Bitcoin (BTC)</option>
+            <option value="USD">Dólar (USD)</option>
+            <option value="EUR">Euro (EUR)</option>
+            <option value="UF">UF</option>
+            <option value="BTC">Bitcoin (BTC)</option>
             <option value="ETH">Ethereum (ETH)</option>
-            <option value="CLP">🇨🇱 Peso chileno (CLP)</option>
+            <option value="CLP">Peso chileno (CLP)</option>
           </select>
         </div>
         <button class="converter-swap" onclick="swapCurrencies()" title="Intercambiar">⇄</button>
         <div class="converter-field">
-          <label>Resultado</label>
+          <div class="conv-badge"><img id="iconTo" src="icons/flag-clp.png"><span class="conv-badge-name" id="nameTo">Peso chileno (CLP)</span></div>
           <input type="number" id="convResult" readonly style="background:#F8FAFC;cursor:default" />
           <select id="convTo" onchange="convertNow()">
-            <option value="CLP">🇨🇱 Peso chileno (CLP)</option>
-            <option value="USD">🇺🇸 Dólar (USD)</option>
-            <option value="EUR">🇪🇺 Euro (EUR)</option>
-            <option value="UF">🇨🇱 UF</option>
-            <option value="BTC">₿ Bitcoin (BTC)</option>
+            <option value="CLP">Peso chileno (CLP)</option>
+            <option value="USD">Dólar (USD)</option>
+            <option value="EUR">Euro (EUR)</option>
+            <option value="UF">UF</option>
+            <option value="BTC">Bitcoin (BTC)</option>
             <option value="ETH">Ethereum (ETH)</option>
           </select>
         </div>
@@ -3867,6 +3875,24 @@
 (async function initConverter() {
   const rates = {}; // todas en CLP
 
+  const CURR_META = {
+    USD: { icon: 'icons/flag-usd.png', name: 'Dólar (USD)' },
+    EUR: { icon: 'icons/flag-eur.png', name: 'Euro (EUR)' },
+    CLP: { icon: 'icons/flag-clp.png', name: 'Peso chileno (CLP)' },
+    UF:  { icon: 'icons/flag-clp.png', name: 'UF' },
+    BTC: { icon: 'icons/btc.png',      name: 'Bitcoin (BTC)' },
+    ETH: { icon: 'icons/eth.png',      name: 'Ethereum (ETH)' },
+  };
+
+  function updateBadges() {
+    const from = document.getElementById('convFrom').value;
+    const to   = document.getElementById('convTo').value;
+    document.getElementById('iconFrom').src  = CURR_META[from].icon;
+    document.getElementById('nameFrom').textContent = CURR_META[from].name;
+    document.getElementById('iconTo').src    = CURR_META[to].icon;
+    document.getElementById('nameTo').textContent   = CURR_META[to].name;
+  }
+
   async function loadRates() {
     try {
       // USD y EUR → CLP
@@ -3908,6 +3934,7 @@
     };
 
     document.getElementById('convResult').value = fmt(result, to);
+    updateBadges();
 
     const rate1 = rates[from] / rates[to];
     document.getElementById('convRate').textContent = `1 ${from} = ${fmt(rate1, to)} ${to}`;
