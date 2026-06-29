@@ -527,7 +527,9 @@
         <select class="filter-select" id="fSolEstado" onchange="filtrarSolicitudesAdmin()">
           <option value="">Todos</option>
           <option value="pendiente">Pendiente</option>
+          <option value="enviado">Enviado</option>
           <option value="contactado">Contactado</option>
+          <option value="cliente_cerrado">Cliente cerrado</option>
         </select>
       </div>
       <div class="filter-actions">
@@ -665,11 +667,28 @@
       tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No hay solicitudes con estos filtros.</td></tr>';
       return;
     }
+    const ESTADO_COLORS = {
+      pendiente:       { color: '#f59e0b', bg: '#fffbeb', border: '#fde68a' },
+      enviado:         { color: '#3b82f6', bg: '#eff6ff', border: '#bfdbfe' },
+      contactado:      { color: '#10b981', bg: '#ecfdf5', border: '#a7f3d0' },
+      cliente_cerrado: { color: '#6b7280', bg: '#f9fafb', border: '#e5e7eb' },
+    };
     tbody.innerHTML = filteredSolicitudes.map(s => {
       const fecha = new Date(s.created_at).toLocaleString('es-CL', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
-      const estadoBadge = s.estado === 'contactado'
-        ? '<span style="color:#10b981;font-weight:600">● Contactado</span>'
-        : '<span style="color:#f59e0b;font-weight:600">● Pendiente</span>';
+      const estado = s.estado || 'pendiente';
+      const c = ESTADO_COLORS[estado] || ESTADO_COLORS.pendiente;
+      const selectEstado = `
+        <select onchange="updateEstado('${s.id}', this.value, this)"
+          style="border:1.5px solid ${c.border};background:${c.bg};color:${c.color};
+                 font-weight:600;font-size:12px;padding:4px 8px;border-radius:20px;
+                 cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;
+                 padding-right:22px;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22 viewBox=%220 0 10 6%22><path d=%22M0 0l5 6 5-6z%22 fill=%22%2364748b%22/></svg>');
+                 background-repeat:no-repeat;background-position:right 7px center;transition:all .2s;">
+          <option value="pendiente"       ${estado==='pendiente'       ?'selected':''}>● Pendiente</option>
+          <option value="enviado"         ${estado==='enviado'         ?'selected':''}>● Enviado</option>
+          <option value="contactado"      ${estado==='contactado'      ?'selected':''}>● Contactado</option>
+          <option value="cliente_cerrado" ${estado==='cliente_cerrado' ?'selected':''}>● Cliente cerrado</option>
+        </select>`;
       return `<tr>
         <td style="white-space:nowrap">${fecha}</td>
         <td><strong>${s.empresa || '—'}</strong></td>
@@ -677,9 +696,29 @@
         <td>${s.nombre || '—'}</td>
         <td>${s.email || '—'}</td>
         <td>${s.telefono || '—'}</td>
-        <td>${estadoBadge}</td>
+        <td>${selectEstado}</td>
       </tr>`;
     }).join('');
+  }
+
+  async function updateEstado(id, nuevoEstado, selectEl) {
+    const c_map = {
+      pendiente:       { color: '#f59e0b', bg: '#fffbeb', border: '#fde68a' },
+      enviado:         { color: '#3b82f6', bg: '#eff6ff', border: '#bfdbfe' },
+      contactado:      { color: '#10b981', bg: '#ecfdf5', border: '#a7f3d0' },
+      cliente_cerrado: { color: '#6b7280', bg: '#f9fafb', border: '#e5e7eb' },
+    };
+    const { error } = await sb.from('solicitudes').update({ estado: nuevoEstado }).eq('id', id);
+    if (error) {
+      alert('Error al actualizar: ' + error.message);
+      return;
+    }
+    const sol = allSolicitudes.find(s => s.id === id);
+    if (sol) sol.estado = nuevoEstado;
+    const c = c_map[nuevoEstado] || c_map.pendiente;
+    selectEl.style.border      = `1.5px solid ${c.border}`;
+    selectEl.style.background  = `${c.bg} url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22 viewBox=%220 0 10 6%22><path d=%22M0 0l5 6 5-6z%22 fill=%22%2364748b%22/></svg>') no-repeat right 7px center`;
+    selectEl.style.color       = c.color;
   }
 
   // ── LOAD ALL DATA ──
