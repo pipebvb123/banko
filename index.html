@@ -115,9 +115,10 @@
       position: fixed;
       top: 32px; left: 0; right: 0;
       z-index: 1000;
-      background: rgba(13, 27, 42, 0.95);
+      background: rgba(255,255,255,0.97);
       backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 12px rgba(15,23,42,0.07);
       transition: all 0.3s;
     }
     .nav-inner {
@@ -142,8 +143,8 @@
       font-family: 'Georgia', 'Times New Roman', serif;
     }
     .logo-text .m-letra { color: #C8102E; }
-    .logo-text .ulty-letra { color: #ffffff; }
-    .logo-text .cl-letra { color: rgba(255,255,255,0.5); font-size: 14px; font-weight: 600; vertical-align: middle; margin-left: 1px; font-family: 'Inter', sans-serif; }
+    .logo-text .ulty-letra { color: #0F172A; }
+    .logo-text .cl-letra { color: #94A3B8; font-size: 14px; font-weight: 600; vertical-align: middle; margin-left: 1px; font-family: 'Inter', sans-serif; }
     .nav-links {
       display: flex;
       align-items: center;
@@ -151,7 +152,7 @@
       list-style: none;
     }
     .nav-links a {
-      color: rgba(255,255,255,0.75);
+      color: #334155;
       text-decoration: none;
       font-size: 14px;
       font-weight: 500;
@@ -159,7 +160,7 @@
       border-radius: 8px;
       transition: all 0.2s;
     }
-    .nav-links a:hover { color: var(--white); background: rgba(255,255,255,0.08); }
+    .nav-links a:hover { color: #0F172A; background: rgba(15,23,42,0.06); }
     .nav-cta {
       background: var(--teal) !important;
       color: var(--navy) !important;
@@ -168,7 +169,7 @@
     }
     .nav-cta:hover { background: var(--teal-dark) !important; }
     .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px; }
-    .hamburger span { width: 22px; height: 2px; background: white; border-radius: 2px; transition: 0.3s; }
+    .hamburger span { width: 22px; height: 2px; background: #334155; border-radius: 2px; transition: 0.3s; }
 
     /* ===== HERO ===== */
     .hero {
@@ -1031,7 +1032,9 @@
         flex-direction: column;
         position: fixed;
         top: 68px; left: 0; right: 0;
-        background: var(--navy);
+        background: #ffffff;
+        border-bottom: 1px solid var(--border);
+        box-shadow: 0 4px 16px rgba(15,23,42,0.08);
         padding: 20px;
         gap: 4px;
       }
