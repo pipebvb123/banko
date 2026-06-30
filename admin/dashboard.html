@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -238,6 +239,44 @@
     }
     .btn-export.secondary:hover { background: rgba(14,116,144,.05); }
 
+    .btn-docs {
+      background: rgba(14,116,144,.08); color: var(--teal); border: 1px solid rgba(14,116,144,.25);
+      border-radius: 8px; padding: 5px 10px; font-size: 12px; font-weight: 700; cursor: pointer;
+      font-family: inherit;
+    }
+    .btn-docs:hover { background: rgba(14,116,144,.16); }
+
+    /* ── DOCS MODAL ── */
+    .docs-modal-overlay {
+      position: fixed; inset: 0; background: rgba(11,22,41,.6); backdrop-filter: blur(3px);
+      z-index: 2000; display: none; align-items: center; justify-content: center; padding: 1.5rem;
+    }
+    .docs-modal-overlay.open { display: flex; }
+    .docs-modal {
+      background: #fff; border-radius: 1.25rem; width: 100%; max-width: 520px;
+      max-height: 85vh; display: flex; flex-direction: column; overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,.3);
+    }
+    .docs-modal-head {
+      padding: 1.25rem 1.5rem; background: linear-gradient(135deg, var(--navy), #14304f);
+      color: #fff; display: flex; align-items: center; justify-content: space-between;
+    }
+    .docs-modal-head h3 { font-size: 1.05rem; font-weight: 700; }
+    .docs-modal-head p { font-size: 12.5px; color: rgba(255,255,255,.6); margin-top: 2px; }
+    .docs-modal-close { background: rgba(255,255,255,.15); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px; }
+    .docs-modal-body { padding: 1.5rem; overflow-y: auto; flex: 1; }
+    .docs-cat { margin-bottom: 1.5rem; }
+    .docs-cat-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: .6rem; }
+    .docs-cat-list { display: flex; flex-direction: column; gap: 8px; }
+    .docs-file-item {
+      display: flex; align-items: center; justify-content: space-between;
+      border: 1px solid var(--border); border-radius: 10px; padding: 9px 12px;
+      font-size: 13px; background: #f8fafc;
+    }
+    .docs-file-item a { color: var(--teal); font-weight: 600; text-decoration: none; font-size: 12.5px; }
+    .docs-empty-cat { font-size: 12.5px; color: #9ca3af; font-style: italic; }
+    .docs-modal-foot { padding: 1rem 1.5rem; border-top: 1px solid var(--border); }
+
     /* ── LOADING ── */
     .loading-overlay {
       position: fixed; inset: 0; background: rgba(11,22,41,.55);
@@ -279,6 +318,32 @@
 <!-- LOADING OVERLAY -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
+</div>
+
+<!-- DOCS MODAL -->
+<div class="docs-modal-overlay" id="docsModalOverlay" onclick="if(event.target===this)closeDocsModal()">
+  <div class="docs-modal">
+    <div class="docs-modal-head">
+      <div>
+        <h3 id="docsModalTitle">Documentos del cliente</h3>
+        <p id="docsModalSub"></p>
+      </div>
+      <button class="docs-modal-close" onclick="closeDocsModal()">✕</button>
+    </div>
+    <div class="docs-modal-body">
+      <div class="docs-cat">
+        <div class="docs-cat-title">📊 Información financiera</div>
+        <div class="docs-cat-list" id="docsListFinanciera"><p class="docs-empty-cat">Cargando...</p></div>
+      </div>
+      <div class="docs-cat">
+        <div class="docs-cat-title">⚖️ Antecedentes legales</div>
+        <div class="docs-cat-list" id="docsListLegal"><p class="docs-empty-cat">Cargando...</p></div>
+      </div>
+    </div>
+    <div class="docs-modal-foot">
+      <button class="btn-export" style="width:100%;justify-content:center" onclick="descargarInformeZip(this)">⬇ Descargar informe completo (ZIP)</button>
+    </div>
+  </div>
 </div>
 
 <!-- SIDEBAR -->
@@ -560,10 +625,11 @@
               <th>Email</th>
               <th>Teléfono</th>
               <th>Estado</th>
+              <th>Documentos</th>
             </tr>
           </thead>
           <tbody id="solTableBody">
-            <tr class="empty-row"><td colspan="7">Haz clic en Actualizar para cargar las solicitudes.</td></tr>
+            <tr class="empty-row"><td colspan="8">Haz clic en Actualizar para cargar las solicitudes.</td></tr>
           </tbody>
         </table>
       </div>
@@ -619,14 +685,14 @@
   let filteredSolicitudes = [];
 
   async function loadSolicitudesAdmin() {
-    document.getElementById('solTableBody').innerHTML = '<tr class="empty-row"><td colspan="7">Cargando...</td></tr>';
+    document.getElementById('solTableBody').innerHTML = '<tr class="empty-row"><td colspan="8">Cargando...</td></tr>';
     const { data, error } = await sb
       .from('solicitudes')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(1000);
     if (error) {
-      document.getElementById('solTableBody').innerHTML = '<tr class="empty-row"><td colspan="7">Error al cargar datos.</td></tr>';
+      document.getElementById('solTableBody').innerHTML = '<tr class="empty-row"><td colspan="8">Error al cargar datos.</td></tr>';
       return;
     }
     allSolicitudes = data || [];
@@ -664,7 +730,7 @@
     const tbody = document.getElementById('solTableBody');
     document.getElementById('solCount').textContent = filteredSolicitudes.length.toLocaleString('es-CL') + ' solicitudes';
     if (filteredSolicitudes.length === 0) {
-      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No hay solicitudes con estos filtros.</td></tr>';
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No hay solicitudes con estos filtros.</td></tr>';
       return;
     }
     const ESTADO_COLORS = {
@@ -689,6 +755,9 @@
           <option value="contactado"      ${estado==='contactado'      ?'selected':''}>● Contactado</option>
           <option value="cliente_cerrado" ${estado==='cliente_cerrado' ?'selected':''}>● Cliente cerrado</option>
         </select>`;
+      const docsBtn = s.user_id
+        ? `<button class="btn-docs" onclick="openDocsModal('${s.id}')">📁 Ver</button>`
+        : `<span style="color:#9ca3af;font-size:12px">Sin cuenta</span>`;
       return `<tr>
         <td style="white-space:nowrap">${fecha}</td>
         <td><strong>${s.empresa || '—'}</strong></td>
@@ -697,6 +766,7 @@
         <td>${s.email || '—'}</td>
         <td>${s.telefono || '—'}</td>
         <td>${selectEstado}</td>
+        <td>${docsBtn}</td>
       </tr>`;
     }).join('');
   }
@@ -719,6 +789,99 @@
     selectEl.style.border      = `1.5px solid ${c.border}`;
     selectEl.style.background  = `${c.bg} url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22 viewBox=%220 0 10 6%22><path d=%22M0 0l5 6 5-6z%22 fill=%22%2364748b%22/></svg>') no-repeat right 7px center`;
     selectEl.style.color       = c.color;
+  }
+
+  // ── DOCUMENTOS DEL CLIENTE (info financiera / antecedentes legales) ──
+  const DOCS_BUCKET = 'documentos-clientes';
+  let _docsModalCtx = null; // { userId, nombre, empresa }
+
+  async function openDocsModal(solicitudId) {
+    const sol = allSolicitudes.find(s => s.id === solicitudId);
+    if (!sol || !sol.user_id) { alert('Esta solicitud no tiene una cuenta de cliente asociada.'); return; }
+    _docsModalCtx = { userId: sol.user_id, nombre: sol.nombre || 'Cliente', empresa: sol.empresa || '' };
+    document.getElementById('docsModalTitle').textContent = sol.nombre || 'Cliente';
+    document.getElementById('docsModalSub').textContent   = `${sol.empresa || ''} · ${sol.email || ''}`;
+    document.getElementById('docsModalOverlay').classList.add('open');
+    loadDocsAdmin('financiera');
+    loadDocsAdmin('legal');
+  }
+
+  function closeDocsModal() {
+    document.getElementById('docsModalOverlay').classList.remove('open');
+    _docsModalCtx = null;
+  }
+
+  async function loadDocsAdmin(categoria) {
+    const listEl = document.getElementById(categoria === 'financiera' ? 'docsListFinanciera' : 'docsListLegal');
+    const { data, error } = await sb.storage.from(DOCS_BUCKET).list(`${_docsModalCtx.userId}/${categoria}`, { sortBy: { column: 'created_at', order: 'desc' } });
+    if (error || !data || data.length === 0) {
+      const label = categoria === 'financiera' ? 'información financiera' : 'antecedentes legales';
+      listEl.innerHTML = `<p class="docs-empty-cat">Sin cargar ${label}.</p>`;
+      return;
+    }
+    listEl.innerHTML = data.map(f => {
+      const path = `${_docsModalCtx.userId}/${categoria}/${f.name}`;
+      const displayName = f.name.replace(/^\d+_/, '');
+      return `<div class="docs-file-item">
+        <span title="${displayName}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:300px">📄 ${displayName}</span>
+        <a href="#" onclick="viewDocAdmin('${path}');return false">Ver</a>
+      </div>`;
+    }).join('');
+  }
+
+  async function viewDocAdmin(path) {
+    const { data, error } = await sb.storage.from(DOCS_BUCKET).createSignedUrl(path, 120);
+    if (error || !data) { alert('No se pudo abrir el documento.'); return; }
+    window.open(data.signedUrl, '_blank');
+  }
+
+  async function descargarInformeZip(btn) {
+    if (!_docsModalCtx) return;
+    const originalText = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Generando ZIP...';
+    try {
+      const zip = new JSZip();
+      const { userId, nombre, empresa } = _docsModalCtx;
+
+      let resumen = `INFORME DEL CLIENTE\n`;
+      resumen += `====================\n\n`;
+      resumen += `Nombre: ${nombre}\n`;
+      resumen += `Empresa: ${empresa}\n`;
+      resumen += `Generado: ${new Date().toLocaleString('es-CL')}\n\n`;
+
+      for (const categoria of ['financiera', 'legal']) {
+        const carpeta = categoria === 'financiera' ? 'informacion_financiera' : 'antecedentes_legales';
+        const label   = categoria === 'financiera' ? 'Información financiera' : 'Antecedentes legales';
+        const { data, error } = await sb.storage.from(DOCS_BUCKET).list(`${userId}/${categoria}`);
+        if (error || !data || data.length === 0) {
+          resumen += `${label}: SIN CARGAR\n`;
+          continue;
+        }
+        resumen += `${label}: ${data.length} documento(s)\n`;
+        for (const f of data) {
+          const path = `${userId}/${categoria}/${f.name}`;
+          const displayName = f.name.replace(/^\d+_/, '');
+          const { data: fileBlob, error: dlError } = await sb.storage.from(DOCS_BUCKET).download(path);
+          if (!dlError && fileBlob) {
+            zip.folder(carpeta).file(displayName, fileBlob);
+          }
+        }
+      }
+
+      zip.file('resumen.txt', resumen);
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `informe_${(nombre || 'cliente').replace(/\s+/g, '_')}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert('Error al generar el informe: ' + e.message);
+    }
+    btn.disabled = false; btn.textContent = originalText;
   }
 
   // ── LOAD ALL DATA ──

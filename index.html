@@ -1308,6 +1308,31 @@
     .hist-empty { text-align: center; padding: 60px 20px; color: var(--gray-text); }
     .hist-empty .hist-empty-icon { font-size: 48px; margin-bottom: 16px; }
     .hist-empty p { font-size: 15px; }
+    .doc-section { margin-bottom: 20px; }
+    .doc-section-head {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 13.5px; font-weight: 700; color: var(--navy); margin-bottom: 10px;
+    }
+    .doc-upload-btn {
+      font-size: 12px; font-weight: 700; color: var(--teal);
+      border: 1.5px solid var(--teal); border-radius: 20px;
+      padding: 5px 12px; cursor: pointer; transition: all 0.15s;
+    }
+    .doc-upload-btn:hover { background: var(--teal); color: #fff; }
+    .doc-list { display: flex; flex-direction: column; gap: 8px; }
+    .doc-empty { font-size: 12.5px; color: var(--gray-text); font-style: italic; }
+    .doc-item {
+      display: flex; align-items: center; justify-content: space-between;
+      border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px;
+      font-size: 13px; background: var(--light-bg);
+    }
+    .doc-item-name { color: var(--navy); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; }
+    .doc-item-actions { display: flex; gap: 10px; flex-shrink: 0; }
+    .doc-item-actions a, .doc-item-actions button {
+      background: none; border: none; cursor: pointer; font-size: 13px;
+      color: var(--teal); font-weight: 600; text-decoration: none;
+    }
+    .doc-item-actions .doc-del { color: #e53e3e; }
     .hist-item {
       border: 1.5px solid var(--border); border-radius: 16px; padding: 16px;
       margin-bottom: 12px; cursor: pointer; transition: all 0.2s;
@@ -2270,6 +2295,34 @@
         Guardar cambios
       </button>
       <div class="auth-msg" id="perfilMsg" style="margin-top:12px;text-align:center;font-size:13px;min-height:18px"></div>
+
+      <!-- Documentos -->
+      <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border)">
+        <p style="font-size:12px;color:var(--gray-text);margin-bottom:12px;text-transform:uppercase;font-weight:700;letter-spacing:0.5px">Documentos</p>
+
+        <div class="doc-section">
+          <div class="doc-section-head">
+            <span>📊 Información financiera</span>
+            <label class="doc-upload-btn">
+              + Subir PDF
+              <input type="file" accept="application/pdf" hidden onchange="uploadDoc('financiera', this)" />
+            </label>
+          </div>
+          <div id="docListFinanciera" class="doc-list"><p class="doc-empty">Cargando...</p></div>
+        </div>
+
+        <div class="doc-section">
+          <div class="doc-section-head">
+            <span>⚖️ Antecedentes legales</span>
+            <label class="doc-upload-btn">
+              + Subir PDF
+              <input type="file" accept="application/pdf" hidden onchange="uploadDoc('legal', this)" />
+            </label>
+          </div>
+          <div id="docListLegal" class="doc-list"><p class="doc-empty">Cargando...</p></div>
+        </div>
+        <div class="auth-msg" id="docMsg" style="margin-top:8px;text-align:center;font-size:13px;min-height:18px"></div>
+      </div>
 
       <!-- Zona peligrosa -->
       <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border)">
@@ -3542,6 +3595,8 @@
     document.getElementById('perfilEmail').value     = currentUser.email;
     document.getElementById('perfilMsg').textContent = '';
     document.getElementById('perfilOverlay').classList.add('open');
+    loadDocs('financiera');
+    loadDocs('legal');
   }
   function closePerfil() {
     document.getElementById('perfilOverlay').classList.remove('open');
@@ -3570,6 +3625,65 @@
       if (navAvatar) navAvatar.innerHTML = (nombre || currentUser.email)[0].toUpperCase() + '<div class="notif-dot"></div>';
     }
     btn.disabled = false; btn.textContent = 'Guardar cambios';
+  }
+
+  // ── DOCUMENTOS (info financiera / antecedentes legales) ──
+  const DOCS_BUCKET = 'documentos-clientes';
+
+  async function loadDocs(categoria) {
+    if (!currentUser) return;
+    const listEl = document.getElementById(categoria === 'financiera' ? 'docListFinanciera' : 'docListLegal');
+    const { data, error } = await sb.storage.from(DOCS_BUCKET).list(`${currentUser.id}/${categoria}`, { sortBy: { column: 'created_at', order: 'desc' } });
+    if (error || !data || data.length === 0) {
+      listEl.innerHTML = `<p class="doc-empty">Sin documentos cargados.</p>`;
+      return;
+    }
+    listEl.innerHTML = data.map(f => {
+      const path = `${currentUser.id}/${categoria}/${f.name}`;
+      const displayName = f.name.replace(/^\d+_/, '');
+      return `<div class="doc-item">
+        <span class="doc-item-name" title="${displayName}">📄 ${displayName}</span>
+        <div class="doc-item-actions">
+          <a href="#" onclick="viewDoc('${path}');return false">Ver</a>
+          <button class="doc-del" onclick="deleteDoc('${path}','${categoria}')">Eliminar</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  async function uploadDoc(categoria, input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.type !== 'application/pdf') {
+      document.getElementById('docMsg').className = 'auth-msg error';
+      document.getElementById('docMsg').textContent = 'Solo se permiten archivos PDF.';
+      input.value = '';
+      return;
+    }
+    const msg = document.getElementById('docMsg');
+    msg.className = 'auth-msg'; msg.textContent = 'Subiendo...';
+    const path = `${currentUser.id}/${categoria}/${Date.now()}_${file.name}`;
+    const { error } = await sb.storage.from(DOCS_BUCKET).upload(path, file);
+    input.value = '';
+    if (error) {
+      msg.className = 'auth-msg error'; msg.textContent = 'Error al subir el archivo.';
+      return;
+    }
+    msg.className = 'auth-msg success'; msg.textContent = '¡Documento subido!';
+    loadDocs(categoria);
+  }
+
+  async function viewDoc(path) {
+    const { data, error } = await sb.storage.from(DOCS_BUCKET).createSignedUrl(path, 120);
+    if (error || !data) { alert('No se pudo abrir el documento.'); return; }
+    window.open(data.signedUrl, '_blank');
+  }
+
+  async function deleteDoc(path, categoria) {
+    if (!confirm('¿Eliminar este documento?')) return;
+    const { error } = await sb.storage.from(DOCS_BUCKET).remove([path]);
+    if (error) { alert('No se pudo eliminar el documento.'); return; }
+    loadDocs(categoria);
   }
 
   // ── DIRECTORIO PANEL ──
