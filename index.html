@@ -137,7 +137,7 @@
       text-decoration: none;
     }
     .logo-icon { display: none; }
-    .logo-img { height: 30px; width: auto; display: block; }
+    .logo-img { height: 42px; width: auto; display: block; }
     .logo-text {
       font-size: 24px; font-weight: 900;
       letter-spacing: -0.5px;
@@ -1179,10 +1179,15 @@
     .nav-auth { display: flex; align-items: center; gap: 10px; margin-left: 8px; }
     .btn-login {
       padding: 8px 18px; border-radius: 10px; font-size: 14px; font-weight: 600;
-      cursor: pointer; border: 1.5px solid rgba(255,255,255,0.25);
-      background: transparent; color: white; transition: all 0.2s;
+      cursor: pointer; border: 1.5px solid var(--border);
+      background: transparent; color: var(--navy); transition: all 0.2s;
     }
-    .btn-login:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.5); }
+    .btn-login:hover { background: rgba(15,23,42,0.05); border-color: #cbd5e1; }
+    .btn-register {
+      padding: 8px 18px; border-radius: 10px; font-size: 14px; font-weight: 700;
+      cursor: pointer; border: none; background: var(--teal); color: #fff; transition: all 0.2s;
+    }
+    .btn-register:hover { background: var(--teal-dark); }
     .user-avatar-btn {
       width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--teal);
       background: linear-gradient(135deg,var(--teal),var(--sky)); color: white;
@@ -1448,7 +1453,8 @@
     </ul>
     <!-- AUTH NAV -->
     <div class="nav-auth" id="navAuth">
-      <button class="btn-login" id="btnLogin" onclick="openAuth()">Iniciar sesión</button>
+      <button class="btn-login" id="btnLogin" onclick="openAuth('login')">Iniciar sesión</button>
+      <button class="btn-register" onclick="openAuth('register')">Registrarse</button>
     </div>
     <div class="hamburger" onclick="toggleMenu()">
       <span></span><span></span><span></span>
@@ -3078,7 +3084,9 @@
       document.getElementById('udEmail').textContent = email;
       document.getElementById('navAdminBadge').style.display = ADMIN_IDS.includes(currentUser.id) ? 'inline-block' : 'none';
     } else {
-      navAuth.innerHTML = `<button class="btn-login" onclick="openAuth()">Iniciar sesión</button>`;
+      navAuth.innerHTML = `
+        <button class="btn-login" onclick="openAuth('login')">Iniciar sesión</button>
+        <button class="btn-register" onclick="openAuth('register')">Registrarse</button>`;
       document.getElementById('userDropdown').classList.remove('open');
       document.getElementById('navAdminBadge').style.display = 'none';
     }
