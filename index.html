@@ -3674,7 +3674,8 @@
     const { error } = await sb.storage.from(DOCS_BUCKET).upload(path, file);
     input.value = '';
     if (error) {
-      msg.className = 'auth-msg error'; msg.textContent = 'Error al subir el archivo.';
+      msg.className = 'auth-msg error'; msg.textContent = 'Error al subir: ' + error.message;
+      console.error('Error al subir documento:', error);
       return;
     }
     msg.className = 'auth-msg success'; msg.textContent = '¡Documento subido!';
