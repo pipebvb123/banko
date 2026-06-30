@@ -137,13 +137,24 @@
       text-decoration: none;
     }
     .logo-icon { display: none; }
+    .logo-img { height: 30px; width: auto; display: block; }
     .logo-text {
       font-size: 24px; font-weight: 900;
       letter-spacing: -0.5px;
       font-family: 'Georgia', 'Times New Roman', serif;
     }
-    .logo-text .m-letra { color: #C8102E; }
+    .logo-text .m-letra { color: #00A99D; }
     .logo-text .ulty-letra { color: #1E3A5F; }
+    .admin-badge {
+      background: var(--orange);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
     .nav-links {
       display: flex;
       align-items: center;
@@ -1229,8 +1240,8 @@
     .auth-close:hover { background: rgba(255,255,255,0.25); }
     .auth-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
     .auth-logo .logo-icon { width: 36px; height: 36px; background: var(--teal); border-radius: 10px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:18px; }
-    .auth-logo .logo-text { font-weight:800; font-size:20px; }
-    .auth-logo .logo-text span { color: var(--teal); }
+    .auth-logo .logo-text { font-size:22px; }
+    .auth-logo .ulty-letra { color: #ffffff; }
     .auth-tabs { display: flex; gap: 4px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 4px; }
     .auth-tab {
       flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent;
@@ -1400,7 +1411,8 @@
 <nav class="navbar" id="navbar">
   <div class="nav-inner">
     <a href="#" class="logo">
-      <span class="logo-text"><span class="m-letra">M</span><span class="ulty-letra">ULTY</span></span>
+      <img src="icons/logo-multy2.png" alt="MULTY" class="logo-img" />
+      <span class="admin-badge" id="navAdminBadge" style="display:none">Admin</span>
     </a>
     <ul class="nav-links" id="navLinks">
       <li><a href="#como-funciona">¿Cómo funciona?</a></li>
@@ -2174,7 +2186,6 @@
     <div class="auth-header">
       <button class="auth-close" onclick="closeAuth()">✕</button>
       <div class="auth-logo">
-        <div class="logo-icon">M</div>
         <span class="logo-text"><span class="m-letra">M</span><span class="ulty-letra">ULTY</span></span>
       </div>
       <div class="auth-tabs">
@@ -3012,9 +3023,11 @@
         </div>`;
       document.getElementById('udName').textContent = currentUser.user_metadata?.full_name || 'Mi cuenta';
       document.getElementById('udEmail').textContent = email;
+      document.getElementById('navAdminBadge').style.display = ADMIN_IDS.includes(currentUser.id) ? 'inline-block' : 'none';
     } else {
       navAuth.innerHTML = `<button class="btn-login" onclick="openAuth()">Iniciar sesión</button>`;
       document.getElementById('userDropdown').classList.remove('open');
+      document.getElementById('navAdminBadge').style.display = 'none';
     }
   }
 
