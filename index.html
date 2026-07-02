@@ -3107,6 +3107,17 @@
     });
   }
 
+  // ── VISIT TRACKING ──
+  (function trackPageVisit() {
+    try {
+      sb.from('page_visits').insert({
+        session_id:  sessionStorage.getItem('multy_sid') || ('sess_' + Date.now()),
+        page:        window.location.pathname,
+        referrer:    document.referrer || null,
+      });
+    } catch(e) {}
+  })();
+
   // ── ACTIVITY TRACKING ──
   function getOrCreateSessionId() {
     let id = sessionStorage.getItem('multy_sid');

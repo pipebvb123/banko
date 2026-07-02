@@ -293,6 +293,24 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── VISITAS ── */
+    .visits-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .visits-stat-card {
+      background: var(--card); border-radius: 1rem; padding: 1.25rem 1.5rem;
+      box-shadow: 0 2px 12px rgba(11,22,41,.06); border: 1px solid var(--border);
+    }
+    .visits-stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--gray); margin-bottom: .4rem; }
+    .visits-stat-value { font-size: 2rem; font-weight: 800; color: var(--navy); }
+    .visits-stat-sub { font-size: 12px; color: var(--gray); margin-top: .2rem; }
+    .visits-toggle { display: flex; gap: .5rem; margin-bottom: 1.25rem; }
+    .visits-toggle button {
+      padding: 6px 16px; border-radius: 20px; border: 1.5px solid var(--border);
+      background: #fff; font-size: 13px; font-weight: 600; cursor: pointer;
+      color: var(--navy); transition: all .15s; font-family: inherit;
+    }
+    .visits-toggle button.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+    .visits-chart-wrap { background: var(--card); border-radius: 1rem; padding: 1.5rem; box-shadow: 0 2px 12px rgba(11,22,41,.06); border: 1px solid var(--border); }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 1100px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -360,6 +378,9 @@
     </button>
     <button class="sb-nav-item" onclick="showSection('exportar', this)">
       <span class="icon">📤</span> Exportar
+    </button>
+    <button class="sb-nav-item" onclick="showSection('visitas', this)">
+      <span class="icon">👁️</span> Visitas
     </button>
     <button class="sb-nav-item" onclick="showSection('solicitudes', this)">
       <span class="icon">📨</span> Solicitudes
@@ -560,6 +581,45 @@
     </div>
   </div>
 
+  <!-- ── VISITAS ── -->
+  <div class="section" id="sec-visitas">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Visitas al sitio</div>
+        <div class="page-sub">Tráfico registrado en multy.cl</div>
+      </div>
+      <button class="btn-export" onclick="loadVisitas()">↻ Actualizar</button>
+    </div>
+
+    <div class="visits-stats">
+      <div class="visits-stat-card">
+        <div class="visits-stat-label">Hoy</div>
+        <div class="visits-stat-value" id="visitasHoy">—</div>
+        <div class="visits-stat-sub">visitas del día</div>
+      </div>
+      <div class="visits-stat-card">
+        <div class="visits-stat-label">Este mes</div>
+        <div class="visits-stat-value" id="visitasMes">—</div>
+        <div class="visits-stat-sub">visitas del mes</div>
+      </div>
+      <div class="visits-stat-card">
+        <div class="visits-stat-label">Este año</div>
+        <div class="visits-stat-value" id="visitasAnio">—</div>
+        <div class="visits-stat-sub">visitas del año</div>
+      </div>
+    </div>
+
+    <div class="visits-toggle">
+      <button class="active" onclick="cambiarVistaVisitas('diario', this)">Diario (30d)</button>
+      <button onclick="cambiarVistaVisitas('mensual', this)">Mensual (12m)</button>
+      <button onclick="cambiarVistaVisitas('anual', this)">Anual</button>
+    </div>
+
+    <div class="visits-chart-wrap">
+      <canvas id="visitasChart" height="100"></canvas>
+    </div>
+  </div>
+
   <!-- ── SOLICITUDES ── -->
   <div class="section" id="sec-solicitudes">
     <div class="page-header">
@@ -678,6 +738,7 @@
     el.classList.add('active');
     if (id === 'actividad') renderTable();
     if (id === 'solicitudes') loadSolicitudesAdmin();
+    if (id === 'visitas') loadVisitas();
   }
 
   // ── SOLICITUDES ADMIN ──
@@ -882,6 +943,94 @@
       alert('Error al generar el informe: ' + e.message);
     }
     btn.disabled = false; btn.textContent = originalText;
+  }
+
+  // ── VISITAS ──
+  let visitasChartInstance = null;
+  let allVisitas = [];
+  let vistaActual = 'diario';
+
+  async function loadVisitas() {
+    const now = new Date();
+    const inicioAnio = new Date(now.getFullYear(), 0, 1).toISOString();
+
+    const { data, error } = await sb
+      .from('page_visits')
+      .select('created_at')
+      .gte('created_at', inicioAnio)
+      .order('created_at', { ascending: true });
+
+    if (error) { console.error('Error cargando visitas:', error); return; }
+    allVisitas = data || [];
+
+    const hoyStr  = now.toISOString().slice(0, 10);
+    const mesStr  = now.toISOString().slice(0, 7);
+
+    const hoy  = allVisitas.filter(v => v.created_at.slice(0, 10) === hoyStr).length;
+    const mes  = allVisitas.filter(v => v.created_at.slice(0, 7) === mesStr).length;
+    const anio = allVisitas.length;
+
+    document.getElementById('visitasHoy').textContent  = hoy.toLocaleString('es-CL');
+    document.getElementById('visitasMes').textContent  = mes.toLocaleString('es-CL');
+    document.getElementById('visitasAnio').textContent = anio.toLocaleString('es-CL');
+
+    renderVisitasChart(vistaActual);
+  }
+
+  function cambiarVistaVisitas(vista, btn) {
+    vistaActual = vista;
+    document.querySelectorAll('.visits-toggle button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderVisitasChart(vista);
+  }
+
+  function renderVisitasChart(vista) {
+    const now = new Date();
+    let labels = [], counts = [];
+
+    if (vista === 'diario') {
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date(now); d.setDate(d.getDate() - i);
+        const str = d.toISOString().slice(0, 10);
+        labels.push(str.slice(5));
+        counts.push(allVisitas.filter(v => v.created_at.slice(0, 10) === str).length);
+      }
+    } else if (vista === 'mensual') {
+      for (let i = 11; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const str = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+        labels.push(str);
+        counts.push(allVisitas.filter(v => v.created_at.slice(0, 7) === str).length);
+      }
+    } else {
+      const anioActual = now.getFullYear();
+      for (let y = anioActual - 2; y <= anioActual; y++) {
+        labels.push(String(y));
+        counts.push(allVisitas.filter(v => v.created_at.slice(0, 4) === String(y)).length);
+      }
+    }
+
+    const ctx = document.getElementById('visitasChart').getContext('2d');
+    if (visitasChartInstance) visitasChartInstance.destroy();
+    visitasChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Visitas',
+          data: counts,
+          backgroundColor: 'rgba(14,116,144,0.15)',
+          borderColor: 'var(--teal)',
+          borderWidth: 2,
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
   }
 
   // ── LOAD ALL DATA ──
