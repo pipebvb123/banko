@@ -3108,14 +3108,16 @@
   }
 
   // ── VISIT TRACKING ──
-  (function trackPageVisit() {
+  (async function trackPageVisit() {
     try {
-      sb.from('page_visits').insert({
-        session_id:  sessionStorage.getItem('multy_sid') || ('sess_' + Date.now()),
-        page:        window.location.pathname,
-        referrer:    document.referrer || null,
+      const { error } = await sb.from('page_visits').insert({
+        session_id: sessionStorage.getItem('multy_sid') || ('sess_' + Date.now()),
+        page:       window.location.pathname,
+        referrer:   document.referrer || null,
       });
-    } catch(e) {}
+      if (error) console.warn('Visit tracking error:', error.message, error.code);
+      else console.log('Visita registrada ✓');
+    } catch(e) { console.warn('Visit tracking exception:', e); }
   })();
 
   // ── ACTIVITY TRACKING ──

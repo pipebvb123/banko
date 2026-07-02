@@ -960,7 +960,13 @@
       .gte('created_at', inicioAnio)
       .order('created_at', { ascending: true });
 
-    if (error) { console.error('Error cargando visitas:', error); return; }
+    console.log('loadVisitas → data:', data, 'error:', error);
+    if (error) {
+      console.error('Error cargando visitas:', error);
+      document.getElementById('visitasHoy').textContent = 'Error';
+      document.getElementById('visitasMes').textContent = error.message;
+      return;
+    }
     allVisitas = data || [];
 
     const hoyStr  = now.toISOString().slice(0, 10);
