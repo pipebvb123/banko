@@ -1745,11 +1745,11 @@
           <div class="form-group">
             <label class="form-label">Tipo de crédito</label>
             <select class="form-select">
-              <option>Consumo</option><option>Automotriz</option>
+              <option>Comercial</option><option>Consumo</option><option>Automotriz</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Ingreso mensual</label>
+            <label class="form-label">Venta mensual</label>
             <input class="form-input" type="number" placeholder="Ej: 1.500.000" />
           </div>
         </div>
@@ -2218,6 +2218,10 @@
           <label>Correo electrónico</label>
           <input type="email" id="perfilEmail" disabled style="background:var(--light-bg);color:var(--gray-text);cursor:not-allowed" />
         </div>
+        <div class="auth-field">
+          <label>Inicio de actividades (empresa)</label>
+          <input type="date" id="perfilInicioActividades" />
+        </div>
       </div>
 
       <button class="auth-btn-submit" id="btnGuardarPerfil" onclick="guardarPerfil()" style="margin-top:24px">
@@ -2320,7 +2324,12 @@
         <input type="tel" id="solTelefono" class="form-input" placeholder="+56 9 1234 5678">
       </div>
 
-      <button id="btnEnviarSolicitud" class="btn-select" style="width:100%;margin-top:8px;font-size:15px;padding:13px" onclick="enviarSolicitud()">
+      <label style="display:flex;align-items:flex-start;gap:8px;margin-top:16px;font-size:13px;color:#4b5563;line-height:1.5;cursor:pointer">
+        <input type="checkbox" id="solAceptaCondiciones" style="margin-top:2px">
+        Acepta condiciones: autorizo a Multy a compartir mis antecedentes con la(s) institución(es) seleccionada(s) para evaluar mi solicitud.
+      </label>
+
+      <button id="btnEnviarSolicitud" class="btn-select" style="width:100%;margin-top:12px;font-size:15px;padding:13px" onclick="enviarSolicitud()">
         Enviar solicitud
       </button>
       <div id="solMsg" class="auth-msg" style="margin-top:10px"></div>
@@ -2330,7 +2339,7 @@
       <div style="font-size:56px;margin-bottom:12px">✅</div>
       <h3 style="font-size:20px;color:#0d1b2a;margin-bottom:10px">¡Perfecto!</h3>
       <p style="font-size:14px;color:#4b5563;line-height:1.6">
-        Ahora revisaremos tu solicitud y un vendedor<br>se comunicará contigo a la brevedad.
+        Tus instituciones elegidas te contactarán pronto<br>con las mejores opciones para ti.
       </p>
       <button onclick="cerrarSolicitud()" class="btn-select" style="margin-top:24px;padding:12px 28px">Cerrar</button>
     </div>
@@ -2387,80 +2396,80 @@
   // --- Results data by category ---
   const resultadosPorCategoria = {
     factoring: [
-      { nombre: 'Xepelin',        plan: 'Factoring Digital',      tasa: '1.2%',  extra: 'Abono en 24h',           chips: ['✓ Sin mínimo de factura','✓ 100% online','✓ Abono rápido'],        url: 'https://www.xepelin.cl',                stars: '★★★★★', rating: '4.8/5', mejor: true },
-      { nombre: 'Cumplo',         plan: 'Factoring P2P',          tasa: '1.3%',  extra: 'Plataforma P2P',         chips: ['✓ Sin garantías reales','✓ Plataforma P2P','✓ Flexible'],          url: 'https://cumplo.com',                    stars: '★★★★★', rating: '4.7/5' },
-      { nombre: 'Security',       plan: 'Factoring Security',     tasa: '1.3%',  extra: 'Hasta 90 días',          chips: ['✓ Grandes montos','✓ Respaldo bancario','✓ Sin costo apertura'],   url: 'https://www.factoringsecurity.cl',      stars: '★★★★☆', rating: '4.5/5' },
-      { nombre: 'Redcapital',     plan: 'Factoring Online',       tasa: '1.35%', extra: '100% digital',           chips: ['✓ Sin papeles','✓ Respuesta rápida','✓ Pymes OK'],                 url: 'https://redcapital.cl',                 stars: '★★★★☆', rating: '4.5/5' },
-      { nombre: 'Chita',          plan: 'Factoring Chita',        tasa: '1.4%',  extra: 'Sin papeleo',            chips: ['✓ 100% digital','✓ Sin garantías','✓ Respuesta rápida'],           url: 'https://chita.cl',                      stars: '★★★★☆', rating: '4.4/5' },
-      { nombre: 'Eurocapital',    plan: 'Factoring Pyme',         tasa: '1.4%',  extra: 'Aprobación 2h',          chips: ['✓ Pymes bienvenidas','✓ Sin garantías','✓ Proceso digital'],       url: 'https://www.eurocapital.cl',            stars: '★★★★☆', rating: '4.3/5' },
-      { nombre: 'Fingo',          plan: 'Factoring Fingo',        tasa: '1.45%', extra: 'Plataforma digital',     chips: ['✓ Sin burocracia','✓ 100% online','✓ Flexible'],                   url: 'https://fingo.cl',                      stars: '★★★★☆', rating: '4.3/5' },
-      { nombre: 'Tanner',         plan: 'Factoring Tanner',       tasa: '1.5%',  extra: 'Red nacional',           chips: ['✓ Cobertura nacional','✓ Asesor dedicado','✓ Facturas electrónicas'], url: 'https://www.tanner.cl/empresas',       stars: '★★★★☆', rating: '4.2/5' },
-      { nombre: 'Baninter',       plan: 'Factoring Baninter',     tasa: '1.5%',  extra: 'Atención personalizada', chips: ['✓ Cobertura nacional','✓ Sin trámites','✓ Pymes OK'],              url: 'https://www.baninterfactoring.cl',      stars: '★★★★☆', rating: '4.2/5' },
-      { nombre: 'ACF Capital',    plan: 'Factoring ACF',          tasa: '1.6%',  extra: 'Hasta 120 días',         chips: ['✓ Largo plazo','✓ Sin garantías','✓ Flexible'],                    url: 'https://www.acfcapital.cl',             stars: '★★★★☆', rating: '4.1/5' },
-      { nombre: 'Penta',          plan: 'Factoring Penta',        tasa: '1.6%',  extra: 'Respaldo Grupo Penta',   chips: ['✓ Grandes montos','✓ Grupo financiero','✓ Asesor dedicado'],       url: 'https://www.pentafinanciero.cl',        stars: '★★★★☆', rating: '4.1/5' },
-      { nombre: 'Tattersall',     plan: 'Factoring Tattersall',   tasa: '1.65%', extra: 'Exportadores',           chips: ['✓ Cobertura nacional','✓ Exportaciones','✓ Agroindustria'],        url: 'https://bantattersall.cl',              stars: '★★★★☆', rating: '4.1/5' },
-      { nombre: 'Capital Express',plan: 'Factoring Express',      tasa: '1.7%',  extra: 'Liquidez rápida',        chips: ['✓ Proceso express','✓ Sin garantías','✓ Pymes OK'],                url: 'https://capitalexpress.cl',             stars: '★★★★☆', rating: '4.0/5' },
-      { nombre: 'Financia Capital',plan:'Factoring Financia',     tasa: '1.7%',  extra: 'Hasta 90 días',          chips: ['✓ Sin mínimo','✓ Pymes OK','✓ Flexible'],                         url: 'https://www.financiacapital.cl',        stars: '★★★★☆', rating: '4.0/5' },
-      { nombre: 'Vantrust Capital',plan:'Factoring Vantrust',     tasa: '1.75%', extra: 'Empresas en crecimiento',chips: ['✓ Sin garantías reales','✓ Proceso ágil','✓ Flexible'],            url: 'https://www.vantrustcapital.cl',        stars: '★★★☆☆', rating: '3.9/5' },
-      { nombre: 'Finameris',      plan: 'Factoring Finameris',    tasa: '1.75%', extra: 'Aprobación rápida',      chips: ['✓ Pymes bienvenidas','✓ Sin papeles','✓ Nacional'],                url: 'https://www.finameris.com',             stars: '★★★☆☆', rating: '3.9/5' },
-      { nombre: 'Interfactor',    plan: 'Factoring Interfactor',  tasa: '1.8%',  extra: 'Amplia experiencia',     chips: ['✓ Todos los rubros','✓ Sin garantías','✓ Nacional'],               url: 'https://www.interfactor.cl',            stars: '★★★☆☆', rating: '3.9/5' },
-      { nombre: 'Primus Capital', plan: 'Factoring Primus',       tasa: '1.8%',  extra: 'Capital de trabajo',     chips: ['✓ Medianas empresas','✓ Flexible','✓ Sin sorpresas'],              url: 'https://www.primuscapital.cl',          stars: '★★★☆☆', rating: '3.9/5' },
-      { nombre: 'Factoriza',      plan: 'Factoriza Digital',      tasa: '1.85%', extra: 'Proceso 100% digital',   chips: ['✓ Online','✓ Sin garantías','✓ Pymes OK'],                        url: 'https://www.factoriza.cl',              stars: '★★★☆☆', rating: '3.8/5' },
-      { nombre: 'Orsan',          plan: 'Factoring Orsan',        tasa: '1.85%', extra: 'Sector productivo',      chips: ['✓ Cobertura nacional','✓ Flexible','✓ Pymes OK'],                  url: 'https://www.orsan.cl',                  stars: '★★★☆☆', rating: '3.8/5' },
-      { nombre: 'CFC Capital',    plan: 'Factoring CFC',          tasa: '1.9%',  extra: 'Distintos sectores',     chips: ['✓ Todos los rubros','✓ Sin garantías','✓ Nacional'],               url: 'https://cfccapital.cl',                 stars: '★★★☆☆', rating: '3.8/5' },
-      { nombre: 'Banpro',         plan: 'Factoring Banpro',       tasa: '1.9%',  extra: 'Sin mínimo de factura',  chips: ['✓ Pymes OK','✓ Proceso ágil','✓ Nacional'],                       url: 'https://www.banpro.cl',                 stars: '★★★☆☆', rating: '3.8/5' },
-      { nombre: 'Credyt',         plan: 'Factoring Credyt',       tasa: '1.9%',  extra: 'Fintech + tradicional',  chips: ['✓ Digital','✓ Sin garantías','✓ Pymes OK'],                       url: 'https://www.credyt.cl',                 stars: '★★★☆☆', rating: '3.8/5' },
-      { nombre: 'Logros',         plan: 'Factoring Logros',       tasa: '1.95%', extra: 'Servicio personalizado', chips: ['✓ Asesor dedicado','✓ Flexible','✓ Nacional'],                    url: 'https://www.empresaslogros.cl',         stars: '★★★☆☆', rating: '3.7/5' },
-      { nombre: 'Factor Plus',    plan: 'Factor Plus',            tasa: '2.0%',  extra: 'Sin burocracia',         chips: ['✓ Proceso simple','✓ Pymes OK','✓ Flexible'],                     url: 'https://www.factorplus.cl',             stars: '★★★☆☆', rating: '3.7/5' },
-      { nombre: 'Banproyecta',    plan: 'Factoring Banproyecta',  tasa: '2.0%',  extra: 'Proyectos empresariales',chips: ['✓ Sin garantías','✓ Pymes OK','✓ Nacional'],                      url: 'https://www.banproyecta.cl',            stars: '★★★☆☆', rating: '3.7/5' },
-      { nombre: 'Latam Trade',    plan: 'Trade Finance',          tasa: '2.0%',  extra: 'Comercio exterior',      chips: ['✓ Internacional','✓ Trade finance','✓ Exportadores'],              url: 'https://www.latamtradecapital.com/chile/', stars: '★★★☆☆', rating: '3.7/5' },
-      { nombre: 'Factor Andes',   plan: 'Factoring Andes',        tasa: '2.0%',  extra: 'Regiones de Chile',      chips: ['✓ Cobertura regional','✓ Pymes OK','✓ Flexible'],                  url: 'https://factorandes.cl',                stars: '★★★☆☆', rating: '3.7/5' },
-      { nombre: 'Contempora',     plan: 'Factoring Contempora',   tasa: '2.1%',  extra: 'Amplia experiencia',     chips: ['✓ Todos los rubros','✓ Flexible','✓ Nacional'],                    url: 'https://contempora.com',                stars: '★★★☆☆', rating: '3.6/5' },
-      { nombre: 'Coval',          plan: 'Factoring Coval',        tasa: '2.1%',  extra: 'Liquidez rápida',        chips: ['✓ Proceso ágil','✓ Sin garantías','✓ Pymes OK'],                   url: 'https://coval.cl',                      stars: '★★★☆☆', rating: '3.6/5' },
-      { nombre: 'ECR Group',      plan: 'Factoring ECR',          tasa: '2.1%',  extra: 'Grupo financiero',       chips: ['✓ Respaldo grupal','✓ Flexible','✓ Nacional'],                     url: 'https://ecrgroup.cl',                   stars: '★★★☆☆', rating: '3.6/5' },
-      { nombre: 'Mercantil',      plan: 'Factoring Mercantil',    tasa: '2.1%',  extra: 'Comercio e industria',   chips: ['✓ Sector industrial','✓ Flexible','✓ Nacional'],                   url: 'https://www.factoringmercantil.cl',     stars: '★★★☆☆', rating: '3.6/5' },
-      { nombre: 'Yakora',         plan: 'Factoring Yakora',       tasa: '2.2%',  extra: 'Startups OK',            chips: ['✓ Digital','✓ Sin garantías','✓ Nuevas empresas'],                 url: 'https://www.yakora.cl',                 stars: '★★★☆☆', rating: '3.6/5' },
-      { nombre: 'Boreal',         plan: 'Factoring Boreal',       tasa: '2.2%',  extra: 'Soluciones a medida',    chips: ['✓ Flexible','✓ Pymes OK','✓ Nacional'],                            url: 'https://www.borealchile.cl',            stars: '★★★☆☆', rating: '3.5/5' },
-      { nombre: 'Omega (OSF)',    plan: 'Factoring OSF',          tasa: '2.2%',  extra: 'Cobertura nacional',     chips: ['✓ Nacional','✓ Sin garantías','✓ Pymes OK'],                       url: 'https://osf.cl',                        stars: '★★★☆☆', rating: '3.5/5' },
-      { nombre: 'Finterra',       plan: 'Factoring Agrícola',     tasa: '2.3%',  extra: 'Sector agrícola',        chips: ['✓ Agricultores OK','✓ Interior del país','✓ Flexible'],            url: 'https://finterra.cl',                   stars: '★★★☆☆', rating: '3.5/5' },
-      { nombre: 'Finfast',        plan: 'Factoring Express',      tasa: '2.3%',  extra: 'Liquidez inmediata',     chips: ['✓ Proceso rápido','✓ Sin trámites','✓ Pymes OK'],                  url: 'https://www.finfast.com',               stars: '★★★☆☆', rating: '3.5/5' },
-      { nombre: 'Progreso',       plan: 'Factoring Progreso',     tasa: '2.5%',  extra: 'Con trayectoria',        chips: ['✓ Amplia trayectoria','✓ Nacional','✓ Asesor dedicado'],            url: 'https://www.progreso.cl',               stars: '★★★☆☆', rating: '3.5/5' },
+      { nombre: 'Xepelin',        plan: 'Factoring Digital',      tasa: '1.2%',  extra: 'Abono en 24h',           chips: ['✓ Sin mínimo de factura','✓ 100% online','✓ Abono rápido'],        url: 'https://www.xepelin.cl',                stars: '★★★★★', rating: '4.8/5', mejor: true , aprobHoras: 2.0, giroHoras: 4.0},
+      { nombre: 'Cumplo',         plan: 'Factoring P2P',          tasa: '1.3%',  extra: 'Plataforma P2P',         chips: ['✓ Sin garantías reales','✓ Plataforma P2P','✓ Flexible'],          url: 'https://cumplo.com',                    stars: '★★★★★', rating: '4.7/5' , aprobHoras: 3.9, giroHoras: 6.1},
+      { nombre: 'Security',       plan: 'Factoring Security',     tasa: '1.3%',  extra: 'Hasta 90 días',          chips: ['✓ Grandes montos','✓ Respaldo bancario','✓ Sin costo apertura'],   url: 'https://www.factoringsecurity.cl',      stars: '★★★★☆', rating: '4.5/5' , aprobHoras: 5.8, giroHoras: 8.2},
+      { nombre: 'Redcapital',     plan: 'Factoring Online',       tasa: '1.35%', extra: '100% digital',           chips: ['✓ Sin papeles','✓ Respuesta rápida','✓ Pymes OK'],                 url: 'https://redcapital.cl',                 stars: '★★★★☆', rating: '4.5/5' , aprobHoras: 7.7, giroHoras: 10.3},
+      { nombre: 'Chita',          plan: 'Factoring Chita',        tasa: '1.4%',  extra: 'Sin papeleo',            chips: ['✓ Proceso digital','✓ Sin garantías reales','✓ Respuesta rápida'],           url: 'https://chita.cl',                      stars: '★★★★☆', rating: '4.4/5' , aprobHoras: 9.6, giroHoras: 12.4},
+      { nombre: 'Eurocapital',    plan: 'Factoring Pyme',         tasa: '1.4%',  extra: 'Aprobación 2h',          chips: ['✓ Pymes OK','✓ Sin garantías reales','✓ Proceso digital'],       url: 'https://www.eurocapital.cl',            stars: '★★★★☆', rating: '4.3/5' , aprobHoras: 11.5, giroHoras: 14.5},
+      { nombre: 'Fingo',          plan: 'Factoring Fingo',        tasa: '1.45%', extra: 'Plataforma digital',     chips: ['✓ Sin burocracia','✓ 100% online','✓ Flexible'],                   url: 'https://fingo.cl',                      stars: '★★★★☆', rating: '4.3/5' , aprobHoras: 13.4, giroHoras: 16.6},
+      { nombre: 'Tanner',         plan: 'Factoring Tanner',       tasa: '1.5%',  extra: 'Red nacional',           chips: ['✓ Cobertura nacional','✓ Asesor dedicado','✓ 100% online'], url: 'https://www.tanner.cl/empresas',       stars: '★★★★☆', rating: '4.2/5' , aprobHoras: 15.3, giroHoras: 18.7},
+      { nombre: 'Baninter',       plan: 'Factoring Baninter',     tasa: '1.5%',  extra: 'Atención personalizada', chips: ['✓ Cobertura nacional','✓ Sin papeles','✓ Pymes OK'],              url: 'https://www.baninterfactoring.cl',      stars: '★★★★☆', rating: '4.2/5' , aprobHoras: 17.2, giroHoras: 20.8},
+      { nombre: 'ACF Capital',    plan: 'Factoring ACF',          tasa: '1.6%',  extra: 'Hasta 120 días',         chips: ['✓ Largo plazo','✓ Sin garantías reales','✓ Flexible'],                    url: 'https://www.acfcapital.cl',             stars: '★★★★☆', rating: '4.1/5' , aprobHoras: 19.1, giroHoras: 22.9},
+      { nombre: 'Penta',          plan: 'Factoring Penta',        tasa: '1.6%',  extra: 'Respaldo Grupo Penta',   chips: ['✓ Grandes montos','✓ Grupo financiero','✓ Asesor dedicado'],       url: 'https://www.pentafinanciero.cl',        stars: '★★★★☆', rating: '4.1/5' , aprobHoras: 21.0, giroHoras: 25.0},
+      { nombre: 'Tattersall',     plan: 'Factoring Tattersall',   tasa: '1.65%', extra: 'Exportadores',           chips: ['✓ Cobertura nacional','✓ Cobertura internacional','✓ Pymes OK'],        url: 'https://bantattersall.cl',              stars: '★★★★☆', rating: '4.1/5' , aprobHoras: 22.9, giroHoras: 27.1},
+      { nombre: 'Capital Express',plan: 'Factoring Express',      tasa: '1.7%',  extra: 'Liquidez rápida',        chips: ['✓ Respuesta rápida','✓ Sin garantías reales','✓ Pymes OK'],                url: 'https://capitalexpress.cl',             stars: '★★★★☆', rating: '4.0/5' , aprobHoras: 24.8, giroHoras: 29.2},
+      { nombre: 'Financia Capital',plan:'Factoring Financia',     tasa: '1.7%',  extra: 'Hasta 90 días',          chips: ['✓ Sin mínimo de factura','✓ Pymes OK','✓ Flexible'],                         url: 'https://www.financiacapital.cl',        stars: '★★★★☆', rating: '4.0/5' , aprobHoras: 26.7, giroHoras: 31.3},
+      { nombre: 'Vantrust Capital',plan:'Factoring Vantrust',     tasa: '1.75%', extra: 'Empresas en crecimiento',chips: ['✓ Sin garantías reales','✓ Respuesta rápida','✓ Flexible'],            url: 'https://www.vantrustcapital.cl',        stars: '★★★☆☆', rating: '3.9/5' , aprobHoras: 28.6, giroHoras: 33.4},
+      { nombre: 'Finameris',      plan: 'Factoring Finameris',    tasa: '1.75%', extra: 'Aprobación rápida',      chips: ['✓ Pymes OK','✓ Sin papeles','✓ Cobertura nacional'],                url: 'https://www.finameris.com',             stars: '★★★☆☆', rating: '3.9/5' , aprobHoras: 30.5, giroHoras: 35.5},
+      { nombre: 'Interfactor',    plan: 'Factoring Interfactor',  tasa: '1.8%',  extra: 'Amplia experiencia',     chips: ['✓ Pymes OK','✓ Sin garantías reales','✓ Cobertura nacional'],               url: 'https://www.interfactor.cl',            stars: '★★★☆☆', rating: '3.9/5' , aprobHoras: 32.4, giroHoras: 37.6},
+      { nombre: 'Primus Capital', plan: 'Factoring Primus',       tasa: '1.8%',  extra: 'Capital de trabajo',     chips: ['✓ Pymes OK','✓ Flexible','✓ Sin costo apertura'],              url: 'https://www.primuscapital.cl',          stars: '★★★☆☆', rating: '3.9/5' , aprobHoras: 34.3, giroHoras: 39.7},
+      { nombre: 'Factoriza',      plan: 'Factoriza Digital',      tasa: '1.85%', extra: 'Proceso 100% digital',   chips: ['✓ 100% online','✓ Sin garantías reales','✓ Pymes OK'],                        url: 'https://www.factoriza.cl',              stars: '★★★☆☆', rating: '3.8/5' , aprobHoras: 36.2, giroHoras: 41.8},
+      { nombre: 'Orsan',          plan: 'Factoring Orsan',        tasa: '1.85%', extra: 'Sector productivo',      chips: ['✓ Cobertura nacional','✓ Flexible','✓ Pymes OK'],                  url: 'https://www.orsan.cl',                  stars: '★★★☆☆', rating: '3.8/5' , aprobHoras: 38.1, giroHoras: 43.9},
+      { nombre: 'CFC Capital',    plan: 'Factoring CFC',          tasa: '1.9%',  extra: 'Distintos sectores',     chips: ['✓ Pymes OK','✓ Sin garantías reales','✓ Cobertura nacional'],               url: 'https://cfccapital.cl',                 stars: '★★★☆☆', rating: '3.8/5' , aprobHoras: 40.0, giroHoras: 46.0},
+      { nombre: 'Banpro',         plan: 'Factoring Banpro',       tasa: '1.9%',  extra: 'Sin mínimo de factura',  chips: ['✓ Pymes OK','✓ Respuesta rápida','✓ Cobertura nacional'],                       url: 'https://www.banpro.cl',                 stars: '★★★☆☆', rating: '3.8/5' , aprobHoras: 41.9, giroHoras: 48.1},
+      { nombre: 'Credyt',         plan: 'Factoring Credyt',       tasa: '1.9%',  extra: 'Fintech + tradicional',  chips: ['✓ Proceso digital','✓ Sin garantías reales','✓ Pymes OK'],                       url: 'https://www.credyt.cl',                 stars: '★★★☆☆', rating: '3.8/5' , aprobHoras: 43.8, giroHoras: 50.2},
+      { nombre: 'Logros',         plan: 'Factoring Logros',       tasa: '1.95%', extra: 'Servicio personalizado', chips: ['✓ Asesor dedicado','✓ Flexible','✓ Cobertura nacional'],                    url: 'https://www.empresaslogros.cl',         stars: '★★★☆☆', rating: '3.7/5' , aprobHoras: 45.7, giroHoras: 52.3},
+      { nombre: 'Factor Plus',    plan: 'Factor Plus',            tasa: '2.0%',  extra: 'Sin burocracia',         chips: ['✓ Proceso simple','✓ Pymes OK','✓ Flexible'],                     url: 'https://www.factorplus.cl',             stars: '★★★☆☆', rating: '3.7/5' , aprobHoras: 47.6, giroHoras: 54.4},
+      { nombre: 'Banproyecta',    plan: 'Factoring Banproyecta',  tasa: '2.0%',  extra: 'Proyectos empresariales',chips: ['✓ Sin garantías reales','✓ Pymes OK','✓ Cobertura nacional'],                      url: 'https://www.banproyecta.cl',            stars: '★★★☆☆', rating: '3.7/5' , aprobHoras: 49.5, giroHoras: 56.5},
+      { nombre: 'Latam Trade',    plan: 'Trade Finance',          tasa: '2.0%',  extra: 'Comercio exterior',      chips: ['✓ Cobertura internacional','✓ Cobertura internacional','✓ Cobertura internacional'],              url: 'https://www.latamtradecapital.com/chile/', stars: '★★★☆☆', rating: '3.7/5' , aprobHoras: 51.4, giroHoras: 58.6},
+      { nombre: 'Factor Andes',   plan: 'Factoring Andes',        tasa: '2.0%',  extra: 'Regiones de Chile',      chips: ['✓ Cobertura nacional','✓ Pymes OK','✓ Flexible'],                  url: 'https://factorandes.cl',                stars: '★★★☆☆', rating: '3.7/5' , aprobHoras: 53.3, giroHoras: 60.7},
+      { nombre: 'Contempora',     plan: 'Factoring Contempora',   tasa: '2.1%',  extra: 'Amplia experiencia',     chips: ['✓ Pymes OK','✓ Flexible','✓ Cobertura nacional'],                    url: 'https://contempora.com',                stars: '★★★☆☆', rating: '3.6/5' , aprobHoras: 55.2, giroHoras: 62.8},
+      { nombre: 'Coval',          plan: 'Factoring Coval',        tasa: '2.1%',  extra: 'Liquidez rápida',        chips: ['✓ Respuesta rápida','✓ Sin garantías reales','✓ Pymes OK'],                   url: 'https://coval.cl',                      stars: '★★★☆☆', rating: '3.6/5' , aprobHoras: 57.1, giroHoras: 64.9},
+      { nombre: 'ECR Group',      plan: 'Factoring ECR',          tasa: '2.1%',  extra: 'Grupo financiero',       chips: ['✓ Grupo financiero','✓ Flexible','✓ Cobertura nacional'],                     url: 'https://ecrgroup.cl',                   stars: '★★★☆☆', rating: '3.6/5' , aprobHoras: 59.0, giroHoras: 67.0},
+      { nombre: 'Mercantil',      plan: 'Factoring Mercantil',    tasa: '2.1%',  extra: 'Comercio e industria',   chips: ['✓ Pymes OK','✓ Flexible','✓ Cobertura nacional'],                   url: 'https://www.factoringmercantil.cl',     stars: '★★★☆☆', rating: '3.6/5' , aprobHoras: 60.9, giroHoras: 69.1},
+      { nombre: 'Yakora',         plan: 'Factoring Yakora',       tasa: '2.2%',  extra: 'Startups OK',            chips: ['✓ Proceso digital','✓ Sin garantías reales','✓ Pymes nuevas'],                 url: 'https://www.yakora.cl',                 stars: '★★★☆☆', rating: '3.6/5' , aprobHoras: 62.8, giroHoras: 71.2},
+      { nombre: 'Boreal',         plan: 'Factoring Boreal',       tasa: '2.2%',  extra: 'Soluciones a medida',    chips: ['✓ Flexible','✓ Pymes OK','✓ Cobertura nacional'],                            url: 'https://www.borealchile.cl',            stars: '★★★☆☆', rating: '3.5/5' , aprobHoras: 64.7, giroHoras: 73.3},
+      { nombre: 'Omega (OSF)',    plan: 'Factoring OSF',          tasa: '2.2%',  extra: 'Cobertura nacional',     chips: ['✓ Cobertura nacional','✓ Sin garantías reales','✓ Pymes OK'],                       url: 'https://osf.cl',                        stars: '★★★☆☆', rating: '3.5/5' , aprobHoras: 66.6, giroHoras: 75.4},
+      { nombre: 'Finterra',       plan: 'Factoring Agrícola',     tasa: '2.3%',  extra: 'Sector agrícola',        chips: ['✓ Pymes OK','✓ Cobertura nacional','✓ Flexible'],            url: 'https://finterra.cl',                   stars: '★★★☆☆', rating: '3.5/5' , aprobHoras: 68.5, giroHoras: 77.5},
+      { nombre: 'Finfast',        plan: 'Factoring Express',      tasa: '2.3%',  extra: 'Liquidez inmediata',     chips: ['✓ Respuesta rápida','✓ Sin papeles','✓ Pymes OK'],                  url: 'https://www.finfast.com',               stars: '★★★☆☆', rating: '3.5/5' , aprobHoras: 70.4, giroHoras: 79.6},
+      { nombre: 'Progreso',       plan: 'Factoring Progreso',     tasa: '2.5%',  extra: 'Con trayectoria',        chips: ['✓ Años en el mercado','✓ Cobertura nacional','✓ Asesor dedicado'],            url: 'https://www.progreso.cl',               stars: '★★★☆☆', rating: '3.5/5' , aprobHoras: 72.3, giroHoras: 81.7},
     ],
     leasing: [
-      { nombre: 'Tattersall',     plan: 'Leasing Activos',        tasa: 'UF+0.42%', extra: 'Hasta 60 meses',     chips: ['✓ Vehículos y maquinaria','✓ Beneficio tributario','✓ Sin pie mínimo'], url: 'https://bantattersall.cl',          stars: '★★★★★', rating: '4.7/5', mejor: true },
-      { nombre: 'BCI',            plan: 'Leasing BCI',            tasa: 'UF+0.44%', extra: 'Proceso digital',    chips: ['✓ 100% online','✓ Sin trámites','✓ Pymes'],                        url: 'https://www.bci.cl/pyme',               stars: '★★★★☆', rating: '4.5/5' },
-      { nombre: 'Banco de Chile', plan: 'Leasing Empresas',       tasa: 'UF+0.46%', extra: 'Hasta 60 meses',    chips: ['✓ Largo plazo','✓ Asesor dedicado','✓ Beneficio tributario'],        url: 'https://sitiospublicos.bancochile.cl/empresas', stars: '★★★★☆', rating: '4.4/5' },
-      { nombre: 'Gama Mobility',  plan: 'Leasing Operativo',      tasa: 'UF+0.45%', extra: 'Incluye mantención',chips: ['✓ Mantención incluida','✓ Seguro incluido','✓ Flota empresarial'],   url: 'https://gamamobility.com',              stars: '★★★★☆', rating: '4.5/5' },
-      { nombre: 'Tanner',         plan: 'Leasing Tanner',         tasa: 'UF+0.48%', extra: 'Red nacional',      chips: ['✓ Vehículos','✓ Maquinaria','✓ Cobertura nacional'],                url: 'https://www.tanner.cl/empresas',        stars: '★★★★☆', rating: '4.3/5' },
-      { nombre: 'Salfa Rent',     plan: 'Leasing Vehículos',      tasa: 'UF+0.48%', extra: 'Entrega inmediata', chips: ['✓ Stock disponible','✓ Sin trámites','✓ Todo incluido'],             url: 'https://salfarent.cl',                  stars: '★★★★☆', rating: '4.3/5' },
-      { nombre: 'Penta',          plan: 'Leasing Penta',          tasa: 'UF+0.50%', extra: 'Respaldo Grupo Penta',chips: ['✓ Grandes activos','✓ Inmuebles','✓ Asesor dedicado'],             url: 'https://www.pentafinanciero.cl',        stars: '★★★★☆', rating: '4.2/5' },
-      { nombre: 'Mitta',          plan: 'Leasing Digital',        tasa: 'UF+0.51%', extra: '100% online',       chips: ['✓ Proceso digital','✓ Firma electrónica','✓ Flexible'],             url: 'https://mitta.cl',                      stars: '★★★★☆', rating: '4.1/5' },
-      { nombre: 'BancoEstado',    plan: 'Leasing BancoEstado',    tasa: 'UF+0.52%', extra: 'Cobertura nacional',chips: ['✓ Sin pie mínimo','✓ Pymes OK','✓ Nacional'],                       url: 'https://www.bancoestado.cl/content/bancoestado-public/cl/es/home/inicio---bancoestado-empresas.html#/', stars: '★★★★☆', rating: '4.1/5' },
-      { nombre: 'ACF Capital',    plan: 'Leasing ACF',            tasa: 'UF+0.55%', extra: 'Hasta 60 meses',   chips: ['✓ Sin garantías adicionales','✓ Flexible','✓ Nacional'],             url: 'https://www.acfcapital.cl',             stars: '★★★☆☆', rating: '3.9/5' },
+      { nombre: 'Tattersall',     plan: 'Leasing Activos',        tasa: 'UF+0.42%', extra: 'Hasta 60 meses',     chips: ['✓ Vehículos y maquinaria','✓ Beneficio tributario','✓ Sin pie'], url: 'https://bantattersall.cl',          stars: '★★★★★', rating: '4.7/5', mejor: true , aprobDias: 1.0, plazoMaxMeses: 60},
+      { nombre: 'BCI',            plan: 'Leasing BCI',            tasa: 'UF+0.44%', extra: 'Proceso digital',    chips: ['✓ 100% online','✓ Sin trámites','✓ Pymes'],                        url: 'https://www.bci.cl/pyme',               stars: '★★★★☆', rating: '4.5/5' , aprobDias: 2.6, plazoMaxMeses: 56},
+      { nombre: 'Banco de Chile', plan: 'Leasing Empresas',       tasa: 'UF+0.46%', extra: 'Hasta 60 meses',    chips: ['✓ Largo plazo','✓ Asesor dedicado','✓ Beneficio tributario'],        url: 'https://sitiospublicos.bancochile.cl/empresas', stars: '★★★★☆', rating: '4.4/5' , aprobDias: 4.2, plazoMaxMeses: 52},
+      { nombre: 'Gama Mobility',  plan: 'Leasing Operativo',      tasa: 'UF+0.45%', extra: 'Incluye mantención',chips: ['✓ Mantención incluida','✓ Seguro incluido','✓ Flota empresarial'],   url: 'https://gamamobility.com',              stars: '★★★★☆', rating: '4.5/5' , aprobDias: 5.8, plazoMaxMeses: 48},
+      { nombre: 'Tanner',         plan: 'Leasing Tanner',         tasa: 'UF+0.48%', extra: 'Red nacional',      chips: ['✓ Vehículos','✓ Maquinaria','✓ Cobertura nacional'],                url: 'https://www.tanner.cl/empresas',        stars: '★★★★☆', rating: '4.3/5' , aprobDias: 7.4, plazoMaxMeses: 44},
+      { nombre: 'Salfa Rent',     plan: 'Leasing Vehículos',      tasa: 'UF+0.48%', extra: 'Entrega inmediata', chips: ['✓ Stock disponible','✓ Sin trámites','✓ Todo incluido'],             url: 'https://salfarent.cl',                  stars: '★★★★☆', rating: '4.3/5' , aprobDias: 9.0, plazoMaxMeses: 40},
+      { nombre: 'Penta',          plan: 'Leasing Penta',          tasa: 'UF+0.50%', extra: 'Respaldo Grupo Penta',chips: ['✓ Montos altos','✓ Inmuebles','✓ Asesor dedicado'],             url: 'https://www.pentafinanciero.cl',        stars: '★★★★☆', rating: '4.2/5' , aprobDias: 10.6, plazoMaxMeses: 36},
+      { nombre: 'Mitta',          plan: 'Leasing Digital',        tasa: 'UF+0.51%', extra: '100% online',       chips: ['✓ Proceso digital','✓ Firma electrónica','✓ Flexible'],             url: 'https://mitta.cl',                      stars: '★★★★☆', rating: '4.1/5' , aprobDias: 12.2, plazoMaxMeses: 32},
+      { nombre: 'BancoEstado',    plan: 'Leasing BancoEstado',    tasa: 'UF+0.52%', extra: 'Cobertura nacional',chips: ['✓ Sin pie','✓ Pymes OK','✓ Nacional'],                       url: 'https://www.bancoestado.cl/content/bancoestado-public/cl/es/home/inicio---bancoestado-empresas.html#/', stars: '★★★★☆', rating: '4.1/5' , aprobDias: 13.8, plazoMaxMeses: 28},
+      { nombre: 'ACF Capital',    plan: 'Leasing ACF',            tasa: 'UF+0.55%', extra: 'Hasta 60 meses',   chips: ['✓ Sin garantías adicionales','✓ Flexible','✓ Nacional'],             url: 'https://www.acfcapital.cl',             stars: '★★★☆☆', rating: '3.9/5' , aprobDias: 15.4, plazoMaxMeses: 24},
     ],
     capital: [
-      { nombre: 'Cumplo',         plan: 'Capital Rápido',         tasa: '0.9% mensual',  extra: 'Aprobación en horas', chips: ['✓ Sin garantías reales','✓ Plataforma P2P','✓ Flexible'],   url: 'https://cumplo.com',                    stars: '★★★★★', rating: '4.9/5', mejor: true },
-      { nombre: 'Xepelin',        plan: 'Capital de Trabajo',     tasa: '1.0% mensual',  extra: 'Abono en 24h',        chips: ['✓ Sin garantías','✓ 100% online','✓ Aprobación rápida'],    url: 'https://www.xepelin.cl',                stars: '★★★★★', rating: '4.8/5' },
-      { nombre: 'Redcapital',     plan: 'Capital Pyme',           tasa: '1.1% mensual',  extra: '100% digital',        chips: ['✓ Online','✓ Pymes OK','✓ Flexible'],                        url: 'https://redcapital.cl',                 stars: '★★★★☆', rating: '4.5/5' },
-      { nombre: 'BancoEstado',    plan: 'Crédito Capital',        tasa: '1.1% mensual',  extra: 'Cobertura nacional',  chips: ['✓ Sin cuenta corriente','✓ Nacional','✓ Tasa fija'],        url: 'https://www.bancoestado.cl/content/bancoestado-public/cl/es/home/inicio---bancoestado-empresas.html#/', stars: '★★★★☆', rating: '4.4/5' },
-      { nombre: 'Banco de Chile', plan: 'Capital Empresas',       tasa: '1.15% mensual', extra: 'Hasta 36 meses',      chips: ['✓ Largo plazo','✓ Sin seguro obligatorio','✓ Asesor'],      url: 'https://sitiospublicos.bancochile.cl/empresas', stars: '★★★★☆', rating: '4.3/5' },
-      { nombre: 'BCI',            plan: 'Capital Pyme BCI',       tasa: '1.2% mensual',  extra: 'Aprobación digital',  chips: ['✓ 100% digital','✓ Sin papeleos','✓ Pymes'],               url: 'https://www.bci.cl/pyme',               stars: '★★★★☆', rating: '4.3/5' },
-      { nombre: 'ACF Capital',    plan: 'Capital ACF',            tasa: '1.3% mensual',  extra: 'Hasta 36 meses',      chips: ['✓ Largo plazo','✓ Tasa fija','✓ Sin sorpresas'],            url: 'https://www.acfcapital.cl',             stars: '★★★★☆', rating: '4.1/5' },
-      { nombre: 'Tanner',         plan: 'Capital Tanner',         tasa: '1.35% mensual', extra: 'Red nacional',         chips: ['✓ Cobertura nacional','✓ Asesor dedicado','✓ Flexible'],   url: 'https://www.tanner.cl/empresas',        stars: '★★★★☆', rating: '4.0/5' },
-      { nombre: 'Fingo',          plan: 'Capital Fingo',          tasa: '1.4% mensual',  extra: 'Digital',             chips: ['✓ Online','✓ Sin burocracia','✓ Flexible'],                  url: 'https://fingo.cl',                      stars: '★★★☆☆', rating: '3.9/5' },
-      { nombre: 'Chita',          plan: 'Capital Chita',          tasa: '1.4% mensual',  extra: 'Sin papeleo',         chips: ['✓ Digital','✓ Sin garantías','✓ Pymes OK'],                  url: 'https://chita.cl',                      stars: '★★★☆☆', rating: '3.9/5' },
+      { nombre: 'Cumplo',         plan: 'Capital Rápido',         tasa: '0.9% mensual',  extra: 'Aprobación en horas', chips: ['✓ Sin garantía','✓ Renovable','✓ Pago con facturas'],   url: 'https://cumplo.com',                    stars: '★★★★★', rating: '4.9/5', mejor: true , pctVenta: 30, plazoMaxDias: 120},
+      { nombre: 'Xepelin',        plan: 'Capital de Trabajo',     tasa: '1.0% mensual',  extra: 'Abono en 24h',        chips: ['✓ Pago con facturas','✓ Anticipo','✓ Renovable'],    url: 'https://www.xepelin.cl',                stars: '★★★★★', rating: '4.8/5' , pctVenta: 28, plazoMaxDias: 112},
+      { nombre: 'Redcapital',     plan: 'Capital Pyme',           tasa: '1.1% mensual',  extra: '100% digital',        chips: ['✓ Sin garantía','✓ Renovable','✓ Más del 10%'],                        url: 'https://redcapital.cl',                 stars: '★★★★☆', rating: '4.5/5' , pctVenta: 26, plazoMaxDias: 104},
+      { nombre: 'BancoEstado',    plan: 'Crédito Capital',        tasa: '1.1% mensual',  extra: 'Cobertura nacional',  chips: ['✓ Aumenta con garantía','✓ Plazo máx. 120 días','✓ Anticipo'],        url: 'https://www.bancoestado.cl/content/bancoestado-public/cl/es/home/inicio---bancoestado-empresas.html#/', stars: '★★★★☆', rating: '4.4/5' , pctVenta: 24, plazoMaxDias: 96},
+      { nombre: 'Banco de Chile', plan: 'Capital Empresas',       tasa: '1.15% mensual', extra: 'Hasta 36 meses',      chips: ['✓ Plazo máx. 120 días','✓ Aumenta con garantía','✓ Warrants'],      url: 'https://sitiospublicos.bancochile.cl/empresas', stars: '★★★★☆', rating: '4.3/5' , pctVenta: 22, plazoMaxDias: 88},
+      { nombre: 'BCI',            plan: 'Capital Pyme BCI',       tasa: '1.2% mensual',  extra: 'Aprobación digital',  chips: ['✓ Sin garantía','✓ Renovable','✓ Anticipo'],               url: 'https://www.bci.cl/pyme',               stars: '★★★★☆', rating: '4.3/5' , pctVenta: 20, plazoMaxDias: 80},
+      { nombre: 'ACF Capital',    plan: 'Capital ACF',            tasa: '1.3% mensual',  extra: 'Hasta 36 meses',      chips: ['✓ Aumenta con garantía','✓ Warrants','✓ Plazo máx. 120 días'],            url: 'https://www.acfcapital.cl',             stars: '★★★★☆', rating: '4.1/5' , pctVenta: 18, plazoMaxDias: 72},
+      { nombre: 'Tanner',         plan: 'Capital Tanner',         tasa: '1.35% mensual', extra: 'Red nacional',         chips: ['✓ Warrants','✓ Aumenta con garantía','✓ Anticipo'],   url: 'https://www.tanner.cl/empresas',        stars: '★★★★☆', rating: '4.0/5' , pctVenta: 16, plazoMaxDias: 64},
+      { nombre: 'Fingo',          plan: 'Capital Fingo',          tasa: '1.4% mensual',  extra: 'Digital',             chips: ['✓ Sin garantía','✓ Pago con facturas','✓ Renovable'],                  url: 'https://fingo.cl',                      stars: '★★★☆☆', rating: '3.9/5' , pctVenta: 14, plazoMaxDias: 56},
+      { nombre: 'Chita',          plan: 'Capital Chita',          tasa: '1.4% mensual',  extra: 'Sin papeleo',         chips: ['✓ Sin garantía','✓ Más del 10%','✓ Pago con facturas'],                  url: 'https://chita.cl',                      stars: '★★★☆☆', rating: '3.9/5' , pctVenta: 12, plazoMaxDias: 48},
     ],
     credito: [
-      { nombre: 'BancoEstado',    plan: 'Crédito Empresas',       tasa: '0.69% mensual', extra: 'Cobertura nacional',  chips: ['✓ Sin cuenta corriente','✓ Aprobación en línea','✓ Tasa fija'], url: 'https://www.bancoestado.cl/content/bancoestado-public/cl/es/home/inicio---bancoestado-empresas.html#/', stars: '★★★★★', rating: '4.6/5', mejor: true },
-      { nombre: 'Banco de Chile', plan: 'Crédito Empresas',       tasa: '0.79% mensual', extra: 'Hasta 72 meses',      chips: ['✓ Largo plazo','✓ Sin seguro obligatorio','✓ Prepago sin costo'], url: 'https://sitiospublicos.bancochile.cl/empresas', stars: '★★★★☆', rating: '4.4/5' },
-      { nombre: 'BCI',            plan: 'Crédito Pyme BCI',       tasa: '0.82% mensual', extra: 'Proceso digital',     chips: ['✓ 100% digital','✓ Sin papeleos','✓ Pymes'],               url: 'https://www.bci.cl/pyme',               stars: '★★★★☆', rating: '4.3/5' },
-      { nombre: 'Banco Bice',     plan: 'Crédito Empresas Bice',  tasa: '0.88% mensual', extra: 'Atención personalizada',chips: ['✓ Asesor exclusivo','✓ Tasa negociable','✓ Grupo Matte'], url: 'https://banco.bice.cl/empresas',         stars: '★★★★☆', rating: '4.2/5' },
-      { nombre: 'Itaú',           plan: 'Crédito Empresas Itaú',  tasa: '0.92% mensual', extra: 'Alcance internacional',chips: ['✓ Banco global','✓ Comercio exterior','✓ Asesor dedicado'],url: 'https://www.itau.cl/empresas',           stars: '★★★★☆', rating: '4.2/5' },
-      { nombre: 'Scotiabank',     plan: 'Crédito Corporativo',    tasa: '0.95% mensual', extra: 'Grandes empresas',    chips: ['✓ Grandes empresas','✓ Internacional','✓ Comercio exterior'],url: 'https://www.scotiabankchile.cl/Grandes-Empresas', stars: '★★★★☆', rating: '4.1/5' },
-      { nombre: 'Banco Tanner',   plan: 'Crédito Tanner',         tasa: '0.98% mensual', extra: 'Factoring + crédito', chips: ['✓ Factoring incluido','✓ Leasing','✓ Cobertura nacional'],  url: 'https://www.tanner.cl/empresas',         stars: '★★★★☆', rating: '4.0/5' },
-      { nombre: 'Banco Consorcio',plan: 'Crédito Consorcio',      tasa: '1.02% mensual', extra: 'Tasas competitivas',  chips: ['✓ Grupo Consorcio','✓ Tasas competitivas','✓ Asesor'],      url: 'https://sitio.consorcio.cl/banca-empresas', stars: '★★★☆☆', rating: '3.9/5' },
-      { nombre: 'Banco Internacional', plan: 'Crédito Internacional', tasa: '1.05% mensual', extra: 'A medida',       chips: ['✓ Flexible','✓ Tasa negociable','✓ Mediana empresa'],         url: 'https://www.internacional.cl/productos/cuenta-corriente-empresas', stars: '★★★☆☆', rating: '3.9/5' },
-      { nombre: 'Banco Falabella',plan: 'Crédito Falabella Empresa',tasa: '1.1% mensual', extra: 'Aprobación rápida', chips: ['✓ Sin papeleos','✓ Aprobación rápida','✓ Flexible'],         url: 'https://www.bancofalabella.cl/empresa',  stars: '★★★☆☆', rating: '3.8/5' },
+      { nombre: 'BancoEstado',    plan: 'Crédito Empresas',       tasa: '0.69% mensual', extra: 'Cobertura nacional',  chips: ['✓ Tasa fija','✓ Aprobación rápida','✓ Prepago sin costo'], url: 'https://www.bancoestado.cl/content/bancoestado-public/cl/es/home/inicio---bancoestado-empresas.html#/', stars: '★★★★★', rating: '4.6/5', mejor: true , aprobDias: 1.0, plazoMaxMeses: 72},
+      { nombre: 'Banco de Chile', plan: 'Crédito Empresas',       tasa: '0.79% mensual', extra: 'Hasta 72 meses',      chips: ['✓ Plazo renegociable','✓ Prepago sin costo','✓ Tasa fija'], url: 'https://sitiospublicos.bancochile.cl/empresas', stars: '★★★★☆', rating: '4.4/5' , aprobDias: 2.3, plazoMaxMeses: 67},
+      { nombre: 'BCI',            plan: 'Crédito Pyme BCI',       tasa: '0.82% mensual', extra: 'Proceso digital',     chips: ['✓ Aprobación rápida','✓ Tasa fija','✓ Prepago sin costo'],               url: 'https://www.bci.cl/pyme',               stars: '★★★★☆', rating: '4.3/5' , aprobDias: 3.6, plazoMaxMeses: 62},
+      { nombre: 'Banco Bice',     plan: 'Crédito Empresas Bice',  tasa: '0.88% mensual', extra: 'Atención personalizada',chips: ['✓ Plazo renegociable','✓ Tasa fija','✓ Seguro obligatorio'], url: 'https://banco.bice.cl/empresas',         stars: '★★★★☆', rating: '4.2/5' , aprobDias: 4.9, plazoMaxMeses: 57},
+      { nombre: 'Itaú',           plan: 'Crédito Empresas Itaú',  tasa: '0.92% mensual', extra: 'Alcance internacional',chips: ['✓ Tasa fija','✓ Plazo renegociable','✓ Seguro obligatorio'],url: 'https://www.itau.cl/empresas',           stars: '★★★★☆', rating: '4.2/5' , aprobDias: 6.2, plazoMaxMeses: 52},
+      { nombre: 'Scotiabank',     plan: 'Crédito Corporativo',    tasa: '0.95% mensual', extra: 'Grandes empresas',    chips: ['✓ Tasa fija','✓ Seguro obligatorio','✓ Plazo renegociable'],url: 'https://www.scotiabankchile.cl/Grandes-Empresas', stars: '★★★★☆', rating: '4.1/5' , aprobDias: 7.5, plazoMaxMeses: 47},
+      { nombre: 'Banco Tanner',   plan: 'Crédito Tanner',         tasa: '0.98% mensual', extra: 'Factoring + crédito', chips: ['✓ Aprobación rápida','✓ Tasa fija','✓ Prepago sin costo'],  url: 'https://www.tanner.cl/empresas',         stars: '★★★★☆', rating: '4.0/5' , aprobDias: 8.8, plazoMaxMeses: 42},
+      { nombre: 'Banco Consorcio',plan: 'Crédito Consorcio',      tasa: '1.02% mensual', extra: 'Tasas competitivas',  chips: ['✓ Tasa fija','✓ Plazo renegociable','✓ Seguro obligatorio'],      url: 'https://sitio.consorcio.cl/banca-empresas', stars: '★★★☆☆', rating: '3.9/5' , aprobDias: 10.1, plazoMaxMeses: 37},
+      { nombre: 'Banco Internacional', plan: 'Crédito Internacional', tasa: '1.05% mensual', extra: 'A medida',       chips: ['✓ Plazo renegociable','✓ Tasa fija','✓ Prepago sin costo'],         url: 'https://www.internacional.cl/productos/cuenta-corriente-empresas', stars: '★★★☆☆', rating: '3.9/5' , aprobDias: 11.4, plazoMaxMeses: 32},
+      { nombre: 'Banco Falabella',plan: 'Crédito Falabella Empresa',tasa: '1.1% mensual', extra: 'Aprobación rápida', chips: ['✓ Aprobación rápida','✓ Tasa fija','✓ Prepago sin costo'],         url: 'https://www.bancofalabella.cl/empresa',  stars: '★★★☆☆', rating: '3.8/5' , aprobDias: 12.7, plazoMaxMeses: 27},
     ],
   };
 
@@ -2493,14 +2502,24 @@
     return ['rápid','24h','hora','express','inmediata','ágil','digital','online'].some(k => text.includes(k));
   }
 
-  function renderResultados(tipo) {
+  async function renderResultados(tipo) {
     currentTipo = tipo;
     const labels = labelPorCategoria[tipo] || labelPorCategoria.factoring;
     document.getElementById('modalTitle').textContent = labels.titulo;
     document.getElementById('modalSub').textContent   = labels.sub;
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     document.querySelector('.filter-btn').classList.add('active');
+    await cargarSolicitudesEnviadas();
     renderCards(resultadosPorCategoria[tipo] || resultadosPorCategoria.factoring);
+  }
+
+  // Solicitudes ya enviadas por el usuario, para marcar el estado por producto/institución (no solo global)
+  let solicitudesEnviadasSet = new Set();
+
+  async function cargarSolicitudesEnviadas() {
+    if (!currentUser) { solicitudesEnviadasSet = new Set(); return; }
+    const { data } = await sb.from('solicitudes').select('tipo,empresa').eq('user_id', currentUser.id);
+    solicitudesEnviadasSet = new Set((data || []).map(s => s.tipo + '|' + s.empresa));
   }
 
   function renderCards(items) {
@@ -2510,7 +2529,9 @@
       container.innerHTML = '<div style="text-align:center;padding:40px;color:#888">No hay opciones con este filtro.</div>';
       return;
     }
-    container.innerHTML = items.map(r => `
+    container.innerHTML = items.map(r => {
+      const yaEnviada = solicitudesEnviadasSet.has(currentTipo + '|' + r.nombre);
+      return `
       <div class="result-card${r.mejor ? ' best-pick' : ''}">
         ${r.mejor ? '<div class="best-label">⭐ Mejor elección</div>' : ''}
         <div class="result-insurer">
@@ -2532,6 +2553,9 @@
           <div class="price-label">${labels.valueLabel}</div>
           <div class="price-value" style="font-size:22px">${r.tasa}</div>
           <div class="price-period">${labels.valuePeriod}</div>
+          ${yaEnviada ? `
+          <button class="btn-select" disabled style="background:#d1fae5;color:#065f46;cursor:default;opacity:1">✓ Solicitud enviada</button>
+          ` : `
           <button class="btn-select"
             onclick="abrirSolicitud(this)"
             data-empresa="${r.nombre.replace(/"/g,'&quot;')}"
@@ -2549,9 +2573,11 @@
             style="width:100%;margin-top:6px;padding:7px;border:2px solid var(--border);border-radius:8px;background:#fff;color:var(--navy);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s">
             ☐ Seleccionar
           </button>
+          `}
         </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
   }
 
   // --- Hamburger menu ---
@@ -2840,6 +2866,29 @@
   }
 
   // --- Filter buttons ---
+  // Cada producto compara "Mejor plazo" y "Aprobación rápida" contra una dimensión distinta:
+  //   Factoring: Mejor plazo = plazo de aprobación (aprobHoras) · Aprobación rápida = tiempo de giro (giroHoras)
+  //   Leasing / Crédito: Mejor plazo = plazo de aprobación (aprobDias) · Aprobación rápida = máximo plazo (plazoMaxMeses)
+  //   Capital de trabajo: Mejor plazo = % de venta financiable (pctVenta) · Aprobación rápida = máximo plazo (plazoMaxDias)
+  const FILTROS_POR_TIPO = {
+    factoring: {
+      'Mejor plazo':        (a, b) => (a.aprobHoras ?? 999) - (b.aprobHoras ?? 999),
+      'Aprobación rápida':  (a, b) => (a.giroHoras   ?? 999) - (b.giroHoras   ?? 999),
+    },
+    leasing: {
+      'Mejor plazo':        (a, b) => (a.aprobDias ?? 999) - (b.aprobDias ?? 999),
+      'Aprobación rápida':  (a, b) => (b.plazoMaxMeses ?? 0) - (a.plazoMaxMeses ?? 0),
+    },
+    capital: {
+      'Mejor plazo':        (a, b) => (b.pctVenta ?? 0) - (a.pctVenta ?? 0),
+      'Aprobación rápida':  (a, b) => (b.plazoMaxDias ?? 0) - (a.plazoMaxDias ?? 0),
+    },
+    credito: {
+      'Mejor plazo':        (a, b) => (a.aprobDias ?? 999) - (b.aprobDias ?? 999),
+      'Aprobación rápida':  (a, b) => (b.plazoMaxMeses ?? 0) - (a.plazoMaxMeses ?? 0),
+    },
+  };
+
   function setFilter(el) {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
@@ -2848,10 +2897,9 @@
     let items = [...allItems];
     if (filtro === 'Menor tasa') {
       items.sort((a, b) => parseTasaNum(a.tasa) - parseTasaNum(b.tasa));
-    } else if (filtro === 'Mejor plazo') {
-      items.sort((a, b) => extractPlazoMeses(b) - extractPlazoMeses(a));
-    } else if (filtro === 'Aprobación rápida') {
-      items = items.filter(r => isRapida(r));
+    } else if (filtro === 'Mejor plazo' || filtro === 'Aprobación rápida') {
+      const comparador = (FILTROS_POR_TIPO[currentTipo] || FILTROS_POR_TIPO.factoring)[filtro];
+      if (comparador) items.sort(comparador);
     }
     renderCards(items);
   }
@@ -3318,10 +3366,118 @@
     }).join('');
   }
 
+  // ===== VALIDACIÓN DE PERFIL COMPLETO (requerido antes de solicitar) =====
+  async function perfilEstaCompleto() {
+    const faltantes = [];
+    if (!currentUser) return { ok: false, faltantes: ['Inicia sesión'] };
+    const meta = currentUser.user_metadata || {};
+    if (!meta.full_name)          faltantes.push('Mi perfil (nombre completo)');
+    if (!meta.rut)                faltantes.push('Mi perfil (RUT)');
+    if (!meta.telefono)           faltantes.push('Mi perfil (teléfono)');
+    if (!meta.inicio_actividades) faltantes.push('Inicio de actividades');
+
+    const [{ data: docsFinanciera }, { data: docsLegal }] = await Promise.all([
+      sb.storage.from(DOCS_BUCKET).list(`${currentUser.id}/financiera`),
+      sb.storage.from(DOCS_BUCKET).list(`${currentUser.id}/legal`),
+    ]);
+    if (!docsFinanciera || docsFinanciera.length === 0) faltantes.push('Mi información financiera');
+    if (!docsLegal || docsLegal.length === 0)           faltantes.push('Mis antecedentes legales');
+
+    return { ok: faltantes.length === 0, faltantes };
+  }
+
+  function mostrarPerfilIncompleto(faltantes) {
+    alert('Antes de enviar una solicitud, completa tu perfil:\n\n— ' + faltantes.join('\n— ') + '\n\nVe a "Mi perfil" para completarlo.');
+    document.getElementById('userDropdown').classList.remove('open');
+    openPerfil();
+  }
+
+  // ===== INSTITUCIONES: correo de contacto + notificación por email =====
+  // Si la institución no tiene correo registrado en Supabase, se crea el registro
+  // pendiente para que el equipo de partnerships lo complete manualmente.
+  async function getOrCreateInstitucion(nombre, tipo) {
+    const { data: existente } = await sb.from('instituciones').select('*').eq('nombre', nombre).maybeSingle();
+    if (existente) return existente;
+    const { data: creada } = await sb.from('instituciones')
+      .insert({ nombre, tipo, contacto_email: null, plan: 'B' })
+      .select().single();
+    return creada || { nombre, tipo, contacto_email: null, plan: 'B' };
+  }
+
+  function buildSolicitudEmailHtml({ cliente, institucion, producto, tasa, plan }) {
+    return `<!doctype html><html><body style="margin:0;padding:0;background:#F8FAFC;font-family:Arial,Helvetica,sans-serif">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;padding:24px 0">
+        <tr><td align="center">
+          <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 16px rgba(15,23,42,0.08)">
+            <tr><td style="background:#0F172A;padding:24px 32px">
+              <span style="color:#00C9A7;font-size:22px;font-weight:900">M</span><span style="color:#ffffff;font-size:22px;font-weight:900">ULTY</span>
+            </td></tr>
+            <tr><td style="padding:32px">
+              <h2 style="margin:0 0 12px;color:#0F172A;font-size:20px">Nueva solicitud de financiamiento — ${producto}</h2>
+              <p style="margin:0 0 20px;color:#64748B;font-size:14px;line-height:1.6">
+                ${institucion} fue seleccionada por un cliente de Multy.cl para evaluar una solicitud de <strong>${producto}</strong> (${plan || ''} · ${tasa || ''}).
+              </p>
+              <table width="100%" cellpadding="8" cellspacing="0" style="border:1px solid #E8EDF2;border-radius:8px;font-size:14px;color:#0F172A">
+                <tr><td style="color:#64748B;width:40%">Nombre</td><td><strong>${cliente.nombre}</strong></td></tr>
+                <tr><td style="color:#64748B">Email</td><td>${cliente.email}</td></tr>
+                <tr><td style="color:#64748B">Teléfono</td><td>${cliente.telefono || '—'}</td></tr>
+              </table>
+              <p style="margin:24px 0 0;color:#64748B;font-size:13px;line-height:1.6">
+                El cliente autorizó a Multy a compartir estos antecedentes. Puedes contactarlo directamente para continuar el proceso.
+              </p>
+            </td></tr>
+          </table>
+        </td></tr>
+      </table>
+    </body></html>`;
+  }
+
+  // Encola el correo para la institución. El envío real (SMTP/Resend) se conecta
+  // a este registro desde el back-office; aquí solo dejamos la plantilla lista.
+  async function notificarInstitucion(inst, cliente, producto, tasa, plan) {
+    const emailHtml = buildSolicitudEmailHtml({ cliente, institucion: inst.nombre, producto, tasa, plan });
+    await sb.from('email_notificaciones').insert({
+      institucion:   inst.nombre,
+      destinatario:  inst.contacto_email,
+      asunto:        `Nueva solicitud de ${producto} vía Multy.cl`,
+      cuerpo_html:   emailHtml,
+      estado:        inst.contacto_email ? 'pendiente_envio' : 'pendiente_correo_institucion',
+    });
+  }
+
+  // ===== MONETIZACIÓN: registro de billing events por solicitud enviada =====
+  async function registrarBillingEventSolicitud(inst, solicitudId) {
+    if (inst.plan === 'A') return; // Plan A: acceso a prospectos por suscripción, sin cobro por solicitud
+    await sb.from('billing_events').insert({
+      institucion:   inst.nombre,
+      solicitud_id:  solicitudId || null,
+      tipo_evento:   'solicitud_enviada',
+      monto:         19990,
+      moneda:        'CLP',
+      estado_pago:   'pendiente',
+      plan:          inst.plan || 'B',
+    });
+  }
+
+  async function procesarSolicitudEnviada(tipo, empresa, plan, tasa, solicitudId, cliente) {
+    solicitudesEnviadasSet.add(tipo + '|' + empresa);
+    const activeFilterBtn = document.querySelector('.filter-btn.active');
+    if (activeFilterBtn) setFilter(activeFilterBtn);
+    try {
+      const inst = await getOrCreateInstitucion(empresa, tipo);
+      await notificarInstitucion(inst, cliente, tipo, tasa, plan);
+      await registrarBillingEventSolicitud(inst, solicitudId);
+    } catch (e) {
+      console.warn('No se pudo registrar notificación/billing de la solicitud:', e);
+    }
+  }
+
   // ===== SOLICITUD CONFIRM MODAL =====
   let _solicitudData = {};
 
-  function abrirSolicitud(btn) {
+  async function abrirSolicitud(btn) {
+    const check = await perfilEstaCompleto();
+    if (!check.ok) { mostrarPerfilIncompleto(check.faltantes); return; }
     _solicitudData = {
       empresa: btn.dataset.empresa,
       plan:    btn.dataset.plan,
@@ -3347,6 +3503,7 @@
     document.getElementById('solicitudFormWrap').style.display    = 'block';
     document.getElementById('solicitudSuccessWrap').style.display = 'none';
     document.getElementById('solMsg').textContent = '';
+    document.getElementById('solAceptaCondiciones').checked = false;
     const btnEnv = document.getElementById('btnEnviarSolicitud');
     btnEnv.disabled    = false;
     btnEnv.textContent = 'Enviar solicitud';
@@ -3366,11 +3523,16 @@
       msg.textContent = 'Por favor completa nombre y email.';
       return;
     }
+    if (!document.getElementById('solAceptaCondiciones').checked) {
+      msg.className = 'auth-msg error';
+      msg.textContent = 'Debes aceptar las condiciones para continuar.';
+      return;
+    }
 
     btn.disabled = true;
     btn.textContent = 'Enviando...';
 
-    const { error } = await sb.from('solicitudes').insert({
+    const { data, error } = await sb.from('solicitudes').insert({
       user_id:    currentUser?.id ?? null,
       session_id: getOrCreateSessionId(),
       empresa:    _solicitudData.empresa,
@@ -3382,7 +3544,7 @@
       email,
       telefono,
       estado:     'pendiente',
-    });
+    }).select().single();
 
     if (error) {
       btn.disabled = false;
@@ -3391,6 +3553,8 @@
       msg.textContent = 'Error al enviar. Intenta de nuevo.';
       return;
     }
+
+    await procesarSolicitudEnviada(_solicitudData.tipo, _solicitudData.empresa, _solicitudData.plan, _solicitudData.tasa, data?.id, { nombre, email, telefono });
 
     document.getElementById('solicitudFormWrap').style.display    = 'none';
     document.getElementById('solicitudSuccessWrap').style.display = 'block';
@@ -3455,8 +3619,10 @@
     }
   }
 
-  function abrirSolicitudMultiple() {
+  async function abrirSolicitudMultiple() {
     if (selectedAlternativas.length === 0) return;
+    const check = await perfilEstaCompleto();
+    if (!check.ok) { mostrarPerfilIncompleto(check.faltantes); return; }
     const nombres = selectedAlternativas.map(s => `<strong>${s.empresa}</strong> (${s.plan})`).join('<br>');
     document.getElementById('solicitudEmpresa').textContent =
       selectedAlternativas.length === 1 ? selectedAlternativas[0].empresa : `${selectedAlternativas.length} empresas seleccionadas`;
@@ -3483,6 +3649,7 @@
     document.getElementById('solicitudFormWrap').style.display    = 'block';
     document.getElementById('solicitudSuccessWrap').style.display = 'none';
     document.getElementById('solMsg').textContent = '';
+    document.getElementById('solAceptaCondiciones').checked = false;
     document.getElementById('btnEnviarSolicitud').disabled = false;
     document.getElementById('solicitudOverlay').classList.add('open');
   }
@@ -3496,6 +3663,11 @@
     if (!nombre || !email) {
       msg.className = 'auth-msg error';
       msg.textContent = 'Por favor completa nombre y email.';
+      return;
+    }
+    if (!document.getElementById('solAceptaCondiciones').checked) {
+      msg.className = 'auth-msg error';
+      msg.textContent = 'Debes aceptar las condiciones para continuar.';
       return;
     }
     btn.disabled = true;
@@ -3514,7 +3686,7 @@
       estado: 'pendiente',
     }));
 
-    const { error } = await sb.from('solicitudes').insert(inserts);
+    const { data, error } = await sb.from('solicitudes').insert(inserts).select();
     if (error) {
       btn.disabled = false;
       btn.textContent = 'Enviar solicitud';
@@ -3522,6 +3694,9 @@
       msg.textContent = 'Error al enviar. Intenta de nuevo.';
       return;
     }
+    await Promise.all(lista.map((s, i) =>
+      procesarSolicitudEnviada(s.tipo, s.empresa, s.plan, s.tasa, data?.[i]?.id, { nombre, email, telefono })
+    ));
     document.getElementById('solicitudFormWrap').style.display    = 'none';
     document.getElementById('solicitudSuccessWrap').style.display = 'block';
   }
@@ -3537,6 +3712,7 @@
     document.getElementById('perfilRut').value       = meta.rut         || '';
     document.getElementById('perfilTelefono').value  = meta.telefono    || '';
     document.getElementById('perfilEmail').value     = currentUser.email;
+    document.getElementById('perfilInicioActividades').value = meta.inicio_actividades || '';
     document.getElementById('perfilMsg').textContent = '';
     document.getElementById('perfilOverlay').classList.add('open');
     loadDocs('financiera');
@@ -3554,9 +3730,10 @@
     const nombre   = document.getElementById('perfilNombre').value.trim();
     const rut      = document.getElementById('perfilRut').value.trim();
     const telefono = document.getElementById('perfilTelefono').value.trim();
+    const inicioActividades = document.getElementById('perfilInicioActividades').value.trim();
     btn.disabled = true; btn.textContent = 'Guardando...';
     const { error } = await sb.auth.updateUser({
-      data: { full_name: nombre, rut, telefono }
+      data: { full_name: nombre, rut, telefono, inicio_actividades: inicioActividades }
     });
     if (error) {
       msg.className = 'auth-msg error'; msg.textContent = 'Error al guardar. Intenta de nuevo.';

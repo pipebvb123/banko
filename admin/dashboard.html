@@ -839,17 +839,68 @@
       contactado:      { color: '#10b981', bg: '#ecfdf5', border: '#a7f3d0' },
       cliente_cerrado: { color: '#6b7280', bg: '#f9fafb', border: '#e5e7eb' },
     };
+    const sol = allSolicitudes.find(s => s.id === id);
+    const estadoAnterior = sol?.estado || 'pendiente';
+
     const { error } = await sb.from('solicitudes').update({ estado: nuevoEstado }).eq('id', id);
     if (error) {
       alert('Error al actualizar: ' + error.message);
       return;
     }
-    const sol = allSolicitudes.find(s => s.id === id);
     if (sol) sol.estado = nuevoEstado;
     const c = c_map[nuevoEstado] || c_map.pendiente;
     selectEl.style.border      = `1.5px solid ${c.border}`;
     selectEl.style.background  = `${c.bg} url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22 viewBox=%220 0 10 6%22><path d=%22M0 0l5 6 5-6z%22 fill=%22%2364748b%22/></svg>') no-repeat right 7px center`;
     selectEl.style.color       = c.color;
+
+    // Al marcar "cliente_cerrado" por primera vez, registrar el billing event que corresponda
+    // según el plan de monetización de la institución (Plan B: $50.000 fijo en factoring/capital;
+    // Plan C/partner Bankok: comisión ~3% en leasing/crédito).
+    if (nuevoEstado === 'cliente_cerrado' && estadoAnterior !== 'cliente_cerrado' && sol) {
+      await registrarBillingEventCierre(sol);
+    }
+  }
+
+  // Suscripción mensual de instituciones: mes 1 gratis, mes 2 al 50%, mes 3 en adelante 100%.
+  // No hay cobro automático (sin pasarela integrada); esto solo calcula cuánto corresponde
+  // facturar en el billing_event del mes en curso.
+  function calcularMontoSuscripcion(fechaInicio, montoMensual) {
+    const inicio = new Date(fechaInicio);
+    const hoy = new Date();
+    const mesesTranscurridos = (hoy.getFullYear() - inicio.getFullYear()) * 12 + (hoy.getMonth() - inicio.getMonth());
+    if (mesesTranscurridos <= 0) return 0;            // mes 1: gratis
+    if (mesesTranscurridos === 1) return Math.round(montoMensual * 0.5); // mes 2: 50%
+    return montoMensual;                              // mes 3 en adelante: 100%
+  }
+
+  async function registrarBillingEventCierre(sol) {
+    const { data: inst } = await sb.from('instituciones').select('*').eq('nombre', sol.empresa).maybeSingle();
+    const plan = inst?.plan || 'B';
+    let monto = null, tipoEvento = null;
+
+    if (plan === 'B' && ['factoring', 'capital'].includes(sol.tipo)) {
+      monto = 50000;
+      tipoEvento = 'operacion_cursada';
+    } else if (plan === 'C' && ['leasing', 'credito'].includes(sol.tipo)) {
+      const montoOperacion = prompt('Monto de la operación cursada (CLP), para calcular la comisión del 3%:');
+      const montoNum = parseFloat((montoOperacion || '').replace(/[^\d.]/g, ''));
+      if (!montoNum) return;
+      monto = Math.round(montoNum * 0.03);
+      tipoEvento = 'comision_operacion_cursada';
+    } else {
+      return; // combinación plan/producto sin regla de cobro adicional definida
+    }
+
+    const { error } = await sb.from('billing_events').insert({
+      institucion:  sol.empresa,
+      solicitud_id: sol.id,
+      tipo_evento:  tipoEvento,
+      monto,
+      moneda:       'CLP',
+      estado_pago:  'pendiente',
+      plan,
+    });
+    if (error) console.warn('No se pudo registrar el billing event de cierre:', error.message);
   }
 
   // ── DOCUMENTOS DEL CLIENTE (info financiera / antecedentes legales) ──
