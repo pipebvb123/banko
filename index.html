@@ -3433,17 +3433,26 @@
     </body></html>`;
   }
 
-  // Encola el correo para la institución. El envío real (SMTP/Resend) se conecta
-  // a este registro desde el back-office; aquí solo dejamos la plantilla lista.
+  // Encola el correo y dispara el envío real vía /api/enviar-emails (Resend).
   async function notificarInstitucion(inst, cliente, producto, tasa, plan) {
     const emailHtml = buildSolicitudEmailHtml({ cliente, institucion: inst.nombre, producto, tasa, plan });
-    await sb.from('email_notificaciones').insert({
+    const { data: notif } = await sb.from('email_notificaciones').insert({
       institucion:   inst.nombre,
       destinatario:  inst.contacto_email,
       asunto:        `Nueva solicitud de ${producto} vía Multy.cl`,
       cuerpo_html:   emailHtml,
       estado:        inst.contacto_email ? 'pendiente_envio' : 'pendiente_correo_institucion',
-    });
+    }).select().single();
+
+    // Best-effort: si /api/enviar-emails aún no tiene las env vars configuradas en
+    // Vercel, el correo queda igual en la cola con estado 'pendiente_envio' para reintentar.
+    if (notif?.id && inst.contacto_email) {
+      fetch('/api/enviar-emails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notificacionId: notif.id }),
+      }).catch(e => console.warn('No se pudo disparar el envío de correo (¿API aún no desplegada?):', e));
+    }
   }
 
   // ===== MONETIZACIÓN: registro de billing events por solicitud enviada =====
