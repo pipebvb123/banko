@@ -1273,6 +1273,35 @@
     .hist-empty { text-align: center; padding: 60px 20px; color: var(--gray-text); }
     .hist-empty .hist-empty-icon { font-size: 48px; margin-bottom: 16px; }
     .hist-empty p { font-size: 15px; }
+
+    /* Estado de situación */
+    .es-panel { max-width: 920px !important; }
+    .es-section { margin-bottom: 28px; }
+    .es-section-title {
+      font-size: 15px; font-weight: 800; color: var(--navy); margin-bottom: 4px;
+      padding-bottom: 6px; border-bottom: 2px solid var(--border);
+    }
+    .es-subtitle { font-size: 12.5px; font-weight: 700; color: var(--gray-text); margin: 14px 0 8px; }
+    .es-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px 14px; margin-bottom: 6px; }
+    .es-field label { display: block; font-size: 11.5px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+    .es-field input, .es-field select {
+      width: 100%; padding: 9px 10px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; font-family: inherit;
+    }
+    .es-field input:focus, .es-field select:focus { outline: none; border-color: var(--teal); }
+    .es-table-wrap { overflow-x: auto; margin-bottom: 6px; }
+    .es-table { border-collapse: collapse; width: 100%; min-width: 480px; }
+    .es-table th {
+      background: var(--light-bg); font-size: 10.5px; font-weight: 700; color: var(--gray-text);
+      text-align: left; padding: 6px 6px; border: 1px solid var(--border); white-space: nowrap;
+    }
+    .es-table td { border: 1px solid var(--border); padding: 3px; }
+    .es-table td input {
+      width: 100%; min-width: 90px; border: none; padding: 6px; font-size: 12.5px; font-family: inherit; background: transparent;
+    }
+    .es-table td input:focus { outline: 2px solid var(--teal); outline-offset: -2px; }
+    .es-total-row { display: flex; justify-content: space-between; align-items: center; background: var(--light-bg); padding: 10px 14px; border-radius: 8px; margin-top: 6px; }
+    .es-total-row span:first-child { font-size: 13px; font-weight: 700; color: var(--navy); }
+    .es-total-row span:last-child { font-size: 15px; font-weight: 800; color: var(--teal-dark); }
     .doc-section { margin-bottom: 20px; }
     .doc-section-head {
       display: flex; align-items: center; justify-content: space-between;
@@ -1429,12 +1458,6 @@
     <div class="ud-email" id="udEmail">email@example.com</div>
   </div>
   <div class="ud-body">
-    <div class="ud-item" onclick="openHistorial()">
-      <span class="ud-icon">📋</span> Mis cotizaciones
-    </div>
-    <div class="ud-item" onclick="openSolicitudesPanel()">
-      <span class="ud-icon">📨</span> Mis solicitudes
-    </div>
     <div class="ud-item" onclick="openPerfil()">
       <span class="ud-icon">👤</span> Mi perfil
     </div>
@@ -1443,6 +1466,15 @@
     </div>
     <div class="ud-item" onclick="openPerfilSection('legal')">
       <span class="ud-icon">⚖️</span> Mis antecedentes legales
+    </div>
+    <div class="ud-item" onclick="openEstadoSituacion()">
+      <span class="ud-icon">📄</span> Estado de situación de Multy
+    </div>
+    <div class="ud-item" onclick="openSolicitudesPanel()">
+      <span class="ud-icon">📨</span> Mis solicitudes
+    </div>
+    <div class="ud-item" onclick="openHistorial()">
+      <span class="ud-icon">📋</span> Mis financiamientos
     </div>
     <div class="ud-divider"></div>
     <div class="ud-item danger" onclick="signOut()">
@@ -2295,13 +2327,13 @@
 <div class="historial-overlay" id="historialOverlay" onclick="closeHistorialOutside(event)">
   <div class="historial-panel">
     <div class="historial-head">
-      <h3>📋 Mis cotizaciones</h3>
+      <h3>📋 Mis financiamientos</h3>
       <button onclick="closeHistorial()">✕</button>
     </div>
     <div class="historial-body" id="historialBody">
       <div class="hist-empty">
         <div class="hist-empty-icon">🔍</div>
-        <p>Aún no tienes cotizaciones guardadas.<br>¡Cotiza ahora y guarda tus resultados!</p>
+        <p>Aún no tienes financiamientos guardados.<br>¡Cotiza ahora y guarda tus resultados!</p>
       </div>
     </div>
   </div>
@@ -2316,6 +2348,149 @@
     </div>
     <div class="historial-body" id="solicitudesBody">
       <div class="hist-empty"><div class="hist-empty-icon">📭</div><p>Aún no tienes solicitudes enviadas.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ESTADO DE SITUACIÓN (user) -->
+<div class="historial-overlay" id="estadoSituacionOverlay" onclick="closeEstadoSituacionOutside(event)">
+  <div class="historial-panel es-panel">
+    <div class="historial-head">
+      <h3>📄 Estado de situación de Multy</h3>
+      <button onclick="closeEstadoSituacion()">✕</button>
+    </div>
+    <div class="historial-body" id="estadoSituacionBody">
+
+      <div class="es-section">
+        <div class="es-section-title">1. Antecedentes personales</div>
+        <div class="es-grid">
+          <div class="es-field"><label>Apellido paterno</label><input id="es_p_apPaterno" /></div>
+          <div class="es-field"><label>Apellido materno</label><input id="es_p_apMaterno" /></div>
+          <div class="es-field"><label>Nombres</label><input id="es_p_nombres" /></div>
+          <div class="es-field"><label>RUT</label><input id="es_p_rut" inputmode="numeric" maxlength="12" oninput="formatearRut(this)" /></div>
+          <div class="es-field"><label>Dirección particular</label><input id="es_p_dirParticular" /></div>
+          <div class="es-field"><label>Teléfono particular</label><input id="es_p_telParticular" /></div>
+          <div class="es-field"><label>Teléfono celular</label><input id="es_p_telCelular" /></div>
+          <div class="es-field"><label>Fecha de nacimiento</label><input type="date" id="es_p_fechaNacim" /></div>
+          <div class="es-field"><label>Estado civil</label>
+            <select id="es_p_estadoCivil">
+              <option value="">— Selecciona —</option>
+              <option>Soltero(a)</option><option>Casado(a)</option><option>Divorciado(a)</option><option>Viudo(a)</option>
+            </select>
+          </div>
+          <div class="es-field"><label>Separación de bienes</label>
+            <select id="es_p_sepBienes"><option value="">— Selecciona —</option><option value="si">Sí</option><option value="no">No</option></select>
+          </div>
+          <div class="es-field"><label>Nº de cargas</label><input type="text" inputmode="numeric" id="es_p_cargas" /></div>
+          <div class="es-field"><label>Nacionalidad</label><input id="es_p_nacionalidad" /></div>
+          <div class="es-field"><label>Estudios</label><input id="es_p_estudios" /></div>
+          <div class="es-field"><label>Actividad</label><input id="es_p_actividad" /></div>
+          <div class="es-field"><label>Profesión</label><input id="es_p_profesion" /></div>
+          <div class="es-field"><label>Dirección comercial</label><input id="es_p_dirComercial" /></div>
+          <div class="es-field"><label>Teléfono comercial</label><input id="es_p_telComercial" /></div>
+          <div class="es-field"><label>Correo electrónico</label><input type="email" id="es_p_correo" /></div>
+        </div>
+      </div>
+
+      <div class="es-section">
+        <div class="es-section-title">2. Antecedentes del cónyuge</div>
+        <div class="es-grid">
+          <div class="es-field"><label>Apellido paterno</label><input id="es_c_apPaterno" /></div>
+          <div class="es-field"><label>Apellido materno</label><input id="es_c_apMaterno" /></div>
+          <div class="es-field"><label>Nombres</label><input id="es_c_nombres" /></div>
+          <div class="es-field"><label>RUT</label><input id="es_c_rut" inputmode="numeric" maxlength="12" oninput="formatearRut(this)" /></div>
+          <div class="es-field"><label>Fecha de nacimiento</label><input type="date" id="es_c_fechaNacim" /></div>
+          <div class="es-field"><label>Nacionalidad</label><input id="es_c_nacionalidad" /></div>
+          <div class="es-field"><label>Actividad</label><input id="es_c_actividad" /></div>
+          <div class="es-field"><label>Profesión</label><input id="es_c_profesion" /></div>
+        </div>
+      </div>
+
+      <div class="es-section">
+        <div class="es-section-title">3. Grupo familiar</div>
+        <div class="es-table-wrap" id="es_tabla_grupoFamiliar"></div>
+      </div>
+
+      <div class="es-section">
+        <div class="es-section-title">4. Antecedentes comerciales</div>
+        <div class="es-grid">
+          <div class="es-field"><label>¿Tiene cuenta corriente?</label>
+            <select id="es_com_tieneCC"><option value="">— Selecciona —</option><option value="si">Sí</option><option value="no">No</option></select>
+          </div>
+        </div>
+        <div class="es-table-wrap" id="es_tabla_cuentas"></div>
+        <div class="es-grid" style="margin-top:10px">
+          <div class="es-field"><label>¿La empresa opera con factoring?</label>
+            <select id="es_com_operaFactoring"><option value="">— Selecciona —</option><option value="si">Sí</option><option value="no">No</option></select>
+          </div>
+        </div>
+        <div class="es-table-wrap" id="es_tabla_factoring"></div>
+      </div>
+
+      <div class="es-section">
+        <div class="es-section-title">5. Activos</div>
+        <div class="es-subtitle">5.1 Activos circulantes — Inversiones a corto plazo</div>
+        <div class="es-table-wrap" id="es_tabla_inversionesCP"></div>
+        <div class="es-subtitle">Otros activos circulantes (mercadería, cuentas por cobrar, etc.)</div>
+        <div class="es-table-wrap" id="es_tabla_otrosCirculantes"></div>
+        <div class="es-total-row"><span>Total activos circulantes</span><span id="es_total_circulantes">$0</span></div>
+
+        <div class="es-subtitle">5.2 Activo fijo — Bienes raíces</div>
+        <div class="es-table-wrap" id="es_tabla_bienesRaices"></div>
+        <div class="es-subtitle">Vehículos</div>
+        <div class="es-table-wrap" id="es_tabla_vehiculos"></div>
+        <div class="es-subtitle">Otros activos fijos</div>
+        <div class="es-table-wrap" id="es_tabla_otrosFijos"></div>
+        <div class="es-total-row"><span>Total activo fijo</span><span id="es_total_fijos">$0</span></div>
+
+        <div class="es-subtitle">5.3 Otros activos</div>
+        <div class="es-table-wrap" id="es_tabla_otrosActivos"></div>
+        <div class="es-total-row"><span>Total otros activos</span><span id="es_total_otrosActivos">$0</span></div>
+
+        <div class="es-total-row" style="background:#E6FBF6"><span>TOTAL ACTIVOS</span><span id="es_total_activos">$0</span></div>
+      </div>
+
+      <div class="es-section">
+        <div class="es-section-title">6. Pasivos</div>
+        <div class="es-subtitle">6.1 Pasivos a corto plazo — Obligaciones financieras</div>
+        <div class="es-table-wrap" id="es_tabla_obligCP"></div>
+        <div class="es-subtitle">Otras obligaciones a corto plazo</div>
+        <div class="es-table-wrap" id="es_tabla_otrasObligCP"></div>
+        <div class="es-total-row"><span>Total pasivos corto plazo</span><span id="es_total_pasivoCP">$0</span></div>
+
+        <div class="es-subtitle">6.2 Pasivos a largo plazo (vencimientos a más de un año)</div>
+        <div class="es-table-wrap" id="es_tabla_pasivoLP"></div>
+        <div class="es-total-row"><span>Total pasivos largo plazo</span><span id="es_total_pasivoLP">$0</span></div>
+
+        <div class="es-total-row" style="background:#FEF2F2"><span>TOTAL PASIVOS</span><span id="es_total_pasivos">$0</span></div>
+      </div>
+
+      <div class="es-section">
+        <div class="es-section-title">7. Patrimonio</div>
+        <div class="es-total-row"><span>Total activos</span><span id="es_patrim_activos">$0</span></div>
+        <div class="es-total-row"><span>Total pasivos</span><span id="es_patrim_pasivos">$0</span></div>
+        <div class="es-total-row" style="background:#E6FBF6"><span>TOTAL PATRIMONIO NETO</span><span id="es_patrim_neto">$0</span></div>
+      </div>
+
+      <div class="es-section">
+        <div class="es-section-title">8. Participación en sociedades</div>
+        <div class="es-table-wrap" id="es_tabla_participacion"></div>
+      </div>
+
+      <div class="es-section">
+        <div class="es-section-title">Declaración</div>
+        <label style="display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--gray-text);line-height:1.5;margin-bottom:14px">
+          <input type="checkbox" id="es_declaracion" style="margin-top:3px" />
+          Declaro bajo juramento que todos y cada uno de los datos e informaciones contenidas en el presente Estado de Situación son la expresión fiel de la verdad, asumiendo la responsabilidad legal correspondiente.
+        </label>
+        <div class="es-grid">
+          <div class="es-field"><label>Firma (nombre completo)</label><input id="es_firma" /></div>
+          <div class="es-field"><label>C.I. Nº</label><input id="es_firmaCi" inputmode="numeric" maxlength="12" oninput="formatearRut(this)" /></div>
+        </div>
+      </div>
+
+      <div id="estadoSituacionMsg" class="auth-msg" style="min-height:18px"></div>
+      <button id="btnGuardarEstadoSituacion" class="btn-select" style="width:100%;margin-top:8px;padding:13px" onclick="guardarEstadoSituacion()">Guardar estado de situación</button>
     </div>
   </div>
 </div>
@@ -3771,6 +3946,193 @@
       if (navAvatar) navAvatar.innerHTML = (nombre || currentUser.email)[0].toUpperCase() + '<div class="notif-dot"></div>';
     }
     btn.disabled = false; btn.textContent = 'Guardar cambios';
+  }
+
+  // ===== ESTADO DE SITUACIÓN =====
+  const ES_TABLAS = {
+    grupoFamiliar:   { cont: 'es_tabla_grupoFamiliar',   filas: 6, cols: [{k:'nombre',l:'Nombre'},{k:'parentesco',l:'Parentesco'},{k:'edad',l:'Edad'},{k:'actividad',l:'Actividad'}] },
+    cuentas:         { cont: 'es_tabla_cuentas',         filas: 5, cols: [{k:'banco',l:'Banco'},{k:'sucursal',l:'Sucursal'},{k:'numCuenta',l:'Nº cuenta'},{k:'saldo',l:'Saldo',monto:true},{k:'lineaCredito',l:'Línea de crédito',monto:true}] },
+    factoring:       { cont: 'es_tabla_factoring',       filas: 5, cols: [{k:'factoring',l:'Factoring'},{k:'sucursal',l:'Sucursal'},{k:'lineaCredito',l:'Línea de crédito',monto:true},{k:'utilizado',l:'Utilizado',monto:true}] },
+    inversionesCP:   { cont: 'es_tabla_inversionesCP',   filas: 5, cols: [{k:'tipoDocumento',l:'Tipo de documento'},{k:'empresaEmisora',l:'Empresa emisora'},{k:'valor',l:'Valor comercial',monto:true}] },
+    otrosCirculantes:{ cont: 'es_tabla_otrosCirculantes',filas: 5, cols: [{k:'tipo',l:'Tipo'},{k:'valor',l:'Valor comercial',monto:true}] },
+    bienesRaices:    { cont: 'es_tabla_bienesRaices',    filas: 5, cols: [{k:'tipoPropiedad',l:'Tipo propiedad'},{k:'rol',l:'Rol'},{k:'ubicacion',l:'Ubicación'},{k:'avaluoFiscal',l:'Avalúo fiscal',monto:true},{k:'valor',l:'Valor comercial',monto:true}] },
+    vehiculos:       { cont: 'es_tabla_vehiculos',       filas: 5, cols: [{k:'vehiculo',l:'Vehículo'},{k:'marca',l:'Marca'},{k:'tipoModelo',l:'Tipo-Modelo'},{k:'anio',l:'Año'},{k:'valor',l:'Valor comercial',monto:true}] },
+    otrosFijos:      { cont: 'es_tabla_otrosFijos',      filas: 5, cols: [{k:'tipo',l:'Tipo'},{k:'valor',l:'Valor comercial',monto:true}] },
+    otrosActivos:    { cont: 'es_tabla_otrosActivos',    filas: 5, cols: [{k:'tipo',l:'Tipo'},{k:'valor',l:'Valor comercial',monto:true}] },
+    obligCP:         { cont: 'es_tabla_obligCP',         filas: 5, cols: [{k:'institucion',l:'Institución'},{k:'moneda',l:'Moneda'},{k:'vencimiento',l:'Vencimiento'},{k:'valor',l:'Valor',monto:true}] },
+    otrasObligCP:    { cont: 'es_tabla_otrasObligCP',    filas: 5, cols: [{k:'tipo',l:'Tipo'},{k:'moneda',l:'Moneda'},{k:'vencimiento',l:'Vencimiento'},{k:'valor',l:'Valor',monto:true}] },
+    pasivoLP:        { cont: 'es_tabla_pasivoLP',        filas: 5, cols: [{k:'institucion',l:'Institución'},{k:'tipo',l:'Tipo'},{k:'moneda',l:'Moneda'},{k:'vencimiento',l:'Vencimiento'},{k:'valor',l:'Valor',monto:true}] },
+    participacion:   { cont: 'es_tabla_participacion',   filas: 5, cols: [{k:'razonSocial',l:'Razón social'},{k:'rut',l:'RUT'},{k:'pct',l:'% participación'},{k:'valor',l:'Valor',monto:true}] },
+  };
+
+  function esRenderTablas() {
+    Object.entries(ES_TABLAS).forEach(([key, t]) => {
+      const cont = document.getElementById(t.cont);
+      if (!cont || cont.dataset.built) return;
+      let html = '<table class="es-table"><thead><tr>' + t.cols.map(c => `<th>${c.l}</th>`).join('') + '</tr></thead><tbody>';
+      for (let i = 0; i < t.filas; i++) {
+        html += '<tr>' + t.cols.map(c => {
+          const id = `es_${key}_${i}_${c.k}`;
+          return c.monto
+            ? `<td><input type="text" inputmode="numeric" id="${id}" oninput="formatearMonto(this);esCalcularTotales();" /></td>`
+            : `<td><input type="text" id="${id}" /></td>`;
+        }).join('') + '</tr>';
+      }
+      html += '</tbody></table>';
+      cont.innerHTML = html;
+      cont.dataset.built = '1';
+    });
+  }
+
+  function esLeerTabla(key) {
+    const t = ES_TABLAS[key];
+    const filas = [];
+    for (let i = 0; i < t.filas; i++) {
+      const fila = {};
+      let tieneValor = false;
+      t.cols.forEach(c => {
+        const el = document.getElementById(`es_${key}_${i}_${c.k}`);
+        const v = el ? el.value.trim() : '';
+        if (v) tieneValor = true;
+        fila[c.k] = v;
+      });
+      if (tieneValor) filas.push(fila);
+    }
+    return filas;
+  }
+
+  function esPoblarTabla(key, datos) {
+    const t = ES_TABLAS[key];
+    (datos || []).forEach((fila, i) => {
+      if (i >= t.filas) return;
+      t.cols.forEach(c => {
+        const el = document.getElementById(`es_${key}_${i}_${c.k}`);
+        if (el) el.value = fila[c.k] || '';
+      });
+    });
+  }
+
+  function esMonto(val) { return parseInt(String(val || '0').replace(/\D/g, '')) || 0; }
+
+  function esSumaColumna(key, col) {
+    const t = ES_TABLAS[key];
+    let suma = 0;
+    for (let i = 0; i < t.filas; i++) {
+      const el = document.getElementById(`es_${key}_${i}_${col}`);
+      if (el) suma += esMonto(el.value);
+    }
+    return suma;
+  }
+
+  function esFmt(n) { return '$' + n.toLocaleString('es-CL'); }
+
+  function esCalcularTotales() {
+    const totalCirculantes  = esSumaColumna('inversionesCP','valor') + esSumaColumna('otrosCirculantes','valor');
+    const totalFijos        = esSumaColumna('bienesRaices','valor') + esSumaColumna('vehiculos','valor') + esSumaColumna('otrosFijos','valor');
+    const totalOtrosActivos = esSumaColumna('otrosActivos','valor');
+    const totalActivos      = totalCirculantes + totalFijos + totalOtrosActivos;
+
+    const totalPasivoCP = esSumaColumna('obligCP','valor') + esSumaColumna('otrasObligCP','valor');
+    const totalPasivoLP = esSumaColumna('pasivoLP','valor');
+    const totalPasivos  = totalPasivoCP + totalPasivoLP;
+
+    document.getElementById('es_total_circulantes').textContent  = esFmt(totalCirculantes);
+    document.getElementById('es_total_fijos').textContent        = esFmt(totalFijos);
+    document.getElementById('es_total_otrosActivos').textContent = esFmt(totalOtrosActivos);
+    document.getElementById('es_total_activos').textContent      = esFmt(totalActivos);
+    document.getElementById('es_total_pasivoCP').textContent     = esFmt(totalPasivoCP);
+    document.getElementById('es_total_pasivoLP').textContent     = esFmt(totalPasivoLP);
+    document.getElementById('es_total_pasivos').textContent      = esFmt(totalPasivos);
+    document.getElementById('es_patrim_activos').textContent     = esFmt(totalActivos);
+    document.getElementById('es_patrim_pasivos').textContent     = esFmt(totalPasivos);
+    document.getElementById('es_patrim_neto').textContent        = esFmt(totalActivos - totalPasivos);
+
+    return { totalCirculantes, totalFijos, totalOtrosActivos, totalActivos, totalPasivoCP, totalPasivoLP, totalPasivos };
+  }
+
+  async function openEstadoSituacion() {
+    document.getElementById('userDropdown').classList.remove('open');
+    if (!currentUser) return;
+    esRenderTablas();
+    document.getElementById('estadoSituacionMsg').textContent = '';
+    document.getElementById('estadoSituacionOverlay').classList.add('open');
+
+    const { data } = await sb.from('estado_situacion').select('data').eq('user_id', currentUser.id).maybeSingle();
+    const d = data?.data || {};
+
+    const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+    const p = d.personales || {};
+    setVal('es_p_apPaterno', p.apPaterno); setVal('es_p_apMaterno', p.apMaterno); setVal('es_p_nombres', p.nombres);
+    setVal('es_p_rut', p.rut); setVal('es_p_dirParticular', p.dirParticular);
+    setVal('es_p_telParticular', p.telParticular); setVal('es_p_telCelular', p.telCelular);
+    setVal('es_p_fechaNacim', p.fechaNacim); setVal('es_p_estadoCivil', p.estadoCivil); setVal('es_p_sepBienes', p.sepBienes);
+    setVal('es_p_cargas', p.cargas); setVal('es_p_nacionalidad', p.nacionalidad); setVal('es_p_estudios', p.estudios);
+    setVal('es_p_actividad', p.actividad); setVal('es_p_profesion', p.profesion);
+    setVal('es_p_dirComercial', p.dirComercial); setVal('es_p_telComercial', p.telComercial); setVal('es_p_correo', p.correo);
+
+    const c = d.conyuge || {};
+    setVal('es_c_apPaterno', c.apPaterno); setVal('es_c_apMaterno', c.apMaterno); setVal('es_c_nombres', c.nombres);
+    setVal('es_c_rut', c.rut); setVal('es_c_fechaNacim', c.fechaNacim); setVal('es_c_nacionalidad', c.nacionalidad);
+    setVal('es_c_actividad', c.actividad); setVal('es_c_profesion', c.profesion);
+
+    const com = d.comerciales || {};
+    setVal('es_com_tieneCC', com.tieneCC); setVal('es_com_operaFactoring', com.operaFactoring);
+
+    Object.keys(ES_TABLAS).forEach(key => esPoblarTabla(key, d[key]));
+
+    const dec = d.declaracion || {};
+    document.getElementById('es_declaracion').checked = !!dec.aceptada;
+    setVal('es_firma', dec.firma); setVal('es_firmaCi', dec.ci);
+
+    esCalcularTotales();
+  }
+
+  function closeEstadoSituacion() {
+    document.getElementById('estadoSituacionOverlay').classList.remove('open');
+  }
+  function closeEstadoSituacionOutside(e) {
+    if (e.target === document.getElementById('estadoSituacionOverlay')) closeEstadoSituacion();
+  }
+
+  async function guardarEstadoSituacion() {
+    const btn = document.getElementById('btnGuardarEstadoSituacion');
+    const msg = document.getElementById('estadoSituacionMsg');
+    const val = id => document.getElementById(id)?.value.trim() || '';
+
+    const totales = esCalcularTotales();
+
+    const data = {
+      personales: {
+        apPaterno: val('es_p_apPaterno'), apMaterno: val('es_p_apMaterno'), nombres: val('es_p_nombres'),
+        rut: val('es_p_rut'), dirParticular: val('es_p_dirParticular'),
+        telParticular: val('es_p_telParticular'), telCelular: val('es_p_telCelular'),
+        fechaNacim: val('es_p_fechaNacim'), estadoCivil: val('es_p_estadoCivil'), sepBienes: val('es_p_sepBienes'),
+        cargas: val('es_p_cargas'), nacionalidad: val('es_p_nacionalidad'), estudios: val('es_p_estudios'),
+        actividad: val('es_p_actividad'), profesion: val('es_p_profesion'),
+        dirComercial: val('es_p_dirComercial'), telComercial: val('es_p_telComercial'), correo: val('es_p_correo'),
+      },
+      conyuge: {
+        apPaterno: val('es_c_apPaterno'), apMaterno: val('es_c_apMaterno'), nombres: val('es_c_nombres'),
+        rut: val('es_c_rut'), fechaNacim: val('es_c_fechaNacim'), nacionalidad: val('es_c_nacionalidad'),
+        actividad: val('es_c_actividad'), profesion: val('es_c_profesion'),
+      },
+      comerciales: { tieneCC: val('es_com_tieneCC'), operaFactoring: val('es_com_operaFactoring') },
+      declaracion: { aceptada: document.getElementById('es_declaracion').checked, firma: val('es_firma'), ci: val('es_firmaCi') },
+      totales,
+    };
+    Object.keys(ES_TABLAS).forEach(key => { data[key] = esLeerTabla(key); });
+
+    btn.disabled = true; btn.textContent = 'Guardando...';
+    const { error } = await sb.from('estado_situacion').upsert(
+      { user_id: currentUser.id, data, updated_at: new Date().toISOString() },
+      { onConflict: 'user_id' }
+    );
+    if (error) {
+      msg.className = 'auth-msg error'; msg.textContent = 'Error al guardar. Intenta de nuevo.';
+    } else {
+      msg.className = 'auth-msg success'; msg.textContent = '¡Estado de situación guardado correctamente!';
+    }
+    btn.disabled = false; btn.textContent = 'Guardar estado de situación';
   }
 
   // ── DOCUMENTOS (info financiera / antecedentes legales) ──
