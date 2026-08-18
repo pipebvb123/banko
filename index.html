@@ -2246,14 +2246,6 @@
           <label>Correo electrónico</label>
           <input type="email" id="perfilEmail" disabled style="background:var(--light-bg);color:var(--gray-text);cursor:not-allowed" />
         </div>
-        <div class="auth-field">
-          <label>Inicio de actividades</label>
-          <select class="form-select" id="perfilInicioActividades">
-            <option value="">— Selecciona —</option>
-            <option value="si">Sí</option>
-            <option value="no">No</option>
-          </select>
-        </div>
       </div>
 
       <button class="auth-btn-submit" id="btnGuardarPerfil" onclick="guardarPerfil()" style="margin-top:24px">
@@ -3412,7 +3404,6 @@
     if (!meta.full_name)          faltantes.push('Mi perfil (nombre completo)');
     if (!meta.rut)                faltantes.push('Mi perfil (RUT)');
     if (!meta.telefono)           faltantes.push('Mi perfil (teléfono)');
-    if (!meta.inicio_actividades) faltantes.push('Inicio de actividades');
 
     const [{ data: docsFinanciera }, { data: docsLegal }] = await Promise.all([
       sb.storage.from(DOCS_BUCKET).list(`${currentUser.id}/financiera`),
@@ -3759,7 +3750,6 @@
     document.getElementById('perfilRut').value       = meta.rut         || '';
     document.getElementById('perfilTelefono').value  = meta.telefono    || '';
     document.getElementById('perfilEmail').value     = currentUser.email;
-    document.getElementById('perfilInicioActividades').value = meta.inicio_actividades || '';
     document.getElementById('perfilMsg').textContent = '';
     document.getElementById('perfilOverlay').classList.add('open');
     loadDocs('financiera');
@@ -3783,10 +3773,9 @@
     const nombre   = document.getElementById('perfilNombre').value.trim();
     const rut      = document.getElementById('perfilRut').value.trim();
     const telefono = document.getElementById('perfilTelefono').value.trim();
-    const inicioActividades = document.getElementById('perfilInicioActividades').value.trim();
     btn.disabled = true; btn.textContent = 'Guardando...';
     const { error } = await sb.auth.updateUser({
-      data: { full_name: nombre, rut, telefono, inicio_actividades: inicioActividades }
+      data: { full_name: nombre, rut, telefono }
     });
     if (error) {
       msg.className = 'auth-msg error'; msg.textContent = 'Error al guardar. Intenta de nuevo.';
