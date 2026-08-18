@@ -2525,17 +2525,7 @@
       if (key && key !== 'todos') b.textContent = filterLabels[key] || FILTER_LABELS_DEFAULT[key];
     });
     document.querySelector('.filter-btn').classList.add('active');
-    await cargarSolicitudesEnviadas();
     renderCards(resultadosPorCategoria[tipo] || resultadosPorCategoria.factoring);
-  }
-
-  // Solicitudes ya enviadas por el usuario, para marcar el estado por producto/institución (no solo global)
-  let solicitudesEnviadasSet = new Set();
-
-  async function cargarSolicitudesEnviadas() {
-    if (!currentUser) { solicitudesEnviadasSet = new Set(); return; }
-    const { data } = await sb.from('solicitudes').select('tipo,empresa').eq('user_id', currentUser.id);
-    solicitudesEnviadasSet = new Set((data || []).map(s => s.tipo + '|' + s.empresa));
   }
 
   function renderCards(items) {
@@ -2546,7 +2536,6 @@
       return;
     }
     container.innerHTML = items.map(r => {
-      const yaEnviada = solicitudesEnviadasSet.has(currentTipo + '|' + r.nombre);
       return `
       <div class="result-card${r.mejor ? ' best-pick' : ''}">
         ${r.mejor ? '<div class="best-label">⭐ Mejor elección</div>' : ''}
@@ -2581,9 +2570,6 @@
           <div class="price-label">${labels.valueLabel}</div>
           <div class="price-value" style="font-size:22px">${r.tasa}</div>
           <div class="price-period">${labels.valuePeriod}</div>
-          ${yaEnviada ? `
-          <button class="btn-select" disabled style="background:#d1fae5;color:#065f46;cursor:default;opacity:1">✓ Solicitud enviada</button>
-          ` : `
           <button class="btn-select"
             onclick="abrirSolicitud(this)"
             data-empresa="${r.nombre.replace(/"/g,'&quot;')}"
@@ -2601,7 +2587,6 @@
             style="width:100%;margin-top:6px;padding:7px;border:2px solid var(--border);border-radius:8px;background:#fff;color:var(--navy);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s">
             ☐ Seleccionar
           </button>
-          `}
         </div>
       </div>
     `;
@@ -3498,7 +3483,6 @@
   }
 
   async function procesarSolicitudEnviada(tipo, empresa, plan, tasa, solicitudId, cliente) {
-    solicitudesEnviadasSet.add(tipo + '|' + empresa);
     const activeFilterBtn = document.querySelector('.filter-btn.active');
     if (activeFilterBtn) setFilter(activeFilterBtn);
     try {
