@@ -1060,22 +1060,68 @@
     }
     .btn-select:hover { opacity: 0.9; transform: translateY(-1px); }
 
-    /* ===== WHATSAPP FLOAT ===== */
-    .whatsapp-float {
+    /* ===== CHATBOT ===== */
+    .chat-float {
       position: fixed;
       bottom: 28px; right: 28px;
       width: 58px; height: 58px;
-      background: #25D366;
+      background: linear-gradient(135deg, var(--teal), var(--sky));
+      border: none;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 28px;
-      box-shadow: 0 8px 24px rgba(37,211,102,0.5);
+      font-size: 26px;
+      box-shadow: 0 8px 24px rgba(0,201,167,0.5);
       cursor: pointer;
-      z-index: 999;
+      z-index: 2800;
       transition: 0.2s;
-      text-decoration: none;
     }
-    .whatsapp-float:hover { transform: scale(1.1); }
+    .chat-float:hover { transform: scale(1.1); }
+    .chat-float-dot {
+      position: absolute; top: 2px; right: 2px;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: #FF6B35; border: 2px solid #fff;
+    }
+    .chatbot-panel {
+      position: fixed;
+      bottom: 100px; right: 28px;
+      width: 360px; max-width: calc(100vw - 32px);
+      height: 500px; max-height: calc(100vh - 140px);
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 24px 64px rgba(15,23,42,0.25);
+      z-index: 2900;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      opacity: 0; transform: translateY(16px) scale(0.97);
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(.22,1,.36,1);
+    }
+    .chatbot-panel.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+    .chatbot-head {
+      background: linear-gradient(135deg,var(--navy),var(--navy-mid));
+      color: #fff; padding: 16px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .chatbot-head-title { font-size: 15px; font-weight: 800; }
+    .chatbot-head-sub { font-size: 11.5px; color: rgba(255,255,255,0.65); margin-top: 2px; }
+    .chatbot-head button { background: rgba(255,255,255,0.15); border: none; color: #fff; width:28px; height:28px; border-radius:50%; font-size:15px; cursor:pointer; }
+    .chatbot-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; background: var(--light-bg); }
+    .chat-msg { max-width: 82%; padding: 10px 13px; border-radius: 14px; font-size: 13.5px; line-height: 1.5; }
+    .chat-msg.bot { align-self: flex-start; background: #fff; color: var(--navy); border-bottom-left-radius: 4px; box-shadow: 0 1px 4px rgba(15,23,42,0.08); }
+    .chat-msg.user { align-self: flex-end; background: linear-gradient(135deg, var(--teal), var(--sky)); color: var(--navy); font-weight: 600; border-bottom-right-radius: 4px; }
+    .chatbot-quick { padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 8px; border-top: 1px solid var(--border); flex-shrink: 0; }
+    .chat-quick-btn {
+      padding: 8px 13px; border-radius: 20px; border: 1.5px solid var(--teal);
+      background: rgba(0,201,167,0.08); color: var(--teal-dark);
+      font-size: 12.5px; font-weight: 700; cursor: pointer; transition: 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+    .chat-quick-btn:hover { background: var(--teal); color: #fff; }
+    @media (max-width: 480px) {
+      .chatbot-panel { right: 16px; bottom: 90px; width: calc(100vw - 32px); }
+      .chat-float { right: 16px; bottom: 20px; }
+    }
 
     /* ===== LOADING ===== */
     .loading-screen {
@@ -2558,8 +2604,21 @@
   </div>
 </div>
 
-<!-- WHATSAPP FLOAT -->
-<a class="whatsapp-float" href="https://wa.me/56900000000" target="_blank" title="Hablar por WhatsApp">💬</a>
+<!-- CHATBOT -->
+<button class="chat-float" onclick="toggleChatBot()" title="Chatea con Multy">
+  💬<span class="chat-float-dot"></span>
+</button>
+<div class="chatbot-panel" id="chatbotPanel">
+  <div class="chatbot-head">
+    <div>
+      <div class="chatbot-head-title">Asistente Multy</div>
+      <div class="chatbot-head-sub">🟢 En línea</div>
+    </div>
+    <button onclick="toggleChatBot()">✕</button>
+  </div>
+  <div class="chatbot-body" id="chatbotBody"></div>
+  <div class="chatbot-quick" id="chatbotQuick"></div>
+</div>
 
 <!-- LOADING SCREEN -->
 <div class="loading-screen" id="loadingScreen">
@@ -2784,6 +2843,102 @@
   // --- Hamburger menu ---
   function toggleMenu() {
     document.getElementById('navLinks').classList.toggle('mobile-open');
+  }
+
+  // ===== CHATBOT =====
+  const CHAT_TOPICS = {
+    factoring: {
+      pregunta: '¿Qué es el Factoring?',
+      respuesta: 'El Factoring te permite anticipar el cobro de tus facturas para mejorar tu flujo de caja sin endeudarte. Cobras hoy y sigues operando con normalidad.',
+    },
+    leasing: {
+      pregunta: '¿Qué es el Leasing?',
+      respuesta: 'El Leasing te permite financiar vehículos, maquinaria o equipos con cuotas fijas y beneficios tributarios, sin desembolsar el valor completo al inicio.',
+    },
+    capital: {
+      pregunta: '¿Qué es el Capital de Trabajo?',
+      respuesta: 'Es financiamiento para cubrir gastos operativos (insumos, sueldos, inventario) y mantener tu negocio funcionando mientras creces.',
+    },
+    credito: {
+      pregunta: '¿Qué son los Créditos?',
+      respuesta: 'Son préstamos directos para tu empresa: Comercial, con Garantía, Fogape, Microempresa, Ventas Futuras o Adquisición.',
+    },
+    como: {
+      pregunta: '¿Cómo funciona Multy?',
+      respuesta: 'Es simple: 1) Ingresas los datos de tu empresa (2 min). 2) Comparamos automáticamente entre +20 instituciones. 3) Te contactamos con las mejores opciones para ti.',
+    },
+    docs: {
+      pregunta: '¿Qué documentos necesito?',
+      respuesta: 'Normalmente tu información financiera básica y los antecedentes legales de tu empresa. Puedes subirlos cuando quieras desde "Mi perfil" en tu cuenta.',
+    },
+    seguridad: {
+      pregunta: '¿Mis datos están seguros?',
+      respuesta: 'Sí, 100% seguro. Tus datos solo se comparten con las instituciones que tú autorizas — nunca se publican ni se venden a terceros.',
+    },
+    cotizar: {
+      pregunta: 'Quiero cotizar ahora',
+      respuesta: '¡Perfecto! Te llevo al formulario para que cotices gratis en 2 minutos 🚀',
+      accion: () => {
+        toggleChatBot();
+        document.getElementById('inicio')?.scrollIntoView({ behavior: 'smooth' });
+      },
+    },
+  };
+  const CHAT_MENU_RAIZ = ['factoring', 'leasing', 'capital', 'credito', 'como', 'docs', 'seguridad', 'cotizar'];
+  let chatIniciado = false;
+
+  function toggleChatBot() {
+    const panel = document.getElementById('chatbotPanel');
+    const abriendo = !panel.classList.contains('open');
+    panel.classList.toggle('open');
+    if (abriendo && !chatIniciado) {
+      chatIniciado = true;
+      chatAgregarMensaje('bot', '¡Hola! 👋 Soy el asistente de Multy. ¿En qué te puedo ayudar?');
+      chatMostrarOpciones(CHAT_MENU_RAIZ);
+    }
+  }
+
+  function chatAgregarMensaje(tipo, texto) {
+    const body = document.getElementById('chatbotBody');
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + tipo;
+    div.textContent = texto;
+    body.appendChild(div);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function chatMostrarOpciones(ids) {
+    const quick = document.getElementById('chatbotQuick');
+    quick.innerHTML = '';
+    ids.forEach(id => {
+      const t = CHAT_TOPICS[id];
+      const btn = document.createElement('button');
+      btn.className = 'chat-quick-btn';
+      btn.textContent = t.pregunta;
+      btn.onclick = () => chatSeleccionar(id);
+      quick.appendChild(btn);
+    });
+    if (ids !== CHAT_MENU_RAIZ) {
+      const volver = document.createElement('button');
+      volver.className = 'chat-quick-btn';
+      volver.textContent = '⬅ Volver al menú';
+      volver.onclick = () => {
+        chatAgregarMensaje('bot', '¿Algo más en lo que te pueda ayudar?');
+        chatMostrarOpciones(CHAT_MENU_RAIZ);
+      };
+      quick.appendChild(volver);
+    }
+  }
+
+  function chatSeleccionar(id) {
+    const t = CHAT_TOPICS[id];
+    chatAgregarMensaje('user', t.pregunta);
+    document.getElementById('chatbotQuick').innerHTML = '';
+    setTimeout(() => {
+      chatAgregarMensaje('bot', t.respuesta);
+      if (t.accion) { t.accion(); return; }
+      chatMostrarOpciones(CHAT_MENU_RAIZ.filter(x => x !== id));
+    }, 450);
   }
 
   // ── EMPRESAS FINANCIERAS ──
