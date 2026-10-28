@@ -869,7 +869,7 @@
     }
     .footer-grid {
       display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr;
+      grid-template-columns: 2fr 1fr 1fr;
       gap: 40px;
       margin-bottom: 48px;
     }
@@ -1883,7 +1883,7 @@
       </div>
 
       <button class="btn-compare" onclick="startComparison()">
-        Ver y encontrar opciones →
+        Encontrar opciones →
       </button>
       <div id="formError" style="display:none;color:#ef4444;font-size:13px;text-align:center;margin-top:8px;font-weight:600">
         ⚠ Por favor completa todos los campos obligatorios antes de continuar.
@@ -2199,16 +2199,6 @@
         </div>
       </div>
       <div class="footer-col">
-        <h4>Soluciones</h4>
-        <ul>
-          <li><a href="#">Factoring</a></li>
-          <li><a href="#">Leasing</a></li>
-          <li><a href="#">Capital de Trabajo</a></li>
-          <li><a href="#">Créditos</a></li>
-          <li><a href="#">Crédito Hipotecario</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
         <h4>Factoring</h4>
         <ul>
           <li><a href="#" onclick="event.preventDefault(); openDirPanel('no-bancario')">No bancario</a></li>
@@ -2304,7 +2294,10 @@
   <div class="historial-panel">
     <div class="historial-head">
       <h3>👤 Mi perfil</h3>
-      <button onclick="closePerfil()">✕</button>
+      <div style="display:flex;gap:8px">
+        <button onclick="volverMenuPerfil(closePerfil)" title="Volver">←</button>
+        <button onclick="closePerfil()">✕</button>
+      </div>
     </div>
     <div class="historial-body" style="padding:28px">
 
@@ -2384,7 +2377,10 @@
   <div class="historial-panel">
     <div class="historial-head">
       <h3>📋 Mis financiamientos</h3>
-      <button onclick="closeHistorial()">✕</button>
+      <div style="display:flex;gap:8px">
+        <button onclick="volverMenuPerfil(closeHistorial)" title="Volver">←</button>
+        <button onclick="closeHistorial()">✕</button>
+      </div>
     </div>
     <div class="historial-body" id="historialBody">
       <div class="hist-empty">
@@ -2400,7 +2396,10 @@
   <div class="historial-panel">
     <div class="historial-head">
       <h3>📨 Mis solicitudes</h3>
-      <button onclick="closeSolicitudesPanel()">✕</button>
+      <div style="display:flex;gap:8px">
+        <button onclick="volverMenuPerfil(closeSolicitudesPanel)" title="Volver">←</button>
+        <button onclick="closeSolicitudesPanel()">✕</button>
+      </div>
     </div>
     <div class="historial-body" id="solicitudesBody">
       <div class="hist-empty"><div class="hist-empty-icon">📭</div><p>Aún no tienes solicitudes enviadas.</p></div>
@@ -2413,7 +2412,10 @@
   <div class="historial-panel es-panel">
     <div class="historial-head">
       <h3>📄 Estado de situación de Multy</h3>
-      <button onclick="closeEstadoSituacion()">✕</button>
+      <div style="display:flex;gap:8px">
+        <button onclick="volverMenuPerfil(closeEstadoSituacion)" title="Volver">←</button>
+        <button onclick="closeEstadoSituacion()">✕</button>
+      </div>
     </div>
     <div class="historial-body" id="estadoSituacionBody">
 
@@ -3439,6 +3441,13 @@
 
   function toggleDropdown() {
     document.getElementById('userDropdown').classList.toggle('open');
+  }
+
+  // Botón "volver" de los paneles del perfil: cierra el panel actual y
+  // vuelve a abrir el menú de usuario para elegir otra opción.
+  function volverMenuPerfil(cerrarFn) {
+    cerrarFn();
+    document.getElementById('userDropdown').classList.add('open');
   }
   document.addEventListener('click', (e) => {
     const dd = document.getElementById('userDropdown');
