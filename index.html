@@ -2295,7 +2295,7 @@
     <div class="historial-head">
       <h3>👤 Mi perfil</h3>
       <div style="display:flex;gap:8px">
-        <button onclick="volverMenuPerfil(closePerfil)" title="Volver">←</button>
+        <button onclick="event.stopPropagation(); volverMenuPerfil(closePerfil)" title="Volver">←</button>
         <button onclick="closePerfil()">✕</button>
       </div>
     </div>
@@ -2378,7 +2378,7 @@
     <div class="historial-head">
       <h3>📋 Mis financiamientos</h3>
       <div style="display:flex;gap:8px">
-        <button onclick="volverMenuPerfil(closeHistorial)" title="Volver">←</button>
+        <button onclick="event.stopPropagation(); volverMenuPerfil(closeHistorial)" title="Volver">←</button>
         <button onclick="closeHistorial()">✕</button>
       </div>
     </div>
@@ -2397,7 +2397,7 @@
     <div class="historial-head">
       <h3>📨 Mis solicitudes</h3>
       <div style="display:flex;gap:8px">
-        <button onclick="volverMenuPerfil(closeSolicitudesPanel)" title="Volver">←</button>
+        <button onclick="event.stopPropagation(); volverMenuPerfil(closeSolicitudesPanel)" title="Volver">←</button>
         <button onclick="closeSolicitudesPanel()">✕</button>
       </div>
     </div>
@@ -2413,7 +2413,7 @@
     <div class="historial-head">
       <h3>📄 Estado de situación de Multy</h3>
       <div style="display:flex;gap:8px">
-        <button onclick="volverMenuPerfil(closeEstadoSituacion)" title="Volver">←</button>
+        <button onclick="event.stopPropagation(); volverMenuPerfil(closeEstadoSituacion)" title="Volver">←</button>
         <button onclick="closeEstadoSituacion()">✕</button>
       </div>
     </div>
