@@ -1551,6 +1551,16 @@
       <p>Factoring, leasing, créditos y capital de trabajo en un solo lugar. Encuentra la mejor opción hoy.</p>
       <div class="hero-stats">
         <div class="stat">
+          <div class="stat-num">+15</div>
+          <div class="stat-label">Instituciones</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <div class="stat-num">40%</div>
+          <div class="stat-label">Ahorro máx.</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
           <div class="stat-num">24hrs</div>
           <div class="stat-label">Para decidir</div>
         </div>
@@ -3343,7 +3353,9 @@
     entries.forEach(entry => {
       if (!entry.isIntersecting) return;
       const nums = entry.target.querySelectorAll('.stat-num');
-      if (nums[0]) animateCounter(nums[0], 24, 'hrs');
+      if (nums[0]) animateCounter(nums[0], 20, '');
+      if (nums[1]) animateCounter(nums[1], 40, '%');
+      if (nums[2]) animateCounter(nums[2], 24, 'hrs');
       counterObserver.unobserve(entry.target);
     });
   }, { threshold: 0.5 });
