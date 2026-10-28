@@ -1032,6 +1032,11 @@
     .feat-chip.green { background: rgba(0,201,167,0.1); color: var(--teal-dark); }
     .feat-chip.blue { background: rgba(0,180,216,0.1); color: #007A8C; }
     .feat-chip.orange { background: rgba(255,107,53,0.1); color: var(--orange-dark); }
+    .result-condiciones {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 3px 12px;
+      margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border);
+      font-size: 11px; color: var(--gray-text); line-height: 1.5;
+    }
     .result-deductible { text-align: center; }
     .deductible-label { font-size: 11px; color: var(--gray-text); margin-bottom: 4px; }
     .deductible-value { font-size: 16px; font-weight: 800; color: var(--navy); }
@@ -1122,8 +1127,11 @@
       .visual-card-stack { display: none; }
       .testimonials-grid { grid-template-columns: 1fr; }
       .footer-grid { grid-template-columns: 1fr 1fr; }
-      .result-card { grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; }
-      .result-insurer { display: flex; gap: 10px; align-items: center; }
+      .result-card { grid-template-columns: 1fr; grid-template-rows: auto; padding: 18px; gap: 14px; }
+      .result-insurer { width: auto; display: flex; gap: 10px; align-items: center; }
+      .result-deductible, .result-price { text-align: left; }
+      .result-price .btn-sel-multi { width: 100% !important; }
+      .result-condiciones { grid-template-columns: 1fr; }
       .products-grid { grid-template-columns: repeat(2, 1fr); }
       .product-tabs { grid-template-columns: repeat(2, 1fr); }
       .form-row { grid-template-columns: 1fr; }
@@ -1133,6 +1141,8 @@
       .products-grid { grid-template-columns: 1fr; }
       .footer-grid { grid-template-columns: 1fr; }
       .modal { padding: 24px; }
+      .quote-card { padding: 20px; }
+      .insurer-logo-box { width: auto; padding: 0 8px; }
     }
 
     /* ===== AUTH SYSTEM ===== */
@@ -2724,7 +2734,7 @@
             ${r.chips.map((c,j) => `<span class="feat-chip ${j===0?'green':j===1?'blue':'orange'}">${c}</span>`).join('')}
           </div>
           ${currentTipo === 'factoring' && r.tipoDeudor ? `
-          <div class="result-condiciones" style="display:grid;grid-template-columns:1fr 1fr;gap:3px 12px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);font-size:11px;color:var(--gray-text);line-height:1.5">
+          <div class="result-condiciones">
             <div><strong style="color:var(--navy)">Tipo deudor:</strong> ${r.tipoDeudor}</div>
             <div><strong style="color:var(--navy)">Monto:</strong> ${r.monto}</div>
             <div><strong style="color:var(--navy)">Plazo:</strong> ${r.plazo}</div>
