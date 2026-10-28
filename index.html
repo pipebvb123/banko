@@ -3853,8 +3853,8 @@
       url:     '',
       tipo:    tipoActivo,
     };
-    document.getElementById('solicitudEmpresa').textContent = 'Multy';
-    document.getElementById('solicitudPlan').textContent    = categoriaLabel;
+    document.getElementById('solicitudEmpresa').innerHTML = '<span class="logo-text"><span class="m-letra">M</span><span class="ulty-letra">ULTY</span></span>';
+    document.getElementById('solicitudPlan').textContent  = categoriaLabel;
 
     if (currentUser) {
       const meta = currentUser.user_metadata || {};
