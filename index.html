@@ -2847,6 +2847,10 @@
 
   // ===== CHATBOT =====
   const CHAT_TOPICS = {
+    cualConviene: {
+      pregunta: '¿Cuál me conviene: Factoring, Leasing, Capital o Crédito?',
+      respuesta: 'Depende de tu necesidad: Factoring si quieres adelantar el cobro de facturas, Leasing para financiar vehículos o maquinaria, Capital de Trabajo para gastos operativos del día a día, o Crédito si buscas un préstamo directo. Si tienes dudas, cotiza y te ayudamos a encontrar la mejor opción.',
+    },
     factoring: {
       pregunta: '¿Qué es el Factoring?',
       respuesta: 'El Factoring te permite anticipar el cobro de tus facturas para mejorar tu flujo de caja sin endeudarte. Cobras hoy y sigues operando con normalidad.',
@@ -2867,9 +2871,21 @@
       pregunta: '¿Cómo funciona Multy?',
       respuesta: 'Es simple: 1) Ingresas los datos de tu empresa (2 min). 2) Comparamos automáticamente entre +20 instituciones. 3) Te contactamos con las mejores opciones para ti.',
     },
+    costo: {
+      pregunta: '¿Tiene costo usar Multy?',
+      respuesta: 'No, usar Multy es 100% gratis para tu empresa. No cobramos por comparar ni por enviar tu solicitud.',
+    },
+    despues: {
+      pregunta: '¿Qué pasa después de enviar mi solicitud?',
+      respuesta: 'Revisamos tu solicitud y la derivamos a la o las instituciones más adecuadas para tu caso. Te contactaremos directamente por email o teléfono con las mejores alternativas.',
+    },
     docs: {
       pregunta: '¿Qué documentos necesito?',
       respuesta: 'Normalmente tu información financiera básica y los antecedentes legales de tu empresa. Puedes subirlos cuando quieras desde "Mi perfil" en tu cuenta.',
+    },
+    cuenta: {
+      pregunta: '¿Para qué sirve crear una cuenta?',
+      respuesta: 'Con tu cuenta gratis guardas el historial de tus cotizaciones, pre-llenas tu perfil para cotizar en 1 clic, y recibes alertas y recomendaciones personalizadas.',
     },
     seguridad: {
       pregunta: '¿Mis datos están seguros?',
@@ -2884,7 +2900,7 @@
       },
     },
   };
-  const CHAT_MENU_RAIZ = ['factoring', 'leasing', 'capital', 'credito', 'como', 'docs', 'seguridad', 'cotizar'];
+  const CHAT_MENU_RAIZ = ['cualConviene', 'factoring', 'leasing', 'capital', 'credito', 'como', 'costo', 'despues', 'docs', 'cuenta', 'seguridad', 'cotizar'];
   let chatIniciado = false;
 
   function toggleChatBot() {
@@ -2936,7 +2952,7 @@
     document.getElementById('chatbotQuick').innerHTML = '';
     setTimeout(() => {
       chatAgregarMensaje('bot', t.respuesta);
-      if (t.accion) { t.accion(); return; }
+      if (t.accion) t.accion();
       chatMostrarOpciones(CHAT_MENU_RAIZ.filter(x => x !== id));
     }, 450);
   }
