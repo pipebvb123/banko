@@ -3452,7 +3452,8 @@
     return valid;
   }
 
-  // Override startComparison para validar y guardar
+  // Override startComparison: valida, guarda, y envía directo a la solicitud
+  // de Multy (ya no se le muestra al cliente la lista de instituciones a elegir).
   const _startComparison = startComparison;
   window.startComparison = async function() {
     if (!validateForm()) return;
@@ -3463,7 +3464,7 @@
     await saveCotizacion(tipoMap[tipoActivo] || '📄 Factoring', { tipo: tipoActivo });
     trackActivity(tipoActivo, { tipo: tipoActivo, ...formDatos });
     selectedAlternativas = [];
-    _startComparison();
+    await abrirSolicitudGenerica(tipoActivo, tipoMap[tipoActivo] || '📄 Factoring');
   };
 
   // ===== HISTORIAL =====
@@ -3681,6 +3682,44 @@
   // ===== SOLICITUD CONFIRM MODAL =====
   let _solicitudData = {};
 
+  // Solicitud genérica de Multy (sin que el cliente elija institución):
+  // el equipo de Multy asigna despues a qué institución(es) enviarla.
+  async function abrirSolicitudGenerica(tipoActivo, categoriaLabel) {
+    const check = await perfilEstaCompleto();
+    if (!check.ok) { mostrarPerfilIncompleto(check.faltantes); return; }
+    _solicitudData = {
+      empresa: 'Multy',
+      plan:    categoriaLabel,
+      tasa:    '',
+      url:     '',
+      tipo:    tipoActivo,
+    };
+    document.getElementById('solicitudEmpresa').textContent = 'Multy';
+    document.getElementById('solicitudPlan').textContent    = categoriaLabel;
+
+    if (currentUser) {
+      const meta = currentUser.user_metadata || {};
+      document.getElementById('solNombre').value   = meta.full_name || '';
+      document.getElementById('solEmail').value    = currentUser.email || '';
+      document.getElementById('solTelefono').value = meta.telefono || '';
+    } else {
+      document.getElementById('solNombre').value   = '';
+      document.getElementById('solEmail').value    = '';
+      document.getElementById('solTelefono').value = '';
+    }
+
+    document.getElementById('solicitudMultiList').style.display = 'none';
+    document.getElementById('solicitudFormWrap').style.display    = 'block';
+    document.getElementById('solicitudSuccessWrap').style.display = 'none';
+    document.getElementById('solMsg').textContent = '';
+    document.getElementById('solAceptaCondiciones').checked = false;
+    const btnEnv = document.getElementById('btnEnviarSolicitud');
+    btnEnv.disabled    = false;
+    btnEnv.textContent = 'Enviar solicitud';
+    btnEnv.onclick     = enviarSolicitud;
+    document.getElementById('solicitudOverlay').classList.add('open');
+  }
+
   async function abrirSolicitud(btn) {
     const check = await perfilEstaCompleto();
     if (!check.ok) { mostrarPerfilIncompleto(check.faltantes); return; }
@@ -3760,7 +3799,12 @@
       return;
     }
 
-    await procesarSolicitudEnviada(_solicitudData.tipo, _solicitudData.empresa, _solicitudData.plan, _solicitudData.tasa, data?.id, { nombre, email, telefono });
+    // Solicitud genérica de Multy (empresa no asignada por el cliente): no se
+    // notifica ni factura a ninguna institución todavía, queda como lead a
+    // la espera de que el equipo de Multy la asigne manualmente.
+    if (_solicitudData.empresa !== 'Multy') {
+      await procesarSolicitudEnviada(_solicitudData.tipo, _solicitudData.empresa, _solicitudData.plan, _solicitudData.tasa, data?.id, { nombre, email, telefono });
+    }
 
     document.getElementById('solicitudFormWrap').style.display    = 'none';
     document.getElementById('solicitudSuccessWrap').style.display = 'block';
