@@ -1118,6 +1118,26 @@
       font-family: 'Inter', sans-serif;
     }
     .chat-quick-btn:hover { background: var(--teal); color: #fff; }
+    .chatbot-input-row {
+      display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); flex-shrink: 0;
+    }
+    .chatbot-input-row input {
+      flex: 1; border: 1.5px solid var(--border); border-radius: 20px; padding: 10px 16px;
+      font-size: 13.5px; font-family: 'Inter', sans-serif; outline: none;
+    }
+    .chatbot-input-row input:focus { border-color: var(--teal); }
+    .chatbot-input-row button {
+      width: 40px; height: 40px; border-radius: 50%; border: none; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--teal), var(--sky)); color: #fff;
+      font-size: 16px; cursor: pointer; transition: 0.15s;
+    }
+    .chatbot-input-row button:hover { opacity: 0.9; }
+    .chatbot-input-row button:disabled { opacity: 0.5; cursor: default; }
+    .chat-msg.typing { display: flex; gap: 4px; align-items: center; padding: 13px; }
+    .chat-msg.typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--gray-text); animation: chatTyping 1.1s infinite; }
+    .chat-msg.typing span:nth-child(2) { animation-delay: 0.15s; }
+    .chat-msg.typing span:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes chatTyping { 0%,60%,100%{opacity:0.3;transform:translateY(0)} 30%{opacity:1;transform:translateY(-3px)} }
     @media (max-width: 480px) {
       .chatbot-panel { right: 16px; bottom: 90px; width: calc(100vw - 32px); }
       .chat-float { right: 16px; bottom: 20px; }
@@ -2618,6 +2638,10 @@
   </div>
   <div class="chatbot-body" id="chatbotBody"></div>
   <div class="chatbot-quick" id="chatbotQuick"></div>
+  <form class="chatbot-input-row" id="chatbotForm" onsubmit="chatEnviarMensaje(event)">
+    <input type="text" id="chatbotInput" placeholder="Escribe tu pregunta..." autocomplete="off" maxlength="500" />
+    <button type="submit" aria-label="Enviar">➤</button>
+  </form>
 </div>
 
 <!-- LOADING SCREEN -->
@@ -2845,56 +2869,20 @@
     document.getElementById('navLinks').classList.toggle('mobile-open');
   }
 
-  // ===== CHATBOT =====
-  const CHAT_TOPICS = {
-    factoring: {
-      pregunta: '¿Qué es el Factoring?',
-      respuesta: 'El Factoring te permite anticipar el cobro de tus facturas para mejorar tu flujo de caja sin endeudarte. Cobras hoy y sigues operando con normalidad.',
-    },
-    leasing: {
-      pregunta: '¿Qué es el Leasing?',
-      respuesta: 'El Leasing te permite financiar vehículos, maquinaria o equipos con cuotas fijas y beneficios tributarios, sin desembolsar el valor completo al inicio.',
-    },
-    capital: {
-      pregunta: '¿Qué es el Capital de Trabajo?',
-      respuesta: 'Es financiamiento para cubrir gastos operativos (insumos, sueldos, inventario) y mantener tu negocio funcionando mientras creces.',
-    },
-    credito: {
-      pregunta: '¿Qué son los Créditos?',
-      respuesta: 'Son préstamos directos para tu empresa: Comercial, con Garantía, Fogape, Microempresa, Ventas Futuras o Adquisición.',
-    },
-    como: {
-      pregunta: '¿Cómo funciona Multy?',
-      respuesta: 'Es simple: 1) Ingresas los datos de tu empresa (2 min). 2) Comparamos automáticamente entre +20 instituciones. 3) Te contactamos con las mejores opciones para ti.',
-    },
-    docs: {
-      pregunta: '¿Qué documentos necesito?',
-      respuesta: 'Normalmente tu información financiera básica y los antecedentes legales de tu empresa. Puedes subirlos cuando quieras desde "Mi perfil" en tu cuenta.',
-    },
-    seguridad: {
-      pregunta: '¿Mis datos están seguros?',
-      respuesta: 'Sí, 100% seguro. Tus datos solo se comparten con las instituciones que tú autorizas — nunca se publican ni se venden a terceros.',
-    },
-    cotizar: {
-      pregunta: 'Quiero cotizar ahora',
-      respuesta: '¡Perfecto! Te llevo al formulario para que cotices gratis en 2 minutos 🚀',
-      accion: () => {
-        toggleChatBot();
-        document.getElementById('inicio')?.scrollIntoView({ behavior: 'smooth' });
-      },
-    },
-  };
-  const CHAT_MENU_RAIZ = ['factoring', 'leasing', 'capital', 'credito', 'como', 'docs', 'seguridad', 'cotizar'];
+  // ===== CHATBOT (IA vía /api/chat) =====
+  const CHAT_SUGERENCIAS = ['¿Qué es el Factoring?', '¿Cómo funciona Multy?', 'Quiero cotizar ahora'];
   let chatIniciado = false;
+  let chatEnviando = false;
+  let chatHistorial = []; // [{role:'user'|'assistant', content:'...'}]
 
   function toggleChatBot() {
     const panel = document.getElementById('chatbotPanel');
-    const abriendo = !panel.classList.contains('open');
     panel.classList.toggle('open');
-    if (abriendo && !chatIniciado) {
+    if (panel.classList.contains('open') && !chatIniciado) {
       chatIniciado = true;
-      chatAgregarMensaje('bot', '¡Hola! 👋 Soy el asistente de Multy. ¿En qué te puedo ayudar?');
-      chatMostrarOpciones(CHAT_MENU_RAIZ);
+      chatAgregarMensaje('bot', '¡Hola! 👋 Soy el asistente de Multy, impulsado por IA. ¿En qué te puedo ayudar?');
+      chatMostrarSugerencias();
+      document.getElementById('chatbotInput')?.focus();
     }
   }
 
@@ -2905,40 +2893,66 @@
     div.textContent = texto;
     body.appendChild(div);
     body.scrollTop = body.scrollHeight;
+    return div;
   }
 
-  function chatMostrarOpciones(ids) {
+  function chatMostrarSugerencias() {
     const quick = document.getElementById('chatbotQuick');
     quick.innerHTML = '';
-    ids.forEach(id => {
-      const t = CHAT_TOPICS[id];
+    CHAT_SUGERENCIAS.forEach(texto => {
       const btn = document.createElement('button');
       btn.className = 'chat-quick-btn';
-      btn.textContent = t.pregunta;
-      btn.onclick = () => chatSeleccionar(id);
+      btn.textContent = texto;
+      btn.onclick = () => chatEnviarMensajeTexto(texto);
       quick.appendChild(btn);
     });
-    if (ids !== CHAT_MENU_RAIZ) {
-      const volver = document.createElement('button');
-      volver.className = 'chat-quick-btn';
-      volver.textContent = '⬅ Volver al menú';
-      volver.onclick = () => {
-        chatAgregarMensaje('bot', '¿Algo más en lo que te pueda ayudar?');
-        chatMostrarOpciones(CHAT_MENU_RAIZ);
-      };
-      quick.appendChild(volver);
-    }
   }
 
-  function chatSeleccionar(id) {
-    const t = CHAT_TOPICS[id];
-    chatAgregarMensaje('user', t.pregunta);
+  function chatEnviarMensaje(e) {
+    e.preventDefault();
+    const input = document.getElementById('chatbotInput');
+    const texto = input.value.trim();
+    if (!texto) return;
+    input.value = '';
+    chatEnviarMensajeTexto(texto);
+  }
+
+  async function chatEnviarMensajeTexto(texto) {
+    if (chatEnviando) return;
+    chatEnviando = true;
     document.getElementById('chatbotQuick').innerHTML = '';
-    setTimeout(() => {
-      chatAgregarMensaje('bot', t.respuesta);
-      if (t.accion) { t.accion(); return; }
-      chatMostrarOpciones(CHAT_MENU_RAIZ.filter(x => x !== id));
-    }, 450);
+    document.querySelector('.chatbot-input-row button').disabled = true;
+
+    chatAgregarMensaje('user', texto);
+    chatHistorial.push({ role: 'user', content: texto });
+
+    const body = document.getElementById('chatbotBody');
+    const typing = document.createElement('div');
+    typing.className = 'chat-msg bot typing';
+    typing.innerHTML = '<span></span><span></span><span></span>';
+    body.appendChild(typing);
+    body.scrollTop = body.scrollHeight;
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mensajes: chatHistorial }),
+      });
+      const data = await res.json();
+      typing.remove();
+      if (!res.ok) throw new Error(data?.error || 'Error desconocido');
+      chatAgregarMensaje('bot', data.respuesta);
+      chatHistorial.push({ role: 'assistant', content: data.respuesta });
+    } catch (err) {
+      typing.remove();
+      chatAgregarMensaje('bot', 'Ups, no pude conectarme en este momento. Intenta de nuevo en unos segundos, o completa el formulario de cotización y te contactamos directamente.');
+      console.warn('Error chatbot:', err);
+    }
+
+    chatEnviando = false;
+    document.querySelector('.chatbot-input-row button').disabled = false;
+    document.getElementById('chatbotInput')?.focus();
   }
 
   // ── EMPRESAS FINANCIERAS ──
