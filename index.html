@@ -1548,21 +1548,11 @@
     <div class="hero-content">
       <div class="hero-badge">🔴 En vivo — 3.100+ consultas hoy</div>
       <h1>Encuentra financiamiento<br /><span class="highlight">para tu empresa.</span></h1>
-      <p>Factoring, leasing, créditos y capital de trabajo en un solo lugar. Encuentra la mejor opción en 2 minutos.</p>
+      <p>Factoring, leasing, créditos y capital de trabajo en un solo lugar. Encuentra la mejor opción hoy.</p>
       <div class="hero-stats">
         <div class="stat">
-          <div class="stat-num">+15</div>
-          <div class="stat-label">Instituciones</div>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat">
-          <div class="stat-num">40%</div>
-          <div class="stat-label">Ahorro máx.</div>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat">
-          <div class="stat-num">2min</div>
-          <div class="stat-label">Para comparar</div>
+          <div class="stat-num">24hrs</div>
+          <div class="stat-label">Para decidir</div>
         </div>
       </div>
     </div>
@@ -3341,7 +3331,7 @@
     const update = (now) => {
       const progress = Math.min((now - start) / duration, 1);
       const ease = 1 - Math.pow(1 - progress, 3);
-      el.textContent = (suffix === '%' || suffix === 'min')
+      el.textContent = (suffix === '%' || suffix === 'min' || suffix === 'hrs')
         ? Math.round(target * ease) + suffix
         : '+' + Math.round(target * ease);
       if (progress < 1) requestAnimationFrame(update);
@@ -3353,9 +3343,7 @@
     entries.forEach(entry => {
       if (!entry.isIntersecting) return;
       const nums = entry.target.querySelectorAll('.stat-num');
-      if (nums[0]) animateCounter(nums[0], 20, '');
-      if (nums[1]) animateCounter(nums[1], 40, '%');
-      if (nums[2]) animateCounter(nums[2], 2, 'min');
+      if (nums[0]) animateCounter(nums[0], 24, 'hrs');
       counterObserver.unobserve(entry.target);
     });
   }, { threshold: 0.5 });
